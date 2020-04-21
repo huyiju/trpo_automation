@@ -28,7 +28,6 @@ private:
 
 public:
     explicit TcpServer(QObject *parent = nullptr);
-    void sendToClient(unsigned char grade, QString comment);
 
 private:
     bool parsingJson(QJsonDocument, QString*, int*, QList<QString>*);
@@ -37,6 +36,8 @@ public slots:
     void slotNewConnection();
     void slotClientDisconnected();
     void slotReadingDataJson();
+    void slotSendToClient(QJsonObject answerJson);
+
 };
 
 #endif // TCPSERVER_H
