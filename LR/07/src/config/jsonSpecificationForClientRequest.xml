@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<keys>
+    <messageType type="Double" value="1" required="true"></messageType>
+    <lab type="Double" value="7" required="true"></lab>
+    <variant type="Double" value="1-15" required="true"></variant>
+    <link type="String" value="https://github.com/*" required="true"></link>
+    <code type="Array" required="false"></code>
+</keys>

@@ -8,7 +8,9 @@ TcpServer::TcpServer(QObject *parent)
         : QObject(parent)
 {
     mTcpServer = new QTcpServer(this);
+    gateWay = new Gateway();
 
+    connect(gateWay, SIGNAL(sendToClient(QJsonObject)), this, SLOT(sendToClient(QJsonObject)));
     connect(mTcpServer, &QTcpServer::newConnection, this, &TcpServer::slotNewConnection);
 
     if (!mTcpServer->listen(QHostAddress::LocalHost, 10000)) {
@@ -81,33 +83,26 @@ void TcpServer::slotReadingDataJson()
     if (mTcpSocket->waitForConnected(500)) {
         mTcpSocket->waitForConnected(500);
         data = mTcpSocket->readAll();
-        docJson = QJsonDocument::fromJson(data, &docJsonError);
 
-        if (docJsonError.errorString().toInt() == QJsonParseError::NoError) {
-            try {
-                if (parsingJson(docJson, &labLink, &labNumber, &pureCode)) {
-                    githubManager = new Functional();
-                }
-
-                lab = new StrategyLab(labNumber);
-                grade = lab->check(pureCode);
-                if (lab->hasComments()) {
-                    errorSystem = false;
-                    qDebug() << lab->getComments();
-                    mistakeDescription += "\n\nОшибки в решении:\n" + lab->getComments();
-                }
-            } catch (QString errorMsg) {
-                qDebug() << errorMsg;
-                mistakeDescription = errorMsg;
+        try {
+            QJsonDocument docJson = gateWay->validateData(data);
+            if (parsingJson(docJson, &labLink, &labNumber, &pureCode)) {
+                githubManager = new Functional(labLink);
             }
 
-            delete lab;
-            delete githubManager;
-        } else {
-            mistakeDescription = "Ошибка парсинга Json: " + docJsonError.errorString();
+            lab = new StrategyLab(labNumber);
+            grade = lab->check(pureCode);
+            if (lab->hasComments()) {
+                errorSystem = false;
+                qDebug() << lab->getComments();
+                mistakeDescription += "\n\nОшибки в решении:\n" + lab->getComments();
+            }
+        } catch (QString errorMsg) {
+            qCritical() << errorMsg;
         }
 
-        // TODO  sendToClient (grade + errorSystem + mistakeDiscription)
+        delete lab;
+        delete githubManager;
     }
 }
 

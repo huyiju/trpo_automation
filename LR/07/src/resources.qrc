@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
+        <file>config/jsonSpecificationForClientRequest.xml</file>
         <file>config/answerStructure.xml</file>
     </qresource>
 </RCC>
