@@ -138,3 +138,28 @@ bool TcpServer::parsingJson(QJsonDocument docJson, QString *labLink, int *labNum
 
     return needToAccessGithub;
 }
+
+/**
+ * @brief TcpServer::processData
+ * @param link - ссылка на Github репозиторий решения
+ * @param code - распарсенный код в массив строчек
+ */
+void TcpServer::processData(QString link, QList<QString> *code)
+{
+    if (code->isEmpty()) {
+        githubManager->parseCodeIntoClasses(link, code);
+    }
+
+    bool result = lab->check(code);
+    QString comments = !result ? lab->getComments() : "";
+
+    try {
+        delete lab;
+        delete githubManager;
+        Gateway::prepareDataToSend(result, comments);
+    } catch (std::exception &e) {
+        QString errorMsg = QStringLiteral("Error %1 while preparing check-data for sending").arg(e.what());
+        emit gateWay->systemError(errorMsg);
+        qCritical() << errorMsg;
+    }
+}
