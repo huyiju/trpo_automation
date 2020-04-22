@@ -37,7 +37,7 @@ void TcpServer::slotNewConnection()
 }
 
 /**
- * @brief метод выключает сервер.
+ * @brief Метод выключает сервер.
  * @return void
  */
 void TcpServer::slotClientDisconnected()
@@ -136,4 +136,12 @@ bool TcpServer::parsingJson(QJsonDocument docJson, QString *labLink, int *labNum
     (*labNumber) = link.toInt();
 
     return needToAccessGithub;
+}
+
+TcpServer::~TcpServer()
+{
+    delete mTcpServer;
+    delete gateWay;
+    delete lab;
+    delete githubManager;
 }
