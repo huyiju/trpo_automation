@@ -154,8 +154,6 @@ void TcpServer::processData(QString link, QList<QString> *code, int variant)
     QString comments = !result ? lab->getComments() : "";
 
     try {
-        delete lab;
-        delete githubManager;
         Gateway::prepareDataToSend(result, comments);
     } catch (std::exception &e) {
         QString errorMsg = QStringLiteral("Error %1 while preparing check-data for sending").arg(e.what());
