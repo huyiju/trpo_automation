@@ -147,7 +147,7 @@ bool TcpServer::parsingJson(QJsonDocument docJson, QString *labLink, int *labNum
 void TcpServer::processData(QString link, QList<QString> *code)
 {
     if (code->isEmpty()) {
-        githubManager->parseCodeIntoClasses(link, code);
+        githubManager->parseIntoClasses(link, code);
     }
 
     bool result = lab->check(code);
