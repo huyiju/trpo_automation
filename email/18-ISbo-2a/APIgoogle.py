@@ -179,15 +179,7 @@ def email_archiving(service, user_id, message_info):
                                                 id=message_info['id_of_msg'],
                                                 body=msg_labels).execute()
 
-"""
-service: авторизация через мыло
-user_id: наше мыло или спец слово 'me'
-email_of_student: мыло студента
-name_of_student: имя и фамилия студента
-validation_dictionary: словарь с валидации письма, в котором есть ('Numder')номер работы и ('URL')ссылка на работу
-error_dictionary: словарь с ошибками в коде студента
-number_of_templates: номер используемого для заполнения письма шаблона
-"""
+
 @log_method.log_method_info
 def send_message(service, user_id, email_of_student, name_of_student,
                  number_of_templates, validation_dictionary, error_dictionary):
@@ -251,7 +243,6 @@ def send_message_to_techsub(service, user_id, email_of_student,
     error_dictionary: словарь с ошибками в коде студента
     number_of_templates: номер используемого для заполнения письма шаблона
     """
-    import pattern
 
     if number_of_templates == 0:
         str_of_er = error_in_work(error_dictionary)
