@@ -336,52 +336,52 @@ public class Selenium {
                 driver.get(Repository + "/projects/1");
                 String count_path = "div[@class='clearfix js-details-container details-container Details js-add-note-container' and 1]/div[@class='hide-sm position-relative p-sm-2' and 1]/span[1]";
                 String name_path = "div[@class='clearfix js-details-container details-container Details js-add-note-container' and 1]/div[@class='hide-sm position-relative p-sm-2' and 1]/h3[1]/span[@class='js-project-column-name' and 1]";
-                    if (driver.findElements(By.xpath("//div[1]/div[1]/div/span")).size() != 0) {
-                        if (pull_INT("//div[1]/" + count_path) >= 1) {
-                            Var_issue = pull_String("//div[1]/div/article[1]/div/div/div/a", false);
-                            Change_Tab(0);
-                            Good_issue = pull_String("//div[1]/div/article[1]/div/div/div/a", false);
-                            if (!Good_issue.equals(Var_issue)) {
-                                str += "Доска " + pull_String("//div[1]/" + name_path, false) + " не содержит задачи: " + Good_issue + "\n";
-                            }
-                        } else {
-                            str += "Доска " + pull_String("//div[1]/" + name_path, false) + " не содержит задач.\n";
+                if (driver.findElements(By.xpath("//div[1]/div[1]/div/span")).size() != 0) {
+                    if (pull_INT("//div[1]/" + count_path) >= 1) {
+                        Var_issue = pull_String("//div[1]/div/article[1]/div/div/div/a", false);
+                        Change_Tab(0);
+                        Good_issue = pull_String("//div[1]/div/article[1]/div/div/div/a", false);
+                        if (!Good_issue.equals(Var_issue)) {
+                            str += "Доска " + pull_String("//div[1]/" + name_path, false) + " не содержит задачи: " + Good_issue + "\n";
                         }
                     } else {
-                        str += "Отсутствует 1-я доска.\n";
+                        str += "Доска " + pull_String("//div[1]/" + name_path, false) + " не содержит задач.\n";
                     }
+                } else {
+                    str += "Отсутствует 1-я доска.\n";
+                }
 
-                    if (driver.findElements(By.xpath("//div[2]/div[1]/div/span")).size() != 0) {
-                        if (pull_INT("//div[2]/" + count_path) >= 1) {
-                            Change_Tab(1);
-                            Var_issue = pull_String("//div[2]/div/article[1]/div/div/div/a", false);
-                            Change_Tab(0);
-                            Good_issue = pull_String("//div[2]/div/article[1]/div/div/div/a", false);
-                            if (!Good_issue.equals(Var_issue)) {
-                                str += "Доска " + pull_String("//div[2]/" + name_path, false) + " не содержит задачи: " + Good_issue + "\n";
-                            }
-                        } else {
-                            str += "Доска " + pull_String("//div[2]/" + name_path, false) + " не содержит задач.\n";
+                if (driver.findElements(By.xpath("//div[2]/div[1]/div/span")).size() != 0) {
+                    if (pull_INT("//div[2]/" + count_path) >= 1) {
+                        Change_Tab(1);
+                        Var_issue = pull_String("//div[2]/div/article[1]/div/div/div/a", false);
+                        Change_Tab(0);
+                        Good_issue = pull_String("//div[2]/div/article[1]/div/div/div/a", false);
+                        if (!Good_issue.equals(Var_issue)) {
+                            str += "Доска " + pull_String("//div[2]/" + name_path, false) + " не содержит задачи: " + Good_issue + "\n";
                         }
                     } else {
-                        str += "Отсутствует 2-я доска.\n";
+                        str += "Доска " + pull_String("//div[2]/" + name_path, false) + " не содержит задач.\n";
                     }
+                } else {
+                    str += "Отсутствует 2-я доска.\n";
+                }
 
-                    if (driver.findElements(By.xpath("//div[3]/div[1]/div/span")).size() != 0) {
-                        if (pull_INT("//div[3]/" + count_path) >= 1) {
-                            Change_Tab(1);
-                            Var_issue = pull_String("//div[3]/div/article[1]/div/div/div/a", false);
-                            Change_Tab(0);
-                            Good_issue = pull_String("//div[3]/div/article[1]/div/div/div/a", false);
-                            if (!Good_issue.equals(Var_issue)) {
-                                str += "Доска " + pull_String("//div[3]/" + name_path, false) + " не содержит задачи: " + Good_issue + "\n";
-                            }
-                        } else {
-                            str += "Доска " + pull_String("//div[3]/" + name_path, false) + " не содержит задач.\n";
+                if (driver.findElements(By.xpath("//div[3]/div[1]/div/span")).size() != 0) {
+                    if (pull_INT("//div[3]/" + count_path) >= 1) {
+                        Change_Tab(1);
+                        Var_issue = pull_String("//div[3]/div/article[1]/div/div/div/a", false);
+                        Change_Tab(0);
+                        Good_issue = pull_String("//div[3]/div/article[1]/div/div/div/a", false);
+                        if (!Good_issue.equals(Var_issue)) {
+                            str += "Доска " + pull_String("//div[3]/" + name_path, false) + " не содержит задачи: " + Good_issue + "\n";
                         }
                     } else {
-                        str += "Отсутствует 3-я доска.\n";
+                        str += "Доска " + pull_String("//div[3]/" + name_path, false) + " не содержит задач.\n";
                     }
+                } else {
+                    str += "Отсутствует 3-я доска.\n";
+                }
             } else {
                 str += "Отсутсвует project, либо он закрыт.\n";
             }
