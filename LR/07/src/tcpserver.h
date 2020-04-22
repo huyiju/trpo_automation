@@ -28,6 +28,7 @@ private:
 
 public:
     explicit TcpServer(QObject *parent = nullptr);
+    ~TcpServer();
     void sendToClient(unsigned char grade, QString comment);
 
 private:
