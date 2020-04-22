@@ -28,6 +28,7 @@ private:
 
 public:
     explicit TcpServer(QObject *parent = nullptr);
+    ~TcpServer();
     void processData(QString, QList<QString>*, int);
     
 private:

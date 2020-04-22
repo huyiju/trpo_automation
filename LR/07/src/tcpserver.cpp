@@ -9,6 +9,8 @@ TcpServer::TcpServer(QObject *parent)
 {
     mTcpServer = new QTcpServer(this);
     gateWay = new Gateway();
+    lab = new StrategyLab();
+    githubManager = new Functional();
 
     connect(gateWay, SIGNAL(sendToClient(QJsonObject)), this, SLOT(slotSendToClient(QJsonObject)));
     connect(mTcpServer, &QTcpServer::newConnection, this, &TcpServer::slotNewConnection);
@@ -35,7 +37,7 @@ void TcpServer::slotNewConnection()
 }
 
 /**
- * @brief метод выключает сервер.
+ * @brief Метод выключает сервер.
  * @return void
  */
 void TcpServer::slotClientDisconnected()
@@ -76,15 +78,12 @@ void TcpServer::slotReadingDataJson()
         try {
             QJsonDocument docJson = gateWay->validateData(data);
             if (parsingJson(docJson, &labLink, &labNumber, &pureCode)) {
-                githubManager = new Functional(labLink);
-            }
-
-            lab = new StrategyLab(labNumber);
             grade = lab->check(pureCode);
             if (lab->hasComments()) {
                 errorSystem = false;
                 qDebug() << lab->getComments();
                 mistakeDescription += "\n\nОшибки в решении:\n" + lab->getComments();
+            }
             }
         } catch (QString errorMsg) {
             qCritical() << errorMsg;
@@ -126,6 +125,15 @@ bool TcpServer::parsingJson(QJsonDocument docJson, QString *labLink, int *labNum
     (*labNumber) = link.toInt();
 
     return needToAccessGithub;
+}
+
+
+TcpServer::~TcpServer()
+{
+	delete mTcpServer;
+	delete gateWay;
+	delete lab;
+	delete githubManager;
 }
 
 /**
