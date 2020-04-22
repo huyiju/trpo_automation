@@ -28,7 +28,8 @@ private:
 
 public:
     explicit TcpServer(QObject *parent = nullptr);
-
+    void processData(QString, QList<QString>*, int);
+    
 private:
     bool parsingJson(QJsonDocument, QString*, int*, QList<QString>*);
 
