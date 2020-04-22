@@ -43,7 +43,7 @@ public class Selenium {
         options.addArguments("--disable-browser-side-navigation");
         options.addArguments("--disable-gpu");
         driver = new ChromeDriver(options);
-        driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
+        driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
         Get_GoodReposotory();
         driver.get(Var_Repository);
         Add_Tab();
