@@ -18,7 +18,7 @@ private:
     QFile xmlFile;
 
 public:
-    explicit StrategyLab(int, QObject* parent = nullptr);
+    explicit StrategyLab(QObject* parent = nullptr);
     ~StrategyLab();
     bool check(const QList<QString>);
     bool hasComments() const { return !comments.isEmpty(); }

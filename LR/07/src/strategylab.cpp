@@ -5,9 +5,8 @@
  * @param objectFromServer
  * @param parent
  */
-StrategyLab::StrategyLab(int givenNumber, QObject* parent)
-    : QObject(parent),
-      labNumber(givenNumber)
+StrategyLab::StrategyLab(QObject* parent)
+    : QObject(parent)
 {
     const QString fileName = "./config/answerStructure.xml";
     xmlFile.setFileName(fileName);
@@ -42,7 +41,7 @@ bool StrategyLab::check(const QList<QString> code)
 
 /**
  * @brief Метод, где идем вглубь конфига и сверяемся с присланным решением
- * @param code - присалнное решение
+ * @param code - присланное решение
  * @param node - конфиг
  * @return bool - результат проверки
  */

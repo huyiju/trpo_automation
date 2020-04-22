@@ -9,6 +9,8 @@ TcpServer::TcpServer(QObject *parent)
 {
     mTcpServer = new QTcpServer(this);
     gateWay = new Gateway();
+    lab = new StrategyLab();
+    githubManager = new Functional();
 
     connect(gateWay, SIGNAL(sendToClient(QJsonObject)), this, SLOT(sendToClient(QJsonObject)));
     connect(mTcpServer, &QTcpServer::newConnection, this, &TcpServer::slotNewConnection);
@@ -87,15 +89,12 @@ void TcpServer::slotReadingDataJson()
         try {
             QJsonDocument docJson = gateWay->validateData(data);
             if (parsingJson(docJson, &labLink, &labNumber, &pureCode)) {
-                githubManager = new Functional(labLink);
-            }
-
-            lab = new StrategyLab(labNumber);
             grade = lab->check(pureCode);
             if (lab->hasComments()) {
                 errorSystem = false;
                 qDebug() << lab->getComments();
                 mistakeDescription += "\n\nОшибки в решении:\n" + lab->getComments();
+            }
             }
         } catch (QString errorMsg) {
             qCritical() << errorMsg;
