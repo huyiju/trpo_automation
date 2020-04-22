@@ -144,13 +144,13 @@ bool TcpServer::parsingJson(QJsonDocument docJson, QString *labLink, int *labNum
  * @param link - ссылка на Github репозиторий решения
  * @param code - распарсенный код в массив строчек
  */
-void TcpServer::processData(QString link, QList<QString> *code)
+void TcpServer::processData(QString link, QList<QString> *code, int variant)
 {
     if (code->isEmpty()) {
         githubManager->parseIntoClasses(link, code);
     }
 
-    bool result = lab->check(code);
+    bool result = lab->check(variant, code);
     QString comments = !result ? lab->getComments() : "";
 
     try {
