@@ -76,54 +76,51 @@ def add_mark_in_table(table, cell, mark):
 			}
 		]
 	}).execute()
+
         
 @log_method.log_method_info
 def cleaning_email(email):
-    """
-    Метод для выделения почты из передаваемой строки email.
+    """Метод для выделения почты из передаваемой строки email.
+
     email - передаваемая строка с почтой
     Name Surname <1234@gmail.com> ← пример email который мне передают
     1234@gmail.com это будет запоминаться после метода очистки
     """
     comp = re.compile(r'<(\S*?)>')
-    y=comp.search(email)
-    q=y.group(0)
-    z=q.replace('<','').replace('>','')
+    y = comp.search(email)
+    q = y.group(0)
+    z = q.replace('<', '').replace('>', '')
     return z
+
 
 @log_method.log_method_info
 def name_surname(email):
-    """
-    Метод для выделения и передачи имени и фамилии.
-    """
+    """ Метод для выделения и передачи имени и фамилии."""
     comp = re.compile('(\S*?) '+'(\S*?) ')
-    y=comp.search(email)
-    q=y.group(0)
-    return q
+    y = comp.search(email)
+    return y.group(0)
+
 
 @log_method.log_method_info
 def search_email(email_id):
-    """
-    Метод для поиска в таблице.
-    email - передаваемая строка с почтой
-    """
-    #a=email
-    mail_str=cleaning_email(email_id) # вызываю метод очистки строки в нужный формат
-    CREDENTIALS_FILE1 = CREDENTIALS_FILE  #  ← имя скаченного файла с закрытым ключом
-    credentials = ServiceAccountCredentials.from_json_keyfile_name(CREDENTIALS_FILE1, ['https://www.googleapis.com/auth/spreadsheets',                                                                               'https://www.googleapis.com/auth/drive'])
+    """Метод для поиска в таблице."""
+    mail_str = cleaning_email(email_id)
+    credentials = ServiceAccountCredentials.from_json_keyfile_name(
+                CREDENTIALS_FILE,
+                ['https://www.googleapis.com/auth/spreadsheets',
+                 'https://www.googleapis.com/auth/drive'])
     httpAuth = credentials.authorize(httplib2.Http())
-    service = apiclient.discovery.build('sheets', 'v4', http = httpAuth)
+    service = apiclient.discovery.build('sheets', 'v4', http=httpAuth)
     spreadsheetId = SPREAD_SHEET_ID
     range_name = 'Лист1!B1:B1000'
-    table = service.spreadsheets().values().get(spreadsheetId=spreadsheetId, range=range_name).execute() 
-    #result=re.search(email, str(table)) # поиск почты 
-    if 	re.search(email, str(table)):#result != None:
-        b=mail_str
-		#return email
+    table = service.spreadsheets().values().get(
+          spreadsheetId=spreadsheetId,
+          range=range_name).execute()
+    if re.search(email, str(table)):
+        return mail_str
     else:
-        b=None
-		#return None
-    return b
+        return None
+
 
 @log_method.log_method_info
 def get_message(service, user_id):
@@ -285,61 +282,72 @@ def send_message_to_techsub(service, user_id, email_of_student, name_of_student,
 		body = {'raw': raw}
 	#Отправка
 	send_msg = service.users().messages().send(userId=user_id, body=body).execute()
+
 	
 @log_method.log_method_info
 def error_in_work(some_errors):
-	"""
-	Метод преобразования массива с ошибками в строку
-	Метод используется для валидации и ошибок кода студента
-	"""
-	error = ""
-	mas_of_er = some_errors["errorDescription"]
-	i=0
-	while i<len(mas_of_er):
-		error +="- "+mas_of_er[i]+"\n"
-		i+=1
-	return error
+    """
+    Метод преобразования массива с ошибками в строку
+    Метод используется для валидации и ошибок кода студента
+    """
+    error = ""
+    mas_of_er = some_errors["errorDescription"]
+    i = 0
+    while i < len(mas_of_er):
+        error += "- " + mas_of_er[i] + "\n"
+        i += 1
+    return error
+
 
 @log_method.log_method_info
 def search_group(email):
-    credentials = ServiceAccountCredentials.from_json_keyfile_name(CREDENTIALS_FILE, ['https://www.googleapis.com/auth/spreadsheets',  'https://www.googleapis.com/auth/drive'])
+    credentials = ServiceAccountCredentials.from_json_keyfile_name(
+                CREDENTIALS_FILE,
+                ['https://www.googleapis.com/auth/spreadsheets',
+                 'https://www.googleapis.com/auth/drive'])
     httpAuth = credentials.authorize(httplib2.Http())
-    service = apiclient.discovery.build('sheets', 'v4', http = httpAuth)
+    service = apiclient.discovery.build('sheets', 'v4', http=httpAuth)
     spreadsheetId = SPREAD_SHEET_ID_INIT
-    range_name ='List1!B1:B1000'
-    table = service.spreadsheets().values().get(spreadsheetId=spreadsheetId, range=range_name).execute()
-    values_table = table.get('values')
+    range_name = 'List1!B1:B1000'
+    table = service.spreadsheets().values().get(
+            spreadsheetId=spreadsheetId,
+            range=range_name).execute()
     c = 1
-    for val in values_table:
+    for val in table.get('values'):
         if val[0] != email:
             c += 1
         else:
             break
     nomer = f'List1!F{c}:G{c}'
-    table1 = service.spreadsheets().values().get(spreadsheetId=spreadsheetId, range=nomer).execute()
-    values_finish=table1.get('values')[0]
+    table1 = service.spreadsheets().values().get(
+           spreadsheetId=spreadsheetId, range=nomer).execute()
+    values_finish = table1.get('values')[0]
     return tuple(values_finish)
 
+
 @log_method.log_method_info
-def search_tablic(group,laba, surname):
-    group1='(ТРПО) '+group
-    c=2
-    credentials = ServiceAccountCredentials.from_json_keyfile_name(CREDENTIALS_FILE, ['https://www.googleapis.com/auth/spreadsheets',  'https://www.googleapis.com/auth/drive'])
+def search_tablic(group, laba, surname):
+    group1 = '(ТРПО) '+group
+    c = 2
+    credentials = ServiceAccountCredentials.from_json_keyfile_name(
+                CREDENTIALS_FILE,
+                ['https://www.googleapis.com/auth/spreadsheets',
+                 'https://www.googleapis.com/auth/drive'])
     httpAuth = credentials.authorize(httplib2.Http())
-    service = apiclient.discovery.build('sheets', 'v4', http = httpAuth)
+    service = apiclient.discovery.build('sheets', 'v4', http=httpAuth)
     spreadsheetId = SPREAD_SHEET_ID
     range_name = group1+'!D2:D1000'
-    table = service.spreadsheets().values().get(spreadsheetId=spreadsheetId, range=range_name).execute()
-    count=ord('J')+int(laba)-1
-    nomer_stolbca=chr(count)
-    io=table.get('values');print(io)
+    table = service.spreadsheets().values().get(
+            spreadsheetId=spreadsheetId, range=range_name).execute()
+    count = ord('J') + int(laba)-1
+    nomer_stolbca = chr(count)
     try:
-        for name in io:
-            if name[0]!=surname:
-                c=c+1
+        for name in table.get('values'):
+            if name[0] != surname:
+                c = c+1
             else:
                 break
-        position=str(nomer_stolbca)+str(c)    	
+        position = str(nomer_stolbca) + str(c)
     except:
         return None
     else:
