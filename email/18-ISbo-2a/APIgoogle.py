@@ -55,9 +55,6 @@ user_id = 'me'
 
 @log_method.log_method_info
 def add_mark_in_table(table, cell, mark):
-    import httplib2
-    import apiclient.discovery
-    from oauth2client.service_account import ServiceAccountCredentials
     log_method.logger.debug(f'add_mark_in_table: table - {table}, \
 							  cell - {cell}, mark - {mark}')
     credentials = ServiceAccountCredentials.from_json_keyfile_name(
@@ -66,7 +63,7 @@ def add_mark_in_table(table, cell, mark):
 				  'https://www.googleapis.com/auth/drive'])
     httpAuth = credentials.authorize(httplib2.Http())
     service = apiclient.discovery.build('sheets', 'v4', http = httpAuth) 
-    rangeTab = str(table) + "!" + str(cell)
+    rangeTab = "(ТРПО) " + str(table) + "!" + str(cell)
     service.spreadsheets().values().batchUpdate(spreadsheetId =
 		SPREAD_SHEET_ID, body = {
         "valueInputOption": "USER_ENTERED",
@@ -81,8 +78,8 @@ def add_mark_in_table(table, cell, mark):
         
 @log_method.log_method_info
 def cleaning_email(email_id):
-    """Метод для выделения почты из передаваемой строки email.
-
+    """
+    Метод для выделения почты из передаваемой строки email.
     email - передаваемая строка с почтой
     Name Surname <1234@gmail.com> ← пример email который мне передают
     1234@gmail.com это будет запоминаться после метода очистки
@@ -112,10 +109,9 @@ def search_email(email_id):
                  'https://www.googleapis.com/auth/drive'])
     httpAuth = credentials.authorize(httplib2.Http())
     service = apiclient.discovery.build('sheets', 'v4', http=httpAuth)
-    spreadsheetId = SPREAD_SHEET_ID
-    range_name = 'Лист1!B1:B1000'
+    range_name = 'List1!B1:B1000'
     table = service.spreadsheets().values().get(
-          spreadsheetId=spreadsheetId,
+          spreadsheetId=SPREAD_SHEET_ID,
           range=range_name).execute()
     if re.search(mail_str, str(table)):
         return mail_str
@@ -186,6 +182,8 @@ def send_message(service, user_id, email_of_student, name_of_student,
     number_of_templates: номер используемого для заполнения письма шаблона. 
     """
 
+    str_of_val_er = ""
+    str_of_er = "" 
     if number_of_templates == 1:
         str_of_val_er = error_in_work(validation_dictionary)
     else:
