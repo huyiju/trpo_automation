@@ -125,6 +125,9 @@ def search_email(email_id):
 
 @log_method.log_method_info
 def get_message(service, user_id):
+    """ 
+    Метод получения полезной информации из письма студента.
+    """
     search_id = service.users().messages().list(userId=user_id,
                                                 labelIds = ['INBOX']).execute()
     message_id = search_id['messages']
@@ -138,16 +141,16 @@ def get_message(service, user_id):
     head_of_msg = ''
     body_of_msg = ''
     for head in info_of_msg :
-        if head['name'] == 'From':
+        if head['name'] == 'From' :
             email_id = head['value']
-        if head['name'] == 'Subject':
+        if head['name'] == 'Subject' :
             head_of_msg = head['value']
     body_of_msg = message_list['snippet']
 
-    message_info = {'id_of_msg': id_of_msg,
-                    'email_id': email_id,
-                    'head_of_msg': head_of_msg,
-                    'body_of_msg': body_of_msg}
+    message_info = {'id_of_msg':id_of_msg,
+                    'email_id':email_id,
+                    'head_of_msg':head_of_msg,
+                    'body_of_msg':body_of_msg}
     return message_info
 
 
