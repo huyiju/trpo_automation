@@ -1,4 +1,8 @@
 ﻿#coding: utf-8
+#import Decode
+#Decode.Decode_config('config.py.bak', ['SPREAD_SHEET_ID', 'CREDENTIALS_FILE', 'SPREAD_SHEET_ID_INIT', 'CREDENTIALS_FILE_SERVICE'])
+#Decode.Decode_files(['Example.json.bak'])
+#Decode.Finish(['config.py.bak', 'Example.json.bak'])
 from config import SPREAD_SHEET_ID
 from config import CREDENTIALS_FILE
 from config import SPREAD_SHEET_ID_INIT
@@ -63,7 +67,7 @@ def add_mark_in_table(table, cell, mark):
 	httpAuth = credentials.authorize(httplib2.Http())
 	service = apiclient.discovery.build('sheets', 'v4', http = httpAuth) 
 
-	rangeTab = str(table) + "!" + str(cell)
+	rangeTab = "(ТРПО) " + str(table) + "!" + str(cell)
 
 	#Сам метод добавления
 	#Если пиздец! То лазить тут!
@@ -113,11 +117,11 @@ def search_email(email_id):
     credentials = ServiceAccountCredentials.from_json_keyfile_name(CREDENTIALS_FILE1, ['https://www.googleapis.com/auth/spreadsheets',                                                                               'https://www.googleapis.com/auth/drive'])
     httpAuth = credentials.authorize(httplib2.Http())
     service = apiclient.discovery.build('sheets', 'v4', http = httpAuth)
-    spreadsheetId = SPREAD_SHEET_ID
-    range_name = 'Лист1!B1:B1000'
+    spreadsheetId = SPREAD_SHEET_ID_INIT
+    range_name = 'List1!B1:B1000'
     table = service.spreadsheets().values().get(spreadsheetId=spreadsheetId, range=range_name).execute() 
     #result=re.search(email, str(table)) # поиск почты 
-    if 	re.search(email, str(table)):#result != None:
+    if 	re.search(mail_str, str(table)):#result != None:
         b=mail_str
 		#return email
     else:
@@ -187,15 +191,15 @@ def send_message(service, user_id, email_of_student, name_of_student, number_of_
 	"""
 	Метод по отправке сообщения студенту
 	"""
-
+	str_of_val_er = ""
+	str_of_er = ""
 	if number_of_templates == 1:
-		str_of_val_er = error_in_work(validation_dictionary)
+		#str_of_val_er = error_in_work(validation_dictionary)
+		str_of_val_er = ""
 	else: 
 		if number_of_templates == 2:
 			str_of_er = error_in_work(error_dictionary)
-		else:
-			str_of_val_er = ""
-			str_of_er = ""	
+	
 
 
 

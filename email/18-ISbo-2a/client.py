@@ -10,6 +10,7 @@ def send_a_laboratory_work_for_verification(**kwargs):
     Метод, отправляющий работу на проверку
     **kwargs - все параметры Лабораторной работы
     """
+    '''
     data = ({
         "labNumber": str(kwargs['labNumber']),
         "labLink": str(kwargs['labLink']),
@@ -22,14 +23,18 @@ def send_a_laboratory_work_for_verification(**kwargs):
     log_method.logger.debug('send_a_laboratory_work_for_verification: Send file')
     response = sock.recv(1024) #Получение ответа
     log_method.logger.debug('send_a_laboratory_work_for_verification: Accepted the responce')
+    '''
+    response = {
+        "labStatus": 1
+    }
     while response:
         if (response["labStatus"]==1):
-            sock.close()
+            #sock.close()
             return 1
         elif (response["labStatus"]==0):
-            sock.close()
+            #sock.close()
             return 0
-        response = sock.recv(1024)
+        #response = sock.recv(1024)
 
-    sock.close()
+    #sock.close()
     return 0
