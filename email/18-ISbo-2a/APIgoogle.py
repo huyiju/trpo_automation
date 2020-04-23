@@ -79,7 +79,7 @@ def add_mark_in_table(table, cell, mark):
 
         
 @log_method.log_method_info
-def cleaning_email(email):
+def cleaning_email(email_id):
     """Метод для выделения почты из передаваемой строки email.
 
     email - передаваемая строка с почтой
@@ -87,17 +87,17 @@ def cleaning_email(email):
     1234@gmail.com это будет запоминаться после метода очистки
     """
     comp = re.compile(r'<(\S*?)>')
-    y = comp.search(email)
+    y = comp.search(email_id)
     q = y.group(0)
     z = q.replace('<', '').replace('>', '')
     return z
 
 
 @log_method.log_method_info
-def name_surname(email):
+def name_surname(email_id):
     """ Метод для выделения и передачи имени и фамилии."""
     comp = re.compile('(\S*?) '+'(\S*?) ')
-    y = comp.search(email)
+    y = comp.search(email_id)
     return y.group(0)
 
 
@@ -347,7 +347,7 @@ def search_tablic(group, laba, surname):
                 c = c+1
             else:
                 break
-        position = str(nomer_stolbca) + str(c)
+        position = str(chr(count)) + str(c)
     except:
         return None
     else:
