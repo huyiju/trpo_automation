@@ -116,7 +116,7 @@ def search_email(email_id):
     table = service.spreadsheets().values().get(
           spreadsheetId=spreadsheetId,
           range=range_name).execute()
-    if re.search(email, str(table)):
+    if re.search(mail_str, str(table)):
         return mail_str
     else:
         return None
@@ -300,7 +300,7 @@ def error_in_work(some_errors):
 
 
 @log_method.log_method_info
-def search_group(email):
+def search_group(email_id):
     credentials = ServiceAccountCredentials.from_json_keyfile_name(
                 CREDENTIALS_FILE,
                 ['https://www.googleapis.com/auth/spreadsheets',
@@ -314,7 +314,7 @@ def search_group(email):
             range=range_name).execute()
     c = 1
     for val in table.get('values'):
-        if val[0] != email:
+        if val[0] != email_id:
             c += 1
         else:
             break
