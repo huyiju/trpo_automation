@@ -2,6 +2,7 @@ import socket
 import json
 from config import PORTS
 import log_method
+import random
 
 ##def SendURL(url, student, studentgroup, labnumber, port):
 @log_method.log_method_info
@@ -25,7 +26,7 @@ def send_a_laboratory_work_for_verification(**kwargs):
     log_method.logger.debug('send_a_laboratory_work_for_verification: Accepted the responce')
     '''
     response = {
-        "labStatus": 1
+        "labStatus": random.randint(0,1)
     }
     while response:
         if (response["labStatus"]==1):
