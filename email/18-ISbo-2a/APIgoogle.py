@@ -55,25 +55,20 @@ user_id = 'me'
 
 @log_method.log_method_info
 def add_mark_in_table(table, cell, mark):
-    """
-    Добавление отметки в журнал. 
-    table - название таблицы. cell - ячейка в таблице. mark - отметка для ячейки.
-    """
     import httplib2
     import apiclient.discovery
     from oauth2client.service_account import ServiceAccountCredentials
-
-    log_method.logger.debug(f'add_mark_in_table: table - {table}, cell - {cell}, mark - {mark}')
-    credentials = ServiceAccountCredentials.from_json_keyfile_name(CREDENTIALS_FILE, ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive'])
-
+    log_method.logger.debug(f'add_mark_in_table: table - {table}, \
+							  cell - {cell}, mark - {mark}')
+    credentials = ServiceAccountCredentials.from_json_keyfile_name(
+				  CREDENTIALS_FILE, 
+				  ['https://www.googleapis.com/auth/spreadsheets',
+				  'https://www.googleapis.com/auth/drive'])
     httpAuth = credentials.authorize(httplib2.Http())
     service = apiclient.discovery.build('sheets', 'v4', http = httpAuth) 
-
     rangeTab = str(table) + "!" + str(cell)
-
-    #Сам метод добавления
-    #Если пиздец! То лазить тут!
-    service.spreadsheets().values().batchUpdate(spreadsheetId = SPREAD_SHEET_ID, body = {
+    service.spreadsheets().values().batchUpdate(spreadsheetId =
+		SPREAD_SHEET_ID, body = {
         "valueInputOption": "USER_ENTERED",
         "data": [
             {"range": rangeTab,
@@ -142,7 +137,6 @@ def get_message(service, user_id):
                                                   id=id_of_msg,
                                                   format='full').execute()
     info_of_msg = message_list.get('payload')['headers']
-
     email_id = ''
     head_of_msg = ''
     body_of_msg = ''
