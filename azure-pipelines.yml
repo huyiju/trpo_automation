@@ -4,6 +4,7 @@
 # https://aka.ms/yaml
 
 trigger:
+- master
 - 18-ISbo-2a
 
 pool:
