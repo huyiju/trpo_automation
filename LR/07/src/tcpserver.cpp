@@ -12,7 +12,7 @@ TcpServer::TcpServer(QObject *parent)
     lab = new StrategyLab();
     githubManager = new Functional();
 
-    connect(gateWay, SIGNAL(sendToClient(QJsonObject)), this, SLOT(sendToClient(QJsonObject)));
+    connect(gateWay, SIGNAL(sendToClient(QJsonObject)), this, SLOT(slotSendToClient(QJsonObject)));
     connect(mTcpServer, &QTcpServer::newConnection, this, &TcpServer::slotNewConnection);
 
     if (!mTcpServer->listen(QHostAddress::LocalHost, 10000)) {
@@ -46,24 +46,13 @@ void TcpServer::slotClientDisconnected()
 }
 
 /**
- * @brief Метод отправляет клиенту строку в формате
- * @param unsigned char grade - оценка за лабораторную работу
- * @param QString comment - описание системной ошибки, либо комментарий сдающему лабораторную
+ * @brief Метод отправляет клиенту строку в формате json
+ * @param QJsonObjecr answerJson - ответ для клиента
  * @return void
  */
-void TcpServer::sendToClient(unsigned char grade, QString comment)
+void TcpServer::slotSendToClient(QJsonObject answerJson)
 {
-    const unsigned char MESSAGE_TYPE = 2;
-    QJsonObject json;
-
-    json ["messageType"] = MESSAGE_TYPE;
-    json ["grade"] = grade;
-
-    if (comment != NULL) {
-        json ["comment"] = comment;
-    }
-
-    QJsonDocument jsonDoc(json);
+    QJsonDocument jsonDoc(answerJson);
     QString jsonString = QString::fromLatin1(jsonDoc.toJson());
 
     mTcpSocket->readAll();
