@@ -32,11 +32,12 @@ def LettersConvertToString(letters):
     - Для некоторых писем нужно вытаскивать данные, для какой-то достаточно ссылки. Предусмотреть проверку на это
     в соответствии со спецификацией по JSON
     """
-    with open(cfg.filename, "a") as file: file.write("\nGetting clear date from links...")
-    for i in letters:
-        i.Body = "Needly dates"
-    sleep(1)
-    with open(cfg.filename, "a") as file: file.write("Dates gets!")
+
+    for tmp in letters:
+        html = get_html(tmp.Body) 
+        tmp.Body = finding_files(html, tmp.Student.NameOfStudent)
+    return letters
+
 
 
 def FormJSONDates(letters):
