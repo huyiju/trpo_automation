@@ -32,11 +32,12 @@ def LettersConvertToString(letters):
     - Для некоторых писем нужно вытаскивать данные, для какой-то достаточно ссылки. Предусмотреть проверку на это
     в соответствии со спецификацией по JSON
     """
-    with open(cfg.filename, "a") as file: file.write("\nGetting clear date from links...")
-    for i in letters:
-        i.Body = "Needly dates"
-    sleep(1)
-    with open(cfg.filename, "a") as file: file.write("Dates gets!")
+
+    for tmp in letters:
+        html = get_html(tmp.Body) 
+        tmp.Body = finding_files(html, tmp.Student.NameOfStudent)
+    return letters
+
 
 
 def FormJSONDates(letters):
@@ -163,6 +164,138 @@ def SendJSONForCheck(jsonDates, letters):
         sock.close()
 
     return new_letters
+
+
+
+def get_html(url):
+    """Достаю html с введённой ссылки и возвращаю в виде текста"""
+    r = requests.get(url)    # Получим метод Response
+    r.encoding = 'utf8'
+    return r.text   # Вернем данные объекта text
+
+
+def csv_read(data):
+    """Принятые данные принимает, проверяя: являются ли они строковыми данными
+    Если да, записываю их в файл, в конце делаю перенос строки"""
+    if isinstance(data, str):
+        with open("data.txt", 'a') as file:
+            file.write(data+'\n')
+            return data
+
+
+def get_link(html):
+    """Построчно ищу поля таблицы с id = LC1,LC2 и т.д., затем передаю их на запись в метод csv
+    Если больше нет полей таблицы( то есть кода или текстовых данных), тогда метод закончит работу"""
+    soup = BeautifulSoup(html, 'lxml')
+    head = soup.find('strong', class_="final-path")
+    data = ""
+    if head != None:
+        csv_read("\nFile Title: "+head.getText()+"\n")
+    i = 1
+    flag = True
+    while flag:
+        head = soup.find('td', id="LC"+i.__str__())
+        if head is None:
+            flag = False
+        else:
+            data += csv_read(head.getText())
+            i += 1
+    return data
+
+
+def finding_files(html, name):
+    """Метод отвечает за поиск и открытие файлов или папок в репозитории Git'a;
+    если ссылка, которую мы открыли не имеет ссылок на другие объекты(файлы или папки),
+    мы предполагаем, что это открытый файл и передаём его на парсинг файла в get_link"""
+    main_data = ""
+    soup = BeautifulSoup(html, 'lxml')
+    table = soup.find_all('td', class_ = "content")
+    date = finding_links(table)
+    if len(date) == 0:
+        data = get_link(html)
+        return data
+    for item in date:
+        title = item.get('title')
+        if title == name or title.split(".")[0] == name:
+            item = item.get('href')
+            if item != None:
+                main_data += finding_files(get_html("https://github.com"+item), name)
+    return main_data
+
+
+
+def finding_links(table):
+    """Ищет ссылки, на которые можно перейти, то есть проверяет есть ли файлы или папки
+    на этой странице или же это уже страница самого файла"""
+    date = []
+    for item in table:
+        date.append(item.find('a', class_="js-navigation-open"))
+        if date[len(date) - 1] == None:
+            date = date[:len(date) - 1]
+    return date
+
+    "Список новых писем"
+    new_letters = []
+
+    conf = open("config_port.json", "r")
+    config = conf.read()
+    """Соответствие номера лабораторной и номера порта"""
+    dataLab = json.loads(config)
+    """Счётчик для параллельного обращения в два списка"""
+    count = 0
+    for i in letters:
+        letter = global_LetterResult.LetterResult()
+
+        """Данные для подключения"""
+        sock = socket.socket()
+        port = dataLab[str(i.NumberOfLab)]
+        config = open("configServ.txt", "r")
+        HOST = config.readline()
+        HOST = HOST.replace("\n", '')
+        if i.CodeStatus != "20":
+            continue
+
+        """Подключение и отправка JSON на порт"""
+        sock.connect((HOST, port))
+        sock.send(jsonDates[count].encode())
+        count += 1
+
+        """Ожидание ответа сервера 10 секунд"""
+        ready = select.select([sock], [], [], 10)
+        if ready[0]:
+            otv_serv = sock.recv(1024)
+            otvetServ = json.loads(otv_serv.decode())
+
+            """Оценка лабораторной работы по ответу сервера"""
+            if otvetServ["mark"] == "1":
+                IsOk = True
+            else:
+                IsOk = False
+            letter.Comment = otvetServ["comment"]
+            letter.CodeStatus = "30"
+            letter.CodeStatusComment = ""
+        else:
+            sock.close()
+            IsOk = False
+            letter.CodeStatus = "06"
+            letter.CodeStatusComment = "ERROR. Длительное ожидание ответа от сервера"
+
+        """Заполнение полей letterResult"""
+        letter.Student = i.Student
+        letter.ThemeOfLetter = i.ThemeOfLetter
+        letter.IsOK = IsOk
+        letter.VariantOfLab = i.VariantOfLab
+        letter.NumberOfLab = i.NumberOfLab
+        letter.CodeStatusComment = ""
+
+        """Добавление нового письма"""
+        new_letters.append(letter)
+        sock.close()
+    return new_letters
+
+
+
+
 
 
 
