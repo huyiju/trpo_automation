@@ -7,17 +7,26 @@ from global_User import User
 from base_WorkWithLetters import WorkWithLetters
 from google_ValidateRules import ValidationMail as Val
 import config as cfg
+<<<<<<< HEAD
 import re
 
 
+=======
+from email.message import EmailMessage
+import config_email
+import imaplib
+import email
+import base64
+>>>>>>> issue-257
 
 def CheckEmail():
     """
     Точка входа в работу модуля.
     Чтение писем, их парсинг и валидация.
     """
-
-    letters = GetLetters()
+    imap_obj = imap_login()
+    letters = GetLetters(imap_obj)
+    quit_email_imap(imap_obj)
 
     cfg.timer.SetTimer()
 
@@ -32,7 +41,7 @@ def CheckEmail():
     WorkWithLetters(letters)
 
 
-def GetLetters():
+def GetLetters(mail):
     """
    Функционал:
    - Прочитать письма на почте
@@ -46,6 +55,7 @@ def GetLetters():
    Участвующие внешние типы переменных
    - None
    """
+<<<<<<< HEAD
     with open(cfg.filename, "a") as file: file.write("\nGetting letters...")
     letters = ["letter1", "letter2", "letter3"]
     sleep(1)
@@ -53,6 +63,27 @@ def GetLetters():
     return letters
 
 
+=======
+    count = count_unseen_mess(mail)
+    if count > 0:
+        letters = []
+        result, data = mail.uid('search', None, "unseen")  # Выполняет поиск и возвращает UID писем.
+        print(count)
+        for i in range(count):
+            latest_email_uid = data[0].split()[i]
+            result, date = mail.uid('fetch', latest_email_uid, '(RFC822)')
+            raw_email = date[0][1]
+            letters.append(raw_email)
+        with open(cfg.filename, "a") as file:
+            file.write("\nGetting letters...")
+        letters = ["letter1", "letter2", "letter3"]
+        sleep(1)
+        with open(cfg.filename, "a") as file:
+            file.write("Letters gets!")
+        return letters
+    else:
+        print("Отсутствие новых сообщений.")
+>>>>>>> issue-257
 def FormListWithLetters(letters):
     """
     Функционал:
@@ -105,6 +136,7 @@ def CheckUsers(letters):
 
 
 def ValidateLetters(letters):
+<<<<<<< HEAD
     for let in letters:
         if let.CodeStatus is None:
             val = Val(let.ThemeOfLetter, let.Body)
@@ -124,3 +156,54 @@ def ValidateLetters(letters):
             if let.CodeStatus == '20':
                 let.Body = re.findall(r'http[^ \n]*', let.Body)
                 let.CodeStatusComment = 'Работа отправлена на проверку'
+=======
+    """
+    Функционал:
+    - Провалидировать каждое письмо по правилам валидации
+    На входе:
+    - Список писем
+    На выходе:
+    - Расставленные поля 'Code' и 'CodeComment' в каждом письме
+    Что предусмотреть:
+    - Просле проверки вытащить ссылки на ресурсы и поместить их в поле 'Body' каждого письма
+    - Проверку выполнять только если поле 'Code' ещё не заполнено
+    - Поле 'CodeComment' заполнять сокращённой информацией по результатам проверки как угодно.
+    Участвующие внешние типы переменных
+    - None
+    """
+    with open(cfg.filename, "a") as file: file.write("\nValidating letters...")
+    for i in letters:
+        i.CodeStatus = 20
+        i.CodeStatusComment = "All is good"
+    sleep(1)
+    with open(cfg.filename, "a") as file: file.write("Letters validates!")
+
+def imap_login():
+    """
+    Авторизация в Gmail аккаунте.
+    Функция возвращает SMTP объект.
+    :return:
+    """
+    imap = imaplib.IMAP4_SSL("imap.gmail.com")
+    imap.login(config_email.EMAIL_ADDRESS, config_email.EMAIL_PASSWORD)
+    imap.select('inbox')
+    return imap
+
+def quit_email_imap(imapObj):
+    """
+    Закрытие SMTP объекта.
+    Функция должна быть вызвана после завершения рыботы с SMTP объектом.
+    :param smtpObj:
+    :return:
+    """
+    imapObj.close()
+
+def count_unseen_mess(mail):
+    """
+    Возвращает кол-во непрочитанных сообщений
+    :param mail:
+    :return:
+    """
+    result, data = mail.uid('search', None, "unseen")
+    return len(data[0].split())
+>>>>>>> issue-257
