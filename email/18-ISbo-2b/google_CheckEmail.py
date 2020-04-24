@@ -7,17 +7,13 @@ from global_User import User
 from base_WorkWithLetters import WorkWithLetters
 from google_ValidateRules import ValidationMail as Val
 import config as cfg
-<<<<<<< HEAD
 import re
-
-
-=======
 from email.message import EmailMessage
 import config_email
 import imaplib
 import email
 import base64
->>>>>>> issue-257
+
 
 def CheckEmail():
     """
@@ -55,15 +51,7 @@ def GetLetters(mail):
    Участвующие внешние типы переменных
    - None
    """
-<<<<<<< HEAD
-    with open(cfg.filename, "a") as file: file.write("\nGetting letters...")
-    letters = ["letter1", "letter2", "letter3"]
-    sleep(1)
-    with open(cfg.filename, "a") as file: file.write("Letters gets!")
-    return letters
 
-
-=======
     count = count_unseen_mess(mail)
     if count > 0:
         letters = []
@@ -83,7 +71,7 @@ def GetLetters(mail):
         return letters
     else:
         print("Отсутствие новых сообщений.")
->>>>>>> issue-257
+
 def FormListWithLetters(letters):
     """
     Функционал:
@@ -136,7 +124,21 @@ def CheckUsers(letters):
 
 
 def ValidateLetters(letters):
-<<<<<<< HEAD
+    """
+    Функционал:
+    - Провалидировать каждое письмо по правилам валидации
+    На входе:
+    - Список писем
+    На выходе:
+    - Расставленные поля 'Code' и 'CodeComment' в каждом письме
+    Что предусмотреть:
+    - Просле проверки вытащить ссылки на ресурсы и поместить их в поле 'Body' каждого письма
+    - Проверку выполнять только если поле 'Code' ещё не заполнено
+    - Поле 'CodeComment' заполнять сокращённой информацией по результатам проверки как угодно.
+    Участвующие внешние типы переменных
+    - None
+    """
+
     for let in letters:
         if let.CodeStatus is None:
             val = Val(let.ThemeOfLetter, let.Body)
@@ -156,27 +158,7 @@ def ValidateLetters(letters):
             if let.CodeStatus == '20':
                 let.Body = re.findall(r'http[^ \n]*', let.Body)
                 let.CodeStatusComment = 'Работа отправлена на проверку'
-=======
-    """
-    Функционал:
-    - Провалидировать каждое письмо по правилам валидации
-    На входе:
-    - Список писем
-    На выходе:
-    - Расставленные поля 'Code' и 'CodeComment' в каждом письме
-    Что предусмотреть:
-    - Просле проверки вытащить ссылки на ресурсы и поместить их в поле 'Body' каждого письма
-    - Проверку выполнять только если поле 'Code' ещё не заполнено
-    - Поле 'CodeComment' заполнять сокращённой информацией по результатам проверки как угодно.
-    Участвующие внешние типы переменных
-    - None
-    """
-    with open(cfg.filename, "a") as file: file.write("\nValidating letters...")
-    for i in letters:
-        i.CodeStatus = 20
-        i.CodeStatusComment = "All is good"
-    sleep(1)
-    with open(cfg.filename, "a") as file: file.write("Letters validates!")
+
 
 def imap_login():
     """
@@ -206,4 +188,4 @@ def count_unseen_mess(mail):
     """
     result, data = mail.uid('search', None, "unseen")
     return len(data[0].split())
->>>>>>> issue-257
+
