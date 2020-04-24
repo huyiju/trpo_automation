@@ -19,8 +19,6 @@ def InformUsers(answersForUsers):
 
     FormFilename()
 
-    from google_CheckEmail import CheckEmail
-    CheckEmail()
 
 def SendLetters(answersForUsers):
     """
