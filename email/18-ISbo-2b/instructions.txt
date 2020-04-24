@@ -1,0 +1,24 @@
+at start:
+(any)
+sudo chmod 0755 /dir/to/file/file.py
+(mail)
+sudo chmod 0755 /home/rurec/git/temp/trpo_automation/email/18-ISbo-2b/main.py
+
+start:
+(any)
+start-stop-daemon -Sbvx /dir/to/file/file.py
+(test)
+start-stop-daemon -Sbvx /home/rurec/git/temp/trpo_automation/mail/test/test.py
+(mail)
+start-stop-daemon -Sbvx /home/rurec/git/temp/trpo_automation/email/18-ISbo-2b/main.py
+
+end:
+(any)
+start-stop-daemon -Kvx /dir/to/file/file.py
+(test)
+start-stop-daemon -Kvx /usr/bin/python /home/rurec/git/temp/trpo_automation/mail/test/test.py
+(mail)
+start-stop-daemon -Kvx /usr/bin/python /home/rurec/git/temp/trpo_automation/email/18-ISbo-2b/main.py
+
+see processes:
+ps afx
