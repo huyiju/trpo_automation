@@ -44,9 +44,9 @@ void Functional::getDataFromGithub()
  */
 void Functional::slotCheckRepo()
 {
+    QString tempString;
     QByteArray jsonData, jsonData2;
     QJsonArray array;
-    QString type;
     QString chek = "cpp";
 
     if  (reply->error() == QNetworkReply::NoError) {
@@ -57,16 +57,18 @@ void Functional::slotCheckRepo()
         /* Проверяем что в репозитории находится только один файл */
         if (array.size() == 1) {
             for (const QJsonValue& value : array) {
-                type = value.toObject() ["name"].toString();
+                tempString = value.toObject() ["name"].toString();
             }
 
             /* Проверяем что это файл .cpp */
-            if (type.indexOf(chek, -5) != -1) {
+            if (tempString.indexOf(chek, -5) != -1) {
 
                 /* Извлекаем ссылку */
                 array = QJsonDocument::fromJson(jsonData).array();
                 for (const QJsonValue& value : array) {
-                    link = value.toObject() ["url"].toString();
+                    tempString = value.toObject() ["path"].toString();
+                    link.push_back("/");
+                    link.push_back(tempString);
 
                     /* Получаем данные файла #218 */
                 }
