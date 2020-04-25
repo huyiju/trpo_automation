@@ -1,6 +1,8 @@
 #ifndef FUNCTIONAL_H
 #define FUNCTIONAL_H
 
+#include "gateway.h"
+
 #include <QObject>
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>

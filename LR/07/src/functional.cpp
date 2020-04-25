@@ -1,5 +1,4 @@
 #include "functional.h"
-#include "gateway.h"
 
 /**
  * @brief Конструктор
