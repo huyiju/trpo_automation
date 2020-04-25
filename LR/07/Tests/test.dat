@@ -1,0 +1,26 @@
+QT += testlib
+QT -= gui
+QT += network
+QT += xml
+LIBS += -lgcov
+
+QMAKE_CXXFLAGS += -g -fprofile-arcs -ftest-coverage -O0
+QMAKE_LFLAGS += -g -fprofile-arcs -ftest-coverage  -O0
+
+HEADERS += \
+    ../src/functional.h \
+    ../src/strategylab.h \
+    ../src/tcpserver.h \
+    testtcp.h
+
+SOURCES += \
+    ../src/functional.cpp \
+    ../src/strategylab.cpp \
+    ../src/tcpserver.cpp \
+    testtcp.cpp
+
+SUBDIRS += \
+    ../src/src.pro
+
+DISTFILES += \
+    ../src/config/answerStructure.xml
