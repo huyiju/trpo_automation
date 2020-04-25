@@ -2,7 +2,13 @@
 <keys>
     <messageType type="Double" value="1" required="true"></messageType>
     <lab type="Double" value="7" required="true"></lab>
-    <variant type="Double" value="1-15" required="true"></variant>
-    <link type="String" value="https://github.com/*" required="true"></link>
-    <code type="Array" required="false"></code>
+    <variant type="Double" range="true" required="true">
+        <start value="1"></start>
+        <end value="15"></end>
+    </variant>
+    <link type="String" severalChecks="true" dependsOn="code">
+        <check value="^((https?|ftp)\:\/\/)?([a-z0-9]{1})((\.[a-z0-9-])|([a-z0-9-]))*\.([a-z]{2,6})(\/?)$"></check>
+        <check value="https:\/\/github\.com\/."></check>
+    </link>
+    <code type="Array" dependsOn="link"></code>
 </keys>
