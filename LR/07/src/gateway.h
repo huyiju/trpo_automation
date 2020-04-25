@@ -18,6 +18,7 @@ class Gateway : public QObject
 
 private:
     QDomElement rootConfigForClientRequest;
+    QJsonObject jsonObj;
     enum messageType { FROM_CLIENT, DEFAULT_ANSWER, WRONG_REQUEST, SYSTEM_ERROR };
 
 public:
@@ -26,6 +27,9 @@ public:
 
 private:
     void wrongRequestFormat(QString, QString);
+    void checkKeyExistance();
+    void checkKeyTypeAndValue();
+    void checkKeyNonExistance();
 
 signals:
     void sendToClient(QJsonObject);
