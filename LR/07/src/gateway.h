@@ -18,11 +18,12 @@ class Gateway : public QObject
 
 private:
     QDomElement rootConfigForClientRequest;
-    enum messageType { FROM_CLIENT, DEFAULT_ANSWER, WRONG_REQUEST, SYSTEM_ERROR };
+    enum messageType { FROM_CLIENT = 1, DEFAULT_ANSWER, WRONG_REQUEST, SYSTEM_ERROR };
 
 public:
     explicit Gateway(QObject *parent = nullptr);
     QJsonDocument validateData(QByteArray);
+    void prepareDataToSend(bool, QString);
 
 private:
     void wrongRequestFormat(QString, QString);

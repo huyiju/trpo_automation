@@ -78,12 +78,12 @@ void TcpServer::slotReadingDataJson()
         try {
             QJsonDocument docJson = gateWay->validateData(data);
             if (parsingJson(docJson, &labLink, &labNumber, &pureCode)) {
-            grade = lab->check(pureCode);
-            if (lab->hasComments()) {
-                errorSystem = false;
-                qDebug() << lab->getComments();
-                mistakeDescription += "\n\nОшибки в решении:\n" + lab->getComments();
-            }
+                grade = lab->check(pureCode);
+                if (lab->hasComments()) {
+                    errorSystem = false;
+                    qDebug() << lab->getComments();
+                    mistakeDescription += "\n\nОшибки в решении:\n" + lab->getComments();
+                }
             }
         } catch (QString errorMsg) {
             qCritical() << errorMsg;
@@ -127,15 +127,6 @@ bool TcpServer::parsingJson(QJsonDocument docJson, QString *labLink, int *labNum
     return needToAccessGithub;
 }
 
-
-TcpServer::~TcpServer()
-{
-	delete mTcpServer;
-	delete gateWay;
-	delete lab;
-	delete githubManager;
-}
-
 /**
  * @brief TcpServer::processData
  * @param link - ссылка на Github репозиторий решения
@@ -143,18 +134,29 @@ TcpServer::~TcpServer()
  */
 void TcpServer::processData(QString link, QList<QString> *code, int variant)
 {
-    if (code->isEmpty()) {
-        githubManager->parseIntoClasses(link, code);
-    }
-
-    bool result = lab->check(variant, code);
-    QString comments = !result ? lab->getComments() : "";
-
     try {
-        Gateway::prepareDataToSend(result, comments);
+        if (code->isEmpty()) {
+            githubManager->parseIntoClasses(link, code);
+        }
+
+        bool result = lab->check(variant, code);
+        QString comments = !result ? lab->getComments() : "";
+
+        gateWay->prepareDataToSend(result, comments);
     } catch (std::exception &e) {
-        QString errorMsg = QStringLiteral("Error %1 while preparing check-data for sending").arg(e.what());
+        QString errorMsg = QStringLiteral("Error ' %1 ' while processing data").arg(e.what());
         emit gateWay->systemError(errorMsg);
         qCritical() << errorMsg;
     }
+}
+
+/**
+ * @brief Деструктор
+ */
+TcpServer::~TcpServer()
+{
+    delete mTcpServer;
+    delete gateWay;
+    delete lab;
+    delete githubManager;
 }

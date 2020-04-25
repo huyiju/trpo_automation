@@ -96,3 +96,17 @@ void Gateway::processSystemError(QString errorMsg)
     emit sendToClient(jsonObj);
     throw QString("Internal - ") + errorMsg;
 }
+
+void Gateway::prepareDataToSend(bool grade, QString comments)
+{
+    QJsonObject jsonObj {
+        {"messageType", messageType::DEFAULT_ANSWER},
+        {"grade", int(grade)}
+    };
+
+    if (!grade && !comments.isEmpty()) {
+        jsonObj.insert("comment", comments);
+    }
+
+    emit sendToClient(jsonObj);
+}
