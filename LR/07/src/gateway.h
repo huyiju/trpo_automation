@@ -19,7 +19,7 @@ class Gateway : public QObject
 private:
     QDomElement rootConfigForClientRequest;
     QJsonObject jsonObj;
-    enum messageType { FROM_CLIENT, DEFAULT_ANSWER, WRONG_REQUEST, SYSTEM_ERROR };
+    enum messageType { FROM_CLIENT = 1, DEFAULT_ANSWER, WRONG_REQUEST, SYSTEM_ERROR };
 
 public:
     explicit Gateway(QObject *parent = nullptr);
@@ -33,10 +33,12 @@ private:
 
 signals:
     void sendToClient(QJsonObject);
-    void systemError(QString);
+    void static systemError(QString);
+    void static sendCheckResult(bool, QString);
 
 private slots:
     void processSystemError(QString);
+    void prepareDataToSend(bool, QString);
 };
 
 #endif // GATEWAY_H

@@ -8,6 +8,7 @@ Gateway::Gateway(QObject *parent)
     : QObject(parent)
 {
     connect(this, SIGNAL(systemError(QString)), this, SLOT(processSystemError(QString)));
+    connect(this, SIGNAL(sendCheckResult(QString)), this, SLOT(prepareDataToSend(QString)));
 
     // Чтение конфига для валидации запросов клиента
     QDomDocument config;
@@ -185,4 +186,23 @@ void Gateway::processSystemError(QString errorMsg)
 
     emit sendToClient(jsonObj);
     throw QString("Internal - ") + errorMsg;
+}
+
+/**
+ * @brief Метод формирования ответа клиенту о проверенной лабе
+ * @param grade - оценка за работу
+ * @param comments - комментарии к работе
+ */
+void Gateway::prepareDataToSend(bool grade, QString comments)
+{
+    QJsonObject jsonObj {
+        {"messageType", messageType::DEFAULT_ANSWER},
+        {"grade", int(grade)}
+    };
+
+    if (!grade && !comments.isEmpty()) {
+        jsonObj.insert("comment", comments);
+    }
+
+    emit sendToClient(jsonObj);
 }
