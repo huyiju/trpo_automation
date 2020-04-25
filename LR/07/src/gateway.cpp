@@ -18,8 +18,6 @@ Gateway::Gateway(QObject *parent)
         }
         file.close();
     }
-
-    // TODO connect config with reject codes
 }
 
 /**
@@ -49,11 +47,13 @@ QJsonDocument Gateway::validateData(QByteArray data)
             }
 
             // Проверка на тип ключа
+
             if (value.type() != dataTypes.indexOf(key.attribute("type"))) {
                 wrongRequestFormat(keyTagName, QString("Wrong key type: '") + key.attribute("type") + QString("' expected"));
             }
 
-            // TODO Проверка на принимаемые значения ключа
+            // Проверка на принимаемые значения ключа
+            key.attribute("value");
 
         }
 
