@@ -7,6 +7,7 @@
 #include <QNetworkReply>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QJsonArray>
 
 /**
  * @brief Класс для получения листинга кода с GitHub
@@ -21,11 +22,12 @@ public:
 private:
     QNetworkAccessManager *manager;
     QString link;
+    bool flag;
 
 public:
-    explicit Functional(QString linkLab, QObject *parent = nullptr);
+    explicit Functional(QObject *parent = nullptr);
     ~Functional();
-    void getDataFromGithub();
+    void getDataFromGithub(QString linkLab);
     void dataProcessing();
 
 private:
