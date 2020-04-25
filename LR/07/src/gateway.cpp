@@ -41,20 +41,54 @@ QJsonDocument Gateway::validateData(QByteArray data)
             QString keyTagName = key.tagName();
 
             // Проверка на наличие нужного ключа
-            value = jsonObj.take(key.tagName());
+            value = jsonObj.take(keyTagName);
             if (value.isUndefined() && QVariant(key.attribute("required")).toBool()) {
                 wrongRequestFormat(keyTagName, QString("Required key does not exist"));
             }
 
             // Проверка на тип ключа
-
-            if (value.type() != dataTypes.indexOf(key.attribute("type"))) {
-                wrongRequestFormat(keyTagName, QString("Wrong key type: '") + key.attribute("type") + QString("' expected"));
+            QString keyType = key.attribute("type");
+            if (value.type() != dataTypes.indexOf(keyType)) {
+                wrongRequestFormat(keyTagName, QString("Wrong key type: '") + keyType + QString("' expected"));
             }
 
             // Проверка на принимаемые значения ключа
-            key.attribute("value");
+            QVariant jsonValue = value.toVariant();
+            if (key.hasAttribute("range") && QVariant(key.attribute("range")).toBool()) {
 
+                // Пока только для чисел
+                if (keyType == "Double") {
+                    int startValue = key.firstChildElement().attribute("value").toInt();
+                    int endValue = key.lastChildElement().attribute("value").toInt();
+
+                    if (!(startValue <= jsonValue.toInt() && jsonValue.toInt() <= endValue)) {
+                        wrongRequestFormat(keyTagName, QString("Wrong value: from ") + \
+                                           QString(startValue) + " to " +  QString(endValue) + QString(" expected"));
+                    }
+                }
+            }
+
+            if (key.hasAttribute("severalChecks") && \
+                    QVariant(key.attribute("severalChecks")).toBool()) {
+
+                // Пока только для строк
+                if (keyType == "String") {
+                    for (QDomElement check = key.firstChild().toElement();
+                         !check.isNull(); check = check.nextSibling().toElement()) {
+
+                        QRegExp re(check.attribute("value"));
+                        if (!re.exactMatch(jsonValue.toString())) {
+                            wrongRequestFormat(keyTagName, QString("Wrong value: it should match regex ") + check.attribute("value"));
+                        }
+                    }
+                }
+            }
+
+            if (key.hasAttribute("value")) {
+                if (QVariant(key.attribute("value")) != jsonValue) {
+                    wrongRequestFormat(keyTagName, QString("Wrong value: they just don't match"));
+                }
+            }
         }
 
         // TODO Проверка на отсутствие ключей, которых нет в спецификации
