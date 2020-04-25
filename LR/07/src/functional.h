@@ -27,10 +27,10 @@ private:
 public:
     explicit Functional(QObject *parent = nullptr);
     ~Functional();
-    void getDataFromGithub(QString linkLab);
-    void dataProcessing();
+    void parseIntoClasses(QString, QList<QString>* );
 
 private:
+    void getDataFromGithub(QString linkLab);
     void linkChange();
 
 private slots:

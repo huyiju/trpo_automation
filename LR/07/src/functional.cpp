@@ -95,7 +95,7 @@ void Functional::slotCheckRepo()
             /* Извлекаем код программы из Json объекта */
         }
     } else {
-        message = reply->error();
+        message = reply->errorString();
         emit Gateway::sendCheckResult(false, message);
 
     }
@@ -106,8 +106,9 @@ void Functional::slotCheckRepo()
  *        и помещает их в массив
  * @return void
  */
-void Functional::dataProcessing()
+void Functional::parseIntoClasses(QString link, QList<QString>* )
 {
+    getDataFromGithub(link);
     //Разделение кода на классы
 }
 
