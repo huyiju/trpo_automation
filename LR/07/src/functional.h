@@ -1,6 +1,8 @@
 #ifndef FUNCTIONAL_H
 #define FUNCTIONAL_H
 
+#include "gateway.h"
+
 #include <QObject>
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
@@ -22,16 +24,18 @@ public:
 private:
     QNetworkAccessManager *manager;
     QString link;
+    QString code;
     bool flag;
 
 public:
     explicit Functional(QObject *parent = nullptr);
     ~Functional();
-    void getDataFromGithub(QString linkLab);
-    void dataProcessing();
+    void parseIntoClasses(QString linkLab, QList<QString>* );
 
 private:
     void linkChange();
+    void getCode(QNetworkReply *reply);
+    void getDataFromGithub(QString linkLab);
 
 private slots:
     void slotCheckRepo();
