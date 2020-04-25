@@ -142,10 +142,10 @@ void TcpServer::processData(QString link, QList<QString> *code, int variant)
         bool result = lab->check(variant, code);
         QString comments = !result ? lab->getComments() : "";
 
-        gateWay->prepareDataToSend(result, comments);
+        emit Gateway::sendCheckResult(result, comments);
     } catch (std::exception &e) {
         QString errorMsg = QStringLiteral("Error ' %1 ' while processing data").arg(e.what());
-        emit gateWay->systemError(errorMsg);
+        emit Gateway::systemError(errorMsg);
         qCritical() << errorMsg;
     }
 }

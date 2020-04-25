@@ -8,6 +8,7 @@ Gateway::Gateway(QObject *parent)
     : QObject(parent)
 {
     connect(this, SIGNAL(systemError(QString)), this, SLOT(processSystemError(QString)));
+    connect(this, SIGNAL(sendCheckResult(QString)), this, SLOT(prepareDataToSend(QString)));
 
     // Чтение конфига для валидации запросов клиента
     QDomDocument config;

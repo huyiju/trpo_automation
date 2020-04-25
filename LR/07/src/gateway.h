@@ -23,17 +23,18 @@ private:
 public:
     explicit Gateway(QObject *parent = nullptr);
     QJsonDocument validateData(QByteArray);
-    void prepareDataToSend(bool, QString);
 
 private:
     void wrongRequestFormat(QString, QString);
 
 signals:
     void sendToClient(QJsonObject);
-    void systemError(QString);
+    void static systemError(QString);
+    void static sendCheckResult(bool, QString);
 
 private slots:
     void processSystemError(QString);
+    void prepareDataToSend(bool, QString);
 };
 
 #endif // GATEWAY_H
