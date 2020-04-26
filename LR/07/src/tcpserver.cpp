@@ -80,6 +80,7 @@ void TcpServer::slotReadingDataJson()
             parsingJson(docJson, &labLink, &labNumber, &pureCode);
             processData(labLink, &pureCode, labNumber);
     } catch (QString errorMsg) {
+            emit Gateway::systemError(errorMsg);
             qCritical() << errorMsg;
       }
 
