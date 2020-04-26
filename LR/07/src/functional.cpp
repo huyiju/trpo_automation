@@ -123,16 +123,15 @@ void Functional::getCode(QNetworkReply *reply)
     tempString = jsonData.fromBase64(jsonData).data();
     code = tempString;
 }
-
 /**
  * @brief Метод разделяет полученный код на классы
  *        и помещает их в массив
  * @return void
  */
-void Functional::parseIntoClasses(QString linkLab, QList<QString>*)
+void Functional::parseIntoClasses(QString link, QList<QString>* )
 {
-    getDataFromGithub(linkLab);
-
+    getDataFromGithub(link);
+    //Разделение кода на классы
 }
 
 /**
