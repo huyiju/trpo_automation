@@ -6,9 +6,13 @@
 TestTcp::TestTcp()
 {
     client = new QTcpSocket(this);
+    TcpServer* server = new TcpServer(this);
 };
 
+void TcpServer::processData()
+{
 
+};
 /**
  * @brief Тестовая функция, которая подключается к серверу
  * @return void
@@ -23,7 +27,7 @@ void TestTcp::testConnection()
  * @brief Тестовая функция отправляет строку заданного вида для дальнейшей обработки на сервере
  * @return void
  */
-void TestTcp::testSendJson()
+void TestTcp::testSendBadJson()
 {
     const char* json = "{\"messageType"": 1, \"lab\": 7, \"variant\": 7, \"link\": \"https://github.com\"}";
     client->write(json);
