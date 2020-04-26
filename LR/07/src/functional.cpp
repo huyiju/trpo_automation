@@ -18,7 +18,7 @@ Functional::Functional(QObject *parent) : QObject(parent)
  * @return void
  */
 void Functional::linkChange()
-{    
+{
     int index;
     const QString GITHUB = "github.com/";
     const QString HTTPS = "https://api.";
@@ -67,7 +67,6 @@ void Functional::slotCheckRepo()
 
             jsonData = reply->readAll();
             array = QJsonDocument::fromJson(jsonData).array();
-            qDebug() << array;
 
             /* Ищем в репозитории файл .cpp */
             for (const QJsonValue& value : array) {
@@ -87,11 +86,14 @@ void Functional::slotCheckRepo()
                emit Gateway::sendCheckResult(false, message);
          }
 
-            /* Получаем данные файла #218 */
+            /* Получаем данные файла */
             flag = false;
+            getDataFromGithub(link);
 
         } else {
+
             /* Извлекаем код программы из Json объекта */
+            getCode(reply);
         }
     } else {
         message = reply->errorString();
@@ -100,6 +102,27 @@ void Functional::slotCheckRepo()
     }
 }
 
+/**
+ * @brief Метод извлекает код программы из Json
+ * @param reply - Json, который присылает GitHub
+ * @return void
+ */
+void Functional::getCode(QNetworkReply *reply)
+{
+    QString tempString;
+    QByteArray jsonData;
+    QJsonObject object;
+
+    jsonData = reply->readAll();
+
+    object = QJsonDocument::fromJson(jsonData).object();
+    tempString = object.take("content").toString();
+
+    jsonData.clear();
+    jsonData.append(tempString);
+    tempString = jsonData.fromBase64(jsonData).data();
+    code = tempString;
+}
 /**
  * @brief Метод разделяет полученный код на классы
  *        и помещает их в массив

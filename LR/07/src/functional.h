@@ -24,16 +24,18 @@ public:
 private:
     QNetworkAccessManager *manager;
     QString link;
+    QString code;
     bool flag;
 
 public:
     explicit Functional(QObject *parent = nullptr);
     ~Functional();
-    void parseIntoClasses(QString, QList<QString>* );
+    void parseIntoClasses(QString linkLab, QList<QString>* );
 
 private:
-    void getDataFromGithub(QString linkLab);
     void linkChange();
+    void getCode(QNetworkReply *reply);
+    void getDataFromGithub(QString linkLab);
 
 private slots:
     void slotCheckRepo();
