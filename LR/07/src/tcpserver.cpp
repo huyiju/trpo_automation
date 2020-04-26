@@ -123,7 +123,8 @@ bool TcpServer::parsingJson(QJsonDocument docJson, QString *labLink, int *labNum
 }
 
 /**
- * @brief TcpServer::processData
+ * @brief Метод обрабатывает код решения пришедший от клиента, проверяет на правильность
+ *        и оставляет комментарии, если они необходимы. После этого передает данные для подготовки их передаче клиенту
  * @param link - ссылка на Github репозиторий решения
  * @param code - распарсенный код в массив строчек
  */
