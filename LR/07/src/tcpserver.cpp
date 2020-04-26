@@ -60,15 +60,14 @@ void TcpServer::slotSendToClient(QJsonObject answerJson)
 }
 
 /**
- * @brief Метод получает данные от клиента в формате json
+ * @brief Метод получает данные от клиента в формате json и отдает их на обработку
  * @return void
  */
 void TcpServer::slotReadingDataJson()
 {
     QByteArray data;
-    QString labLink, mistakeDescription;
+    QString labLink;
     QList<QString> pureCode;
-    bool grade = false, errorSystem = true;
     int labNumber = 1;
 
     if (mTcpSocket->waitForConnected(500)) {
@@ -76,16 +75,13 @@ void TcpServer::slotReadingDataJson()
         data = mTcpSocket->readAll();
 
         try {
-            QJsonDocument docJson = gateWay->validateData(data);
-            parsingJson(docJson, &labLink, &labNumber, &pureCode);
+            parsingJson(gateWay->validateData(data), &labLink, &labNumber, &pureCode);
             processData(labLink, &pureCode, labNumber);
-    } catch (QString errorMsg) {
-            emit Gateway::systemError(errorMsg);
+        } catch (std::exception &e) {
+            QString errorMsg = QStringLiteral("Error ' %1 ' while reading data").arg(e.what());
+            emit gateWay->systemError(errorMsg);
             qCritical() << errorMsg;
-      }
-
-        delete lab;
-        delete githubManager;
+        }
     }
 }
 
@@ -123,10 +119,11 @@ bool TcpServer::parsingJson(QJsonDocument docJson, QString *labLink, int *labNum
 }
 
 /**
- * @brief Метод обрабатывает код решения пришедший от клиента, проверяет на правильность
+ * @brief (коммент года!)Метод обрабатывает код решения пришедший от клиента, проверяет на правильность
  *        и оставляет комментарии, если они необходимы. После этого передает данные для подготовки их передаче клиенту
  * @param link - ссылка на Github репозиторий решения
  * @param code - распарсенный код в массив строчек
+ * @param variant - вариант лабы
  */
 void TcpServer::processData(QString link, QList<QString> *code, int variant)
 {
