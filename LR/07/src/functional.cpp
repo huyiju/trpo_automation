@@ -83,7 +83,10 @@ void Functional::slotCheckRepo()
             /* Если в репозитории не был найден файл ".cpp" */
             if (tempString.indexOf(chek, INDEX_FORMAT) == -1) {
                message = "FileNotFound";
-               emit Gateway::sendCheckResult(false, message);
+               // TODO Убрать к чертям, когда придумаем свой Exception
+               Gateway *tmp = new Gateway;
+               emit tmp->sendCheckResult(false, message);
+               delete tmp;
          }
 
             /* Получаем данные файла */
@@ -97,8 +100,10 @@ void Functional::slotCheckRepo()
         }
     } else {
         message = reply->errorString();
-        emit Gateway::sendCheckResult(false, message);
-
+        // TODO Убрать к чертям, когда придумаем свой Exception
+        Gateway *tmp = new Gateway;
+        emit tmp->sendCheckResult(false, message);
+        delete tmp;
     }
 }
 

@@ -132,13 +132,13 @@ void TcpServer::processData(QString link, QList<QString> *code, int variant)
             githubManager->parseIntoClasses(link, code);
         }
 
-        bool result = lab->check(variant, code);
+        bool result = true; // TODO lab->check(variant, code);
         QString comments = !result ? lab->getComments() : "";
 
-        emit Gateway::sendCheckResult(result, comments);
+        emit gateWay->sendCheckResult(result, comments);
     } catch (std::exception &e) {
         QString errorMsg = QStringLiteral("Error ' %1 ' while processing data").arg(e.what());
-        emit Gateway::systemError(errorMsg);
+        emit gateWay->systemError(errorMsg);
         qCritical() << errorMsg;
     }
 }
