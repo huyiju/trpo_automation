@@ -1,12 +1,15 @@
 #ifndef FUNCTIONAL_H
 #define FUNCTIONAL_H
 
+#include "gateway.h"
+
 #include <QObject>
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QJsonArray>
 
 /**
  * @brief Класс для получения листинга кода с GitHub
@@ -20,14 +23,20 @@ public:
 
 private:
     QNetworkAccessManager *manager;
-    QString headerData;
+    QString link;
+    bool flag;
 
 public:
     explicit Functional(QObject *parent = nullptr);
     ~Functional();
-    void getContentFromGithub();
-    void dataProcessing();
-    void getLinkToFile();
+    void parseIntoClasses(QString, QList<QString>* );
+
+private:
+    void getDataFromGithub(QString linkLab);
+    void linkChange();
+
+private slots:
+    void slotCheckRepo();
 };
 
 #endif // FUNCTIONAL_H
