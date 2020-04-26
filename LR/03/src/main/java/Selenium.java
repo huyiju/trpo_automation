@@ -6,9 +6,7 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.w3c.dom.Document;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -35,6 +33,9 @@ public class Selenium {
         this.variant=variant;
         WebDriverManager.chromedriver().version("80.0.3987.106").setup();
         ChromeOptions options = new ChromeOptions();
+
+        options.setPageLoadStrategy(PageLoadStrategy.NORMAL);
+        options.addArguments("--headless");
         options.addArguments("start-maximized");
         options.addArguments("enable-automation");
         options.addArguments("--no-sandbox");
@@ -42,8 +43,11 @@ public class Selenium {
         options.addArguments("--disable-dev-shm-usage");
         options.addArguments("--disable-browser-side-navigation");
         options.addArguments("--disable-gpu");
+
         driver = new ChromeDriver(options);
         driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
+        driver.manage().timeouts().pageLoadTimeout(15, TimeUnit.SECONDS);
+        driver.manage().timeouts().setScriptTimeout(15, TimeUnit.SECONDS);
         Get_GoodReposotory();
         driver.get(Var_Repository);
         Add_Tab();
