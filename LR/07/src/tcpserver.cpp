@@ -79,11 +79,6 @@ void TcpServer::slotReadingDataJson()
             QJsonDocument docJson = gateWay->validateData(data);
             parsingJson(docJson, &labLink, &labNumber, &pureCode);
             processData(labLink, &pureCode, labNumber);
-            if (lab->hasComments()) {
-                errorSystem = false;
-                qDebug() << lab->getComments();
-                mistakeDescription += "\n\nОшибки в решении:\n" + lab->getComments();
-            }
     } catch (QString errorMsg) {
             qCritical() << errorMsg;
       }
