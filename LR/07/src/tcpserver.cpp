@@ -77,17 +77,17 @@ void TcpServer::slotReadingDataJson()
 
         try {
             QJsonDocument docJson = gateWay->validateData(data);
-            if (parsingJson(docJson, &labLink, &labNumber, &pureCode)) {
-                grade = lab->check(pureCode);
-                if (lab->hasComments()) {
-                    errorSystem = false;
-                    qDebug() << lab->getComments();
-                    mistakeDescription += "\n\nОшибки в решении:\n" + lab->getComments();
-                }
+            parsingJson(docJson, &labLink, &labNumber, &pureCode)
+            grade = lab->check(pureCode);
+            if (lab->hasComments()) {
+                errorSystem = false;
+                qDebug() << lab->getComments();
+                mistakeDescription += "\n\nОшибки в решении:\n" + lab->getComments();
             }
-        } catch (QString errorMsg) {
-            qCritical() << errorMsg;
         }
+    } catch (QString errorMsg) {
+            qCritical() << errorMsg;
+      }
 
         delete lab;
         delete githubManager;
