@@ -29,11 +29,11 @@ class MyTestCase(unittest.TestCase):
         student2_true = User.User("Артём Гусев", "18-ИСбо-2", None, None)
         letters_true = []
         letter_true = Letter.Letter(student_true, "ЛР01", "https://github.com/Progoger/TasksForStudents/tree/master/18-ИСбо-2/ЛР01_test_py", None)
-        letter_true.Body = "﻿Maxim_Rastorguev"
+        letter_true.Body = "Maxim_Rastorguev"
         letter1_true = Letter.Letter(student1_true, "ЛР01", "https://github.com/Progoger/TasksForStudents/tree/master/18-ИСбо-2/ЛР01_test_py", None)
-        letter1_true.Body = "﻿Valeriy_Bublin"
+        letter1_true.Body = "Valeriy_Bublin"
         letter2_true = Letter.Letter(student2_true, "ЛР01", "https://github.com/Progoger/TasksForStudents/tree/master/18-ИСбо-2/ЛР01_test_py", None)
-        letter2_true.Body = "﻿Artyom_Gusev"
+        letter2_true.Body = "Artyom_Gusev"
 
         letters_true.append(letter_true)
         letters_true.append(letter1_true)
@@ -66,11 +66,11 @@ class MyTestCase(unittest.TestCase):
         student2_true = User.User("Артём Гусев", "18-ИСбо-2", None, None)
         letters_true = []
         letter_true = Letter.Letter(student_true, "ЛР01", "https://github.com/Progoger/TasksForStudents/tree/master/18-ИСбо-2/ЛР01_test_sln", None)
-        letter_true.Body = "﻿Maxim_Rastorguev"
+        letter_true.Body = "Maxim_Rastorguev"
         letter1_true = Letter.Letter(student1_true, "ЛР01", "https://github.com/Progoger/TasksForStudents/tree/master/18-ИСбо-2/ЛР01_test_sln", None)
-        letter1_true.Body = "﻿Valeriy_Bublin"
+        letter1_true.Body = "Valeriy_Bublin"
         letter2_true = Letter.Letter(student2_true, "ЛР01", "https://github.com/Progoger/TasksForStudents/tree/master/18-ИСбо-2/ЛР01_test_sln", None)
-        letter2_true.Body = "﻿Artyom_Gusev"
+        letter2_true.Body = "Artyom_Gusev"
 
         letters_true.append(letter_true)
         letters_true.append(letter1_true)
@@ -143,7 +143,7 @@ class MyTestCase(unittest.TestCase):
         letter1_true = Letter.Letter(student1_true, "ЛР01", "https://github.com/Progoger/TasksForStudents/tree/master/18-ИСбо-2/ЛР02_test_2files_1name", None)
         letter1_true.Body = ""
         letter2_true = Letter.Letter(student2_true, "ЛР01", "https://github.com/Progoger/TasksForStudents/tree/master/18-ИСбо-2/ЛР02_test_2files_1name", None)
-        letter2_true.Body = "﻿Artyom_Gusev_file_slnArtyom_Gusev_file_txt"
+        letter2_true.Body = "Artyom_Gusev_file_slnArtyom_Gusev_file_txt"
 
         letters_true.append(letter_true)
         letters_true.append(letter1_true)
@@ -176,9 +176,9 @@ class MyTestCase(unittest.TestCase):
         student2_true = User.User("Артём Гусев", "18-ИСбо-2", None, None)
         letters_true = []
         letter_true = Letter.Letter(student_true, "ЛР01", "https://github.com/Progoger/TasksForStudents/tree/master/18-ИСбо-2/ЛР02_test_file_error", None)
-        letter_true.Body = '﻿Maxim_Rastorguev'
+        letter_true.Body = "Maxim_Rastorguev"
         letter1_true = Letter.Letter(student1_true, "ЛР01", "https://github.com/Progoger/TasksForStudents/tree/master/18-ИСбо-2/ЛР02_test_file_error", None)
-        letter1_true.Body = "﻿Valeriy_Bublin"
+        letter1_true.Body = "Valeriy_Bublin"
         letter2_true = Letter.Letter(student2_true, "ЛР01", "https://github.com/Progoger/TasksForStudents/tree/master/18-ИСбо-2/ЛР02_test_file_error", None)
         letter2_true.Body = ""
 
@@ -252,7 +252,7 @@ class MyTestCase(unittest.TestCase):
         letter_true = Letter.Letter(student_true, "ЛР01", "https://github.com/Progoger/TasksForStudents/tree/master/18-ИСбо-2/ЛР02_test_name_reverse", None)
         letter_true.Body = ""
         letter1_true = Letter.Letter(student1_true, "ЛР01", "https://github.com/Progoger/TasksForStudents/tree/master/18-ИСбо-2/ЛР02_test_name_reverse", None)
-        letter1_true.Body = "﻿Valeriy_Bublin"
+        letter1_true.Body = "Valeriy_Bublin"
         letter2_true = Letter.Letter(student2_true, "ЛР01", "https://github.com/Progoger/TasksForStudents/tree/master/18-ИСбо-2/ЛР02_test_name_reverse", None)
         letter2_true.Body = ""
 
@@ -287,7 +287,7 @@ class MyTestCase(unittest.TestCase):
         student2_true = User.User("Артём Гусев", "18-ИСбо-2", None, None)
         letters_true = []
         letter_true = Letter.Letter(student_true, "ЛР01", "https://github.com/Progoger/TasksForStudents/tree/master/18-ИСбо-2/ЛР02_test_no_family", None)
-        letter_true.Body = "﻿Maxim_Rastorguev"
+        letter_true.Body = "Maxim_Rastorguev"
         letter1_true = Letter.Letter(student1_true, "ЛР01", "https://github.com/Progoger/TasksForStudents/tree/master/18-ИСбо-2/ЛР02_test_no_family", None)
         letter1_true.Body = ""
         letter2_true = Letter.Letter(student2_true, "ЛР01", "https://github.com/Progoger/TasksForStudents/tree/master/18-ИСбо-2/ЛР02_test_no_family", None)
@@ -324,7 +324,7 @@ class MyTestCase(unittest.TestCase):
         student2_true = User.User("Артём Гусев", "18-ИСбо-2", None, None)
         letters_true = []
         letter_true = Letter.Letter(student_true, "ЛР01", "https://github.com/Progoger/TasksForStudents/tree/master/18-ИСбо-2/ЛР02_test_no_name", None)
-        letter_true.Body = "﻿Maxim_Rastorguev"
+        letter_true.Body = "Maxim_Rastorguev"
         letter1_true = Letter.Letter(student1_true, "ЛР01", "https://github.com/Progoger/TasksForStudents/tree/master/18-ИСбо-2/ЛР02_test_no_name", None)
         letter1_true.Body = ""
         letter2_true = Letter.Letter(student2_true, "ЛР01", "https://github.com/Progoger/TasksForStudents/tree/master/18-ИСбо-2/ЛР02_test_no_name", None)
