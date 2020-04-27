@@ -1,4 +1,4 @@
-# coding=utf-8
+﻿# coding=utf-8
 import socket
 import global_LetterResult
 import json
@@ -10,14 +10,14 @@ def WorkWithLetters(letters):
     отправка их на проверку, принятие результатов и их передача дальше
     """
 
-    letters = LettersConvertToString(letters)
+    LettersConvertToString(letters)
 
     jsonDates = FormJSONDates(letters)
 
     letterResults = SendJSONForCheck(jsonDates, letters)
 
     # SetResults - Передать данные следующему модулю в формате списка экземпляров класса EmailResults
-    #SetResults(letterResults)
+    SetResults(letterResults)
 
 def LettersConvertToString(letters):
     """
@@ -32,10 +32,12 @@ def LettersConvertToString(letters):
     - Для некоторых писем нужно вытаскивать данные, для какой-то достаточно ссылки. Предусмотреть проверку на это
     в соответствии со спецификацией по JSON
     """
+
     for tmp in letters:
-        html = get_html(tmp.Body)
+        html = get_html(tmp.Body) 
         tmp.Body = finding_files(html, tmp.Student.NameOfStudent)
     return letters
+
 
 
 def FormJSONDates(letters):
@@ -52,21 +54,21 @@ def FormJSONDates(letters):
     - Продумать момент обработки списка писем
     """
     with open(cfg.filename, "a") as file: file.write("\nForming jsons...")
-    jsonDates = []
+    jsons = []
     for i in range(len(letters)):
         if letters[i].CodeStatus == "20":
             json1 = {
-                "labNumber" : letters[i].VariantOfLab,
+                "messageType" : 1,
+                "lab" : letters[i].NumberOfLab,
+                "variant" : letters[i].VariantOfLab,
                 "link" : None,
                 "code" : letters[i].Body
                 }
             mystr = json.dumps(json1)
             jsonDates.append(mystr)
+
     with open(cfg.filename, "a") as file: file.write("Jsons forms!")
-    
-    return jsonDates
-
-
+    return jsons
 
 def SendJSONForCheck(jsonDates, letters):
     """
@@ -85,9 +87,9 @@ def SendJSONForCheck(jsonDates, letters):
     отправить json1 ->
     получить ответ на json1 ->
     Заполнить нужные поля в result1 ->
-    отправить json2 ->
-    получить ответ на json2 ->
-    Заполнить нужные поля в result2 ->
+    отправить json3 ->
+    получить ответ на json3 ->
+    Заполнить нужные поля в result3 ->
     отправить json3 ->
     получить ответ на json3 ->
     Заполнить нужные поля в result3 ->
@@ -96,22 +98,73 @@ def SendJSONForCheck(jsonDates, letters):
     - Предусмотеть таймаут ожидания, чтобы система не зависала на бесконечное время при ошибках в модулях проверки
     В этом случае заполнять не только поле IsOK но и поле Code
     """
-    with open(cfg.filename, "a") as file: file.write("\nSending jsons...")
-    for i in range(len(jsonDates)):
-        with open(cfg.filename, "a") as file: file.write("\nSend json " + str(i))
-    with open(cfg.filename, "a") as file: file.write("\nJsons sends!")
 
-    with open(cfg.filename, "a") as file: file.write("\nForming letter results...")
+    "Список новых писем"
     new_letters = []
-    for i in letters:
-        user = i.Student
-        letter = LetterResult(user)
-        letter.IsOK = True
-        new_letters.append(letter)
 
-    sleep(1)
-    with open(cfg.filename, "a") as file: file.write("Letter results forms!")
+    conf = open("config_port.json", "r")
+    config = conf.read()
+    """Соответствие номера лабораторной и номера порта"""
+    dataLab = json.loads(config)
+    """Счётчик для параллельного обращения в два списка"""
+    count = 0
+    for i in letters:
+        letter = global_LetterResult.LetterResult()
+
+        """Данные для подключения"""
+        sock = socket.socket()
+        port = dataLab[str(i.NumberOfLab)]
+        config = open("configServ.txt", "r")
+        HOST = config.readline()
+        HOST = HOST.replace("\n", '')
+        if i.CodeStatus == "20":
+            continue
+
+        """Подключение и отправка JSON на порт"""
+        sock.connect((HOST, port))
+        sock.send(jsonDates[count].encode())
+        count += 1
+        IsOk = False
+
+        """Ожидание ответа сервера 10 секунд"""
+        ready = select.select([sock], [], [], 10)
+        if ready[0]:
+            otv_serv = sock.recv(1024)
+            otvetServ = json.loads(otv_serv.decode())
+            if otvetServ["messageType"] == 2:
+                if otvetServ["grade"] == 1:
+                    IsOk = True
+                letter.Comment = otvetServ["comment"]
+                letter.CodeStatus = "30"
+                letter.Comment = ""
+
+            elif otvetServ["messageType"] == 3:
+                letter.CodeStatus = "07"
+                letter.CodeStatusComment = ""
+                letter.Comment = otv_serv.decode()
+
+            elif otvetServ["messageType"] == 4:
+                letter.CodeStatus = "06"
+                letter.CodeStatusComment = ""
+                letter.Comment = otv_serv.decode()
+        else:
+            sock.close()
+            letter.CodeStatus = "06"
+            letter.CodeStatusComment = "ERROR. Длительное ожидание ответа от сервера"
+
+        """Заполнение полей letterResult"""
+        letter.Student = i.Student
+        letter.ThemeOfLetter = i.ThemeOfLetter
+        letter.IsOK = IsOk
+        letter.VariantOfLab = i.VariantOfLab
+        letter.NumberOfLab = i.NumberOfLab
+
+        """Добавление нового письма"""
+        new_letters.append(letter)
+        sock.close()
+
     return new_letters
+
 
 
 def get_html(url):
@@ -181,64 +234,13 @@ def finding_links(table):
             date = date[:len(date) - 1]
     return date
 
-    "Список новых писем"
-    new_letters = []
 
-    conf = open("config_port.json", "r")
-    config = conf.read()
-    """Соответствие номера лабораторной и номера порта"""
-    dataLab = json.loads(config)
-    """Счётчик для параллельного обращения в два списка"""
-    count = 0
-    for i in letters:
-        letter = global_LetterResult.LetterResult()
 
-        """Данные для подключения"""
-        sock = socket.socket()
-        port = dataLab[str(i.NumberOfLab)]
-        config = open("configServ.txt", "r")
-        HOST = config.readline()
-        HOST = HOST.replace("\n", '')
-        if i.CodeStatus != "20":
-            continue
 
-        """Подключение и отправка JSON на порт"""
-        sock.connect((HOST, port))
-        sock.send(jsonDates[count].encode())
-        count += 1
 
-        """Ожидание ответа сервера 10 секунд"""
-        ready = select.select([sock], [], [], 10)
-        if ready[0]:
-            otv_serv = sock.recv(1024)
-            otvetServ = json.loads(otv_serv.decode())
 
-            """Оценка лабораторной работы по ответу сервера"""
-            if otvetServ["mark"] == "1":
-                IsOk = True
-            else:
-                IsOk = False
-            letter.Comment = otvetServ["comment"]
-            letter.CodeStatus = "30"
-            letter.CodeStatusComment = ""
-        else:
-            sock.close()
-            IsOk = False
-            letter.CodeStatus = "06"
-            letter.CodeStatusComment = "ERROR. Длительное ожидание ответа от сервера"
 
-        """Заполнение полей letterResult"""
-        letter.Student = i.Student
-        letter.ThemeOfLetter = i.ThemeOfLetter
-        letter.IsOK = IsOk
-        letter.VariantOfLab = i.VariantOfLab
-        letter.NumberOfLab = i.NumberOfLab
-        letter.CodeStatusComment = ""
 
-        """Добавление нового письма"""
-        new_letters.append(letter)
-        sock.close()
-    return new_letters
 
 
 

@@ -21,7 +21,10 @@ def Main():
 
         with open(cfg.filename, "a") as file:
             file.write("\nStart working...")
-        CheckEmail()
+
+	while True:
+	    CheckEmail()
+
         with open(cfg.filename, "a") as file:
             file.write("End working!")
 
