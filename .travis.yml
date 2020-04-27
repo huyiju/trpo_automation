@@ -7,6 +7,7 @@ jdk:
 - oraclejdk11
 sudo: required
 dist: trusty
+before_install: cd LR/03
 addons:
   chrome: stable
 before_script:
