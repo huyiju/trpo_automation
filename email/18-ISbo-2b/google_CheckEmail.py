@@ -97,9 +97,9 @@ def FormListWithLetters(mails):
     sleep(1)
     try:
         try:
-            email_message = email.message_from_string(item)
+            email_message = email.message_from_string(mails)
         except TypeError:
-            email_message = email.message_from_bytes(item)
+            email_message = email.message_from_bytes(mails)
         error_code = ""
         from_mes = get_from(email_message)
         subject_mes = get_subject(email_message)
