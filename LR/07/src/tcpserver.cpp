@@ -60,15 +60,14 @@ void TcpServer::slotSendToClient(QJsonObject answerJson)
 }
 
 /**
- * @brief Метод получает данные от клиента в формате json
+ * @brief Метод получает данные от клиента в формате json и отдает их на обработку
  * @return void
  */
 void TcpServer::slotReadingDataJson()
 {
     QByteArray data;
-    QString labLink, mistakeDescription;
+    QString labLink;
     QList<QString> pureCode;
-    bool grade = false, errorSystem = true;
     int labNumber = 1;
 
     if (mTcpSocket->waitForConnected(500)) {
@@ -76,21 +75,13 @@ void TcpServer::slotReadingDataJson()
         data = mTcpSocket->readAll();
 
         try {
-            QJsonDocument docJson = gateWay->validateData(data);
-            if (parsingJson(docJson, &labLink, &labNumber, &pureCode)) {
-                grade = lab->check(pureCode);
-                if (lab->hasComments()) {
-                    errorSystem = false;
-                    qDebug() << lab->getComments();
-                    mistakeDescription += "\n\nОшибки в решении:\n" + lab->getComments();
-                }
-            }
-        } catch (QString errorMsg) {
+            parsingJson(gateWay->validateData(data), &labLink, &labNumber, &pureCode);
+            processData(labLink, &pureCode, labNumber);
+        } catch (std::exception &e) {
+            QString errorMsg = QStringLiteral("Error ' %1 ' while reading data").arg(e.what());
+            emit gateWay->systemError(errorMsg);
             qCritical() << errorMsg;
         }
-
-        delete lab;
-        delete githubManager;
     }
 }
 
@@ -128,9 +119,11 @@ bool TcpServer::parsingJson(QJsonDocument docJson, QString *labLink, int *labNum
 }
 
 /**
- * @brief TcpServer::processData
+ * @brief (коммент года!)Метод обрабатывает код решения пришедший от клиента, проверяет на правильность
+ *        и оставляет комментарии, если они необходимы. После этого передает данные для подготовки их передаче клиенту
  * @param link - ссылка на Github репозиторий решения
  * @param code - распарсенный код в массив строчек
+ * @param variant - вариант лабы
  */
 void TcpServer::processData(QString link, QList<QString> *code, int variant)
 {
@@ -139,13 +132,13 @@ void TcpServer::processData(QString link, QList<QString> *code, int variant)
             githubManager->parseIntoClasses(link, code);
         }
 
-        bool result = lab->check(variant, code);
+        bool result = true; // TODO lab->check(variant, code);
         QString comments = !result ? lab->getComments() : "";
 
-        emit Gateway::sendCheckResult(result, comments);
+        emit gateWay->sendCheckResult(result, comments);
     } catch (std::exception &e) {
         QString errorMsg = QStringLiteral("Error ' %1 ' while processing data").arg(e.what());
-        emit Gateway::systemError(errorMsg);
+        emit gateWay->systemError(errorMsg);
         qCritical() << errorMsg;
     }
 }

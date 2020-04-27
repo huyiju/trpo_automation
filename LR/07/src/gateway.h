@@ -33,8 +33,8 @@ private:
 
 signals:
     void sendToClient(QJsonObject);
-    void static systemError(QString);
-    void static sendCheckResult(bool, QString);
+    void systemError(QString);
+    void sendCheckResult(bool, QString);
 
 private slots:
     void processSystemError(QString);
