@@ -1,12 +1,27 @@
+import datetime
 
 class BasePattern:
     Theme = None
-    TopPart = ("Доброе утро", "Добрый день", "Добрый вечер")
+    TopPart = ("Доброе утро", "Добрый день", "Добрый вечер", "Доброй ночи")
     MainPart = None
     BottomPart = "Контакты тех. поддержки: {email}."
-    def Return(self):
-        ret =
-        return
+    def __init__(self):
+        return self
+
+    def return_body(self):
+        now = datetime.datetime.now()
+        if now.hour > 5 & now.hour <= 10:
+            return  self.TopPart[0] + self.MainPart + self.BottomPart
+        elif now.hour >10 & now.hour <=16:
+            return self.TopPart[1] + self.MainPart + self.BottomPart
+        elif now.hour >16 & now.hour <=22:
+            return self.TopPart[2] + self.MainPart + self.BottomPart
+        else:
+            return self.TopPart[3] + self.MainPart + self.BottomPart
+
+    def return_theme(self):
+        return self.Theme
+
 
 class UnknownUser(BasePattern):
     Theme = "Пользователь не найден."
