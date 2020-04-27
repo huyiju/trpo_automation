@@ -21,14 +21,16 @@ def CheckEmail():
     Чтение писем, их парсинг и валидация.
     """
     imap_obj = imap_login()
-    letters = GetLetters(imap_obj)
+    raw_letters = GetLetters(imap_obj)
     quit_email_imap(imap_obj)
 
     cfg.timer.SetTimer()
 
     cfg.reserve_dates.GetReserveDate()
 
-    letters = FormListWithLetters(letters)
+    letters = []
+    for item in raw_letters:
+        letters.append(FormListWithLetters(item))
 
     CheckUsers(letters)
 
@@ -72,7 +74,7 @@ def GetLetters(mail):
     else:
         print("Отсутствие новых сообщений.")
 
-def FormListWithLetters(letters):
+def FormListWithLetters(mails):
     """
     Функционал:
     - Сформировать список экземпляров класса Letter на основе сырых данных по письмам
@@ -93,14 +95,26 @@ def FormListWithLetters(letters):
     """
     with open(cfg.filename, "a") as file: file.write("\nForming letters...")
     sleep(1)
-    new_letters = []
-    for i in letters:
-        user = User()
-        letter = Letter(user)
-        new_letters.append(letter)
-    with open(cfg.filename, "a") as file: file.write("Letters forms!")
-
-    return new_letters
+    try:
+        try:
+            email_message = email.message_from_string(item)
+        except TypeError:
+            email_message = email.message_from_bytes(item)
+        error_code = ""
+        from_mes = get_from(email_message)
+        subject_mes = get_subject(email_message)
+        user_email = from_parse(from_mes)
+        body_str = get_body(email_message)
+        body = body_parse(body_str)
+        if body == "UNKNOWN":
+            error_code = "05"
+        user = User.User(None, None, user_email, None)
+        letter_item = Letter.Letter(user, subject_mes, body, error_code)
+        with open(cfg.filename, "a") as file: file.write("Letters forms!")
+        return letter_item
+    except:
+        user = User.User(None, None, "UNKNOWN", None)
+        return Letter.Letter(user, "UNKNOWN", "UNKNOWN", "07")
 
 
 def CheckUsers(letters):
@@ -188,4 +202,50 @@ def count_unseen_mess(mail):
     """
     result, data = mail.uid('search', None, "unseen")
     return len(data[0].split())
+
+
+def get_from(email_message):
+    try:
+        from_mes = str(email.header.make_header(email.header.decode_header(email_message['From'])))
+        return from_mes
+    except:
+        return "UNKNOWN"
+
+
+def get_subject(email_message):
+    try:
+        subject_mes = str(email.header.make_header(email.header.decode_header(email_message['Subject'])))
+        return subject_mes
+    except:
+        return "UNKNOWN"
+
+
+def from_parse(from_mes):
+    try:
+        user_email = from_mes[from_mes.find("<", 0, len(from_mes))+1:from_mes.find(">", 0, len(from_mes))]
+        return user_email
+    except:
+        return "UNKNOWN"
+
+
+def get_body(email_message):
+    try:
+        str_body = ""
+        if email_message.is_multipart():
+            for payload in email_message.get_payload():
+                str_body += payload.get_payload()
+        else:
+            str_body += email_message.get_payload()
+        body_str = base64.b64decode(str_body).decode('utf8')
+        return body_str
+    except:
+        return "UNKNOWN"
+
+
+def body_parse(body_str):
+    if body_str.find("<div"):
+        body_str = body_str.split("<div")[0]
+        return body_str
+    else:
+        return body_str
 
