@@ -3,6 +3,11 @@ import socket
 import global_LetterResult
 import json
 import select
+import lxml
+import requests
+from bs4 import BeautifulSoup
+import global_Letter
+
 
 def WorkWithLetters(letters):
     """
@@ -32,10 +37,11 @@ def LettersConvertToString(letters):
     - Для некоторых писем нужно вытаскивать данные, для какой-то достаточно ссылки. Предусмотреть проверку на это
     в соответствии со спецификацией по JSON
     """
-
+    LabsForWork = [4, 5, 6, 7, 8, 9, 10, 12]
     for tmp in letters:
-        html = get_html(tmp.Body) 
-        tmp.Body = finding_files(html, tmp.Student.NameOfStudent)
+        if tmp.CodeStatus != "20" and tmp.NumberOfLab in LabsForWork:
+            html = get_html(tmp.Body)
+            tmp.Body = finding_files(html, tmp.Student.NameOfStudent)
     return letters
 
 
@@ -233,69 +239,3 @@ def finding_links(table):
         if date[len(date) - 1] == None:
             date = date[:len(date) - 1]
     return date
-
-    "Список новых писем"
-    new_letters = []
-
-    conf = open("config_port.json", "r")
-    config = conf.read()
-    """Соответствие номера лабораторной и номера порта"""
-    dataLab = json.loads(config)
-    """Счётчик для параллельного обращения в два списка"""
-    count = 0
-    for i in letters:
-        letter = global_LetterResult.LetterResult()
-
-        """Данные для подключения"""
-        sock = socket.socket()
-        port = dataLab[str(i.NumberOfLab)]
-        config = open("configServ.txt", "r")
-        HOST = config.readline()
-        HOST = HOST.replace("\n", '')
-        if i.CodeStatus != "20":
-            continue
-
-        """Подключение и отправка JSON на порт"""
-        sock.connect((HOST, port))
-        sock.send(jsonDates[count].encode())
-        count += 1
-
-        """Ожидание ответа сервера 10 секунд"""
-        ready = select.select([sock], [], [], 10)
-        if ready[0]:
-            otv_serv = sock.recv(1024)
-            otvetServ = json.loads(otv_serv.decode())
-
-            """Оценка лабораторной работы по ответу сервера"""
-            if otvetServ["mark"] == "1":
-                IsOk = True
-            else:
-                IsOk = False
-            letter.Comment = otvetServ["comment"]
-            letter.CodeStatus = "30"
-            letter.CodeStatusComment = ""
-        else:
-            sock.close()
-            IsOk = False
-            letter.CodeStatus = "06"
-            letter.CodeStatusComment = "ERROR. Длительное ожидание ответа от сервера"
-
-        """Заполнение полей letterResult"""
-        letter.Student = i.Student
-        letter.ThemeOfLetter = i.ThemeOfLetter
-        letter.IsOK = IsOk
-        letter.VariantOfLab = i.VariantOfLab
-        letter.NumberOfLab = i.NumberOfLab
-        letter.CodeStatusComment = ""
-
-        """Добавление нового письма"""
-        new_letters.append(letter)
-        sock.close()
-    return new_letters
-
-
-
-
-
-
-
