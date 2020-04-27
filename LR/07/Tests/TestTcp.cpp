@@ -6,13 +6,9 @@
 TestTcp::TestTcp()
 {
     client = new QTcpSocket(this);
-    TcpServer* server = new TcpServer(this);
+    server = new fakeTCP();
 };
 
-void TcpServer::processData()
-{
-
-};
 /**
  * @brief Тестовая функция, которая подключается к серверу
  * @return void
@@ -50,6 +46,16 @@ void TestTcp::testGetAnswer()
   }
 };
 
+void TestTcp::testProcessData()
+{
+    QString link = "http://github.com";
+    QList<QString>* code;
+    code->push_back("somecode");
+    int variant = 7;
+    bool ans = server->FakeProcessData(link,code,variant);
+    QCOMPARE(ans, false);
+
+}
 /**
  * @brief Тестовая функция выполняет отключение от сервера
  * @return void

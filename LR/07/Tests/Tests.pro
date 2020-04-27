@@ -13,6 +13,7 @@ SOURCES += \
     ../src/strategylab.cpp \
     ../src/tcpserver.cpp \
     TestTcp.cpp\
+    faketcp.cpp
 
 HEADERS += \
     ../src/functional.h \
@@ -20,6 +21,7 @@ HEADERS += \
     ../src/strategylab.h \
     ../src/tcpserver.h \
     TestTcp.h \
+    faketcp.h
 
 SUBDIRS += \
     ../src/src.pro

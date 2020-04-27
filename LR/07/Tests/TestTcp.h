@@ -5,7 +5,7 @@
 #include <QTest>
 #include <QTcpSocket>
 #include <QTcpServer>
-#include "../src/tcpserver.h"
+#include "faketcp.h"
 /**
  * @brief Класс для тестирования методов TCP сервера
  */
@@ -17,6 +17,7 @@ public:
     TestTcp();
 
 private:
+    fakeTCP* server;
     QTcpSocket* client;
     bool isOff;
 
@@ -24,6 +25,7 @@ private slots:
     void testConnection();
     void testSendBadJson();
     void testGetAnswer();
+    void testProcessData();
     void testDisconnection();
 };
 
