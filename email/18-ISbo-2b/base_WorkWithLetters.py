@@ -15,7 +15,7 @@ def WorkWithLetters(letters):
     отправка их на проверку, принятие результатов и их передача дальше
     """
 
-    LettersConvertToString(letters)
+    letters = LettersConvertToString(letters)
 
     jsonDates = FormJSONDates(letters)
 
