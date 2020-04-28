@@ -26,24 +26,47 @@ Gateway::Gateway(QObject *parent)
  * @param data - сырые данные с клиента
  * @return
  */
-bool Gateway::dataIsValid(QByteArray data, QJsonDocument *jsonDoc)
+QJsonDocument Gateway::validateData(QByteArray data)
 {
     QJsonParseError docJsonError;
-    (*jsonDoc) = QJsonDocument::fromJson(data, &docJsonError);
-    jsonObj = jsonDoc->object();
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(data, &docJsonError);
+    QJsonDocument *empty = new QJsonDocument();
 
     if (docJsonError.error == QJsonParseError::NoError) {
+        jsonObj = jsonDoc.object();
+
+        // Сначала проверим messageType - костыль - TODO выпилить
+        QDomElement elem = rootConfigForClientRequest.firstChildElement();
+        QJsonValue messageType = jsonObj.value(elem.tagName());
+        const int expectedType = 2;
+
+        if (messageType.isUndefined()) {
+            wrongRequestFormat(QString(elem.tagName()), QString("Required key does not exist, cancel processing..."));
+            return (*empty);
+        }
+
+        if (messageType.type() != expectedType) {
+            wrongRequestFormat(QString(elem.tagName()), QString("Key should have different type, cancel processing..."));
+            return (*empty);
+        }
+
+        if (messageType.toInt() != elem.attribute("value").toInt()) {
+            wrongRequestFormat(QString(elem.tagName()), QString("Key should have different value, cancel processing..."));
+            return (*empty);
+        }
+
+
         if (!checkKeyExistance()
                 || !checkKeyTypeAndValue()
                 || !checkKeyNonExistance()) {
-            return false;
+            return (*empty);
         }
     } else {
         wrongRequestFormat(QString(""), QString("Wrong json object: system says - '") + docJsonError.errorString() + "'");
-        return false;
+        return (*empty);
     }
 
-    return true;
+    return jsonDoc;
 }
 
 /**
@@ -59,7 +82,7 @@ bool Gateway::checkKeyExistance()
     {
         QString keyTagName = key.tagName();
 
-        value = jsonObj.take(keyTagName);
+        value = jsonObj.value(keyTagName);
         if (key.hasAttribute("required")) {
             if (value.isUndefined() && QVariant(key.attribute("required")).toBool()) {
                 wrongRequestFormat(keyTagName, QString("Required key does not exist"));
@@ -72,18 +95,14 @@ bool Gateway::checkKeyExistance()
 
     foreach (QString key, dependKeys.keys()) {
         QString pairKey = dependKeys.value(key);
-        bool gotFirstKey = !jsonObj.take(key).isUndefined();
-        bool gotSecondKey = !jsonObj.take(pairKey).isUndefined();
+        bool gotFirstKey = !jsonObj.value(key).isUndefined();
+        bool gotSecondKey = !jsonObj.value(pairKey).isUndefined();
 
         if ((gotFirstKey && gotSecondKey) || \
                 (!gotFirstKey && !gotSecondKey)) {
 
             QString errKey = gotFirstKey ? pairKey : key;
-            wrongRequestFormat(errKey, QString("Key ") + \
-                (gotFirstKey \
-                    ? "exists but should not, because key '" + dependKeys.value(errKey) + "' exists" \
-                    : "does not exist but should, because key '" + dependKeys.value(errKey) + "' does not exits")
-            );
+            wrongRequestFormat(errKey, QString("Key '" + errKey + "' or key '" + dependKeys.value(errKey) + "' should exist"));
             return false;
         }
     }
@@ -103,52 +122,56 @@ bool Gateway::checkKeyTypeAndValue()
          !key.isNull(); key = key.nextSibling().toElement())
     {
         QString keyTagName = key.tagName();
-        value = jsonObj.take(keyTagName);
+        value = jsonObj.value(keyTagName);
 
-        // Проверка на тип ключа
-        QString keyType = key.attribute("type");
-        if (value.type() != dataTypes.indexOf(keyType)) {
-            wrongRequestFormat(keyTagName, QString("Wrong key type: '") + keyType + QString("' expected"));
-            return false;
-        }
+        // TODO - выпилить - костыль
+        if (!value.isUndefined()) {
 
-        /*** Проверки на принимаемые значения ключа ***/
-
-        QVariant jsonValue = value.toVariant();
-        if (key.hasAttribute("range") && QVariant(key.attribute("range")).toBool()) {
-
-            // Значение попадает в заданный интервал - пока только для чисел
-            if (keyType == "Double") {
-                int startValue = key.firstChildElement().attribute("value").toInt();
-                int endValue = key.lastChildElement().attribute("value").toInt();
-
-                if (!(startValue <= jsonValue.toInt() && jsonValue.toInt() <= endValue)) {
-                    wrongRequestFormat(keyTagName, QString("Wrong value: from ") + \
-                                       QString(startValue) + " to " +  QString(endValue) + QString(" expected"));
-                    return false;
-                }
+            // Проверка на тип ключа
+            QString keyType = key.attribute("type");
+            if (value.type() != dataTypes.indexOf(keyType)) {
+                wrongRequestFormat(keyTagName, QString("Wrong key type: '") + keyType + QString("' expected"));
+                return false;
             }
-        } else if (key.hasAttribute("severalChecks") && \
-                QVariant(key.attribute("severalChecks")).toBool()) {
 
-            // Значение удовлетворяет всем проверкам - пока только набор регулярок для строк
-            if (keyType == "String") {
-                for (QDomElement check = key.firstChildElement();
-                     !check.isNull(); check = check.nextSibling().toElement()) {
+            /*** Проверки на принимаемые значения ключа ***/
 
-                    QRegExp re(check.attribute("value"));
-                    if (!re.exactMatch(jsonValue.toString())) {
-                        wrongRequestFormat(keyTagName, QString("Wrong value: it should match regex ") + check.attribute("value"));
+            QVariant jsonValue = value.toVariant();
+            if (key.hasAttribute("range") && QVariant(key.attribute("range")).toBool()) {
+
+                // Значение попадает в заданный интервал - пока только для чисел
+                if (keyType == "Double") {
+                    int startValue = key.firstChildElement().attribute("value").toInt();
+                    int endValue = key.lastChildElement().attribute("value").toInt();
+
+                    if (!(startValue <= jsonValue.toInt() && jsonValue.toInt() <= endValue)) {
+                        wrongRequestFormat(keyTagName, QString("Wrong value: from ") + \
+                                           QString::number(startValue) + " to " +  QString::number(endValue) + QString(" expected"));
                         return false;
                     }
                 }
-            }
-        } else if (key.hasAttribute("value")) {
+            } else if (key.hasAttribute("severalChecks") && \
+                    QVariant(key.attribute("severalChecks")).toBool()) {
 
-            // Проверка на полное соответствие
-            if (QVariant(key.attribute("value")) != jsonValue) {
-                wrongRequestFormat(keyTagName, QString("Wrong value: they just don't match"));
-                return false;
+                // Значение удовлетворяет всем проверкам - пока только набор регулярок для строк
+                if (keyType == "String") {
+                    for (QDomElement check = key.firstChildElement();
+                         !check.isNull(); check = check.nextSibling().toElement()) {
+
+                        QRegExp re(check.attribute("value"));
+                        if (!re.exactMatch(jsonValue.toString())) {
+                            wrongRequestFormat(keyTagName, QString("Wrong value: it should match regex ") + check.attribute("value"));
+                            return false;
+                        }
+                    }
+                }
+            } else if (key.hasAttribute("value")) {
+
+                // Проверка на полное соответствие
+                if (QVariant(key.attribute("value")) != jsonValue) {
+                    wrongRequestFormat(keyTagName, QString("Wrong value: they just don't match"));
+                    return false;
+                }
             }
         }
     }

@@ -23,7 +23,7 @@ private:
 
 public:
     explicit Gateway(QObject *parent = nullptr);
-    bool dataIsValid(QByteArray, QJsonDocument*);
+    QJsonDocument validateData(QByteArray);
 
 private:
     void wrongRequestFormat(QString, QString);

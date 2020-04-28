@@ -107,6 +107,9 @@ bool StrategyLab::checkParentChildrenRelations(int variant)
  * @param className - имя класса
  * @todo выпилить className, methodName
  * @return
+ *
+ * "sdfgsdfgdfg"
+ *
  */
 bool StrategyLab::checkParent(QString parent, QString methodName, QString className)
 {
@@ -122,7 +125,7 @@ bool StrategyLab::checkParent(QString parent, QString methodName, QString classN
     }
 
     // Проверка: абстрактный класс обладает чистым абстрактным методом
-    if (parent.right(parent.indexOf(methodName)).split(" ").join("").contains("const=0;")) {
+    if (parent.right(parent.indexOf(methodName)).split(" ").join("").contains("=0;")) {
         comments = "Your abstract method " + methodName + " is not declared as pure abstract.\n " + \
                 "You should use 'const = 0' at the end of declaration";
         return false;

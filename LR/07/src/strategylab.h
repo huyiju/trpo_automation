@@ -16,7 +16,7 @@ private:
     int variant;
     QString comments;
     QDomElement rootAnswerStructure;
-    QMap<QString, QString> classes;
+    QMap<QString, QVariant> classes;
 
 public:
     explicit StrategyLab(QObject* parent = nullptr);

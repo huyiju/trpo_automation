@@ -69,7 +69,6 @@ void TcpServer::slotReadingDataJson()
     QByteArray data;
     QString labLink;
     QList<QString> pureCode;
-    QJsonDocument *jsonDoc;
     int labNumber = 1;
 
     if (mTcpSocket->waitForConnected(500)) {
@@ -77,7 +76,8 @@ void TcpServer::slotReadingDataJson()
         data = mTcpSocket->readAll();
 
         try {
-            if (gateWay->dataIsValid(data, jsonDoc)) {
+            QJsonDocument jsonDoc = gateWay->validateData(data);
+            if (!jsonDoc.isNull()) {
                 parsingJson(jsonDoc, &labLink, &labNumber, &pureCode);
                 processData(labLink, &pureCode, labNumber);
             }
@@ -96,13 +96,13 @@ void TcpServer::slotReadingDataJson()
  * @param pureData - массив строчек (каждая строчка - класс решения с телами методов)
  * @return bool - Если в поле data пришла ссылка на репозиторий Github - то true, иначе false
  */
-bool TcpServer::parsingJson(QJsonDocument *docJson, QString *labLink, int *labNumber, QList<QString> *pureData)
+bool TcpServer::parsingJson(QJsonDocument docJson, QString *labLink, int *labNumber, QList<QString> *pureData)
 {
     QJsonValue link;
     QJsonObject jsonObj;
     bool needToAccessGithub = true;
 
-    jsonObj = docJson->object();
+    jsonObj = docJson.object();
 
     link = jsonObj.take("link");
     if (!link.isUndefined()) {
