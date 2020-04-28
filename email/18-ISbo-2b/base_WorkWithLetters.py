@@ -3,6 +3,11 @@ import socket
 import global_LetterResult
 import json
 import select
+import lxml
+import requests
+from bs4 import BeautifulSoup
+import global_Letter
+
 
 def WorkWithLetters(letters):
     """
@@ -32,10 +37,11 @@ def LettersConvertToString(letters):
     - Для некоторых писем нужно вытаскивать данные, для какой-то достаточно ссылки. Предусмотреть проверку на это
     в соответствии со спецификацией по JSON
     """
-
+    LabsForWork = [4, 5, 6, 7, 8, 9, 10, 12]
     for tmp in letters:
-        html = get_html(tmp.Body) 
-        tmp.Body = finding_files(html, tmp.Student.NameOfStudent)
+        if tmp.CodeStatus == "20" and tmp.NumberOfLab in LabsForWork:
+            html = get_html(tmp.Body)
+            tmp.Body = finding_files(html, tmp.Student.NameOfStudent)
     return letters
 
 
@@ -233,14 +239,3 @@ def finding_links(table):
         if date[len(date) - 1] == None:
             date = date[:len(date) - 1]
     return date
-
-
-
-
-
-
-
-
-
-
-

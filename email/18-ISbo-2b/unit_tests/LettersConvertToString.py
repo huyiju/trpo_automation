@@ -17,27 +17,14 @@ def LettersConvertToString(letters):
 def get_html(url):
     """Достаю html с введённой ссылки и возвращаю в виде текста"""
     r = requests.get(url)    # Получим метод Response
-    r.encoding = 'utf8'
+    r.encoding = 'utf-8'
     return r.text   # Вернем данные объекта text
-
-
-def csv_read(data):
-    """Принятые данные принимает, проверяя: являются ли они строковыми данными
-    Если да, записываю их в файл, в конце делаю перенос строки"""
-    if isinstance(data, str):
-        with open("data.txt", 'a') as file:
-            file.write(data+'\n')
-            return data
-
 
 def get_link(html):
     """Построчно ищу поля таблицы с id = LC1,LC2 и т.д., затем передаю их на запись в метод csv
     Если больше нет полей таблицы( то есть кода или текстовых данных), тогда метод закончит работу"""
     soup = BeautifulSoup(html, 'lxml')
-    head = soup.find('strong', class_="final-path")
     data = ""
-    if head != None:
-        csv_read("\nFile Title: "+head.getText()+"\n")
     i = 1
     flag = True
     while flag:
@@ -45,7 +32,7 @@ def get_link(html):
         if head is None:
             flag = False
         else:
-            data += csv_read(head.getText())
+            data += head.getText()
             i += 1
     return data
 
@@ -80,13 +67,3 @@ def finding_links(table):
         if date[len(date) - 1] == None:
             date = date[:len(date) - 1]
     return date
-
-
-student = User.User("Максим Расторгуев", "18-ИСбо-2", None, None)
-student1 = User.User("СантьягоЦеместес", "18-ИСбо-2", None, None)
-letters = []
-letter = Letter.Letter(student, "ЛР01", "https://github.com/Progoger/TasksForStudents/tree/master/18-ИСбо-2/ЛР01", None)
-letter1 = Letter.Letter(student1, "ЛР02", "https://github.com/Progoger/TasksForStudents/tree/master/18-ИСбо-2/ЛР02", None)
-letters.append(letter)
-letters.append(letter1)
-LettersConvertToString(letters)
