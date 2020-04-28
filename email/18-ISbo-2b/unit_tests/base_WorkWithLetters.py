@@ -3,11 +3,6 @@ import socket
 import global_LetterResult
 import json
 import select
-import lxml
-import requests
-from bs4 import BeautifulSoup
-import global_Letter
-
 
 def WorkWithLetters(letters):
     """
@@ -15,7 +10,7 @@ def WorkWithLetters(letters):
     отправка их на проверку, принятие результатов и их передача дальше
     """
 
-    letters = LettersConvertToString(letters)
+    LettersConvertToString(letters)
 
     jsonDates = FormJSONDates(letters)
 
@@ -37,11 +32,10 @@ def LettersConvertToString(letters):
     - Для некоторых писем нужно вытаскивать данные, для какой-то достаточно ссылки. Предусмотреть проверку на это
     в соответствии со спецификацией по JSON
     """
-    LabsForWork = [4, 5, 6, 7, 8, 9, 10, 12]
+
     for tmp in letters:
-        if tmp.CodeStatus == "20" and tmp.NumberOfLab in LabsForWork:
-            html = get_html(tmp.Body)
-            tmp.Body = finding_files(html, tmp.Student.NameOfStudent)
+        html = get_html(tmp.Body) 
+        tmp.Body = finding_files(html, tmp.Student.NameOfStudent)
     return letters
 
 
@@ -137,6 +131,7 @@ def SendJSONForCheck(jsonDates, letters):
         if ready[0]:
             otv_serv = sock.recv(1024)
             otvetServ = json.loads(otv_serv.decode())
+            print(otvetServ)
             if otvetServ["messageType"] == 2:
                 if otvetServ["grade"] == 1:
                     IsOk = True
@@ -239,3 +234,14 @@ def finding_links(table):
         if date[len(date) - 1] == None:
             date = date[:len(date) - 1]
     return date
+
+
+
+
+
+
+
+
+
+
+
