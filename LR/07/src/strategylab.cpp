@@ -9,7 +9,7 @@ StrategyLab::StrategyLab(QObject* parent)
     : QObject(parent)
 {
     /* Подключаем answerStructure.xml для проверки лабораторной работы
-       Храниться в rootAnswerStructure*/
+       Храниться в rootAnswerStructure */
     QDomDocument config;
     QFile file(":/config/answerStructure.xml");
     if (file.open(QIODevice::ReadOnly)) {
@@ -22,40 +22,60 @@ StrategyLab::StrategyLab(QObject* parent)
 
 /**
  * @brief Публичнй метод проверки лабы по паттерну Стратегия
+ *        Запускаем одна за другой все проверки
+ * @param variant - вариант лабораторной работы
  * @param code - присланный массив со строчками кода (классы присланного решения)
  * @return bool - true - все правильно, false - есть непоправимые ошибки
  */
-bool StrategyLab::check(const QList<QString> code)
+bool StrategyLab::check(int variant, QList<QString>* code)
 {
-//    QDomDocument domDoc;
-//    bool result = false;
+    if (this->checkByConfig(variant, code)
+            && checkParentChildRelations()
+            && checkContext()
+            && checkMainFunction()) {
+        return true;
+    }
 
-//    if (xmlFile.open(QIODevice::ReadOnly)) {
-//        qDebug() << "opened";
-//        if(domDoc.setContent(&xmlFile)) {
-//            class QDomElement domElement= domDoc.documentElement();
-//            result = this->checkInside(code, domElement);
-//        }
-//        xmlFile.close();
-
-//        return result;
-//    }
-
-//    qDebug() << "exists: " << xmlFile.exists();
-//    qDebug() << xmlFile.error() << " " << xmlFile.errorString();
-//    throw QString("Ошибка сервера: не смогли прочитать конфиг для проверки");
-    return true;
+    return false;
 }
 
 /**
- * @brief Метод, где идем вглубь конфига и сверяемся с присланным решением
+ * @brief Здесь параллельно реализуется функицонал проверки кода по конфигу
+ *        а также разделение кода на классы (divideIntoClasses)
  * @param code - присланное решение
  * @param node - конфиг
  * @return bool - результат проверки
  */
-bool StrategyLab::checkInside(const QList<QString> code, const QDomNode& node)
+bool StrategyLab::checkByConfig(int variant, QList<QString> *code)
 {
-    qDebug() << node.toElement().tagName();
+    // Заполняем QMap
+    return true;
+}
+
+/**
+ * @brief Проверки на абстрактный класс и его наследников
+ * @return
+ */
+bool StrategyLab::checkParentChildRelations()
+{
+    return true;
+}
+
+/**
+ * @brief Проверки на класс контекста
+ * @return
+ */
+bool StrategyLab::checkContext()
+{
+    return true;
+}
+
+/**
+ * @brief Проверки на основную функцию (int main)
+ * @return
+ */
+bool StrategyLab::checkMainFunction()
+{
     return true;
 }
 

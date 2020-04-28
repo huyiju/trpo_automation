@@ -132,7 +132,7 @@ void TcpServer::processData(QString link, QList<QString> *code, int variant)
             githubManager->parseIntoClasses(link, code);
         }
 
-        bool result = true; // TODO lab->check(variant, code);
+        bool result = lab->check(variant, code);
         QString comments = !result ? lab->getComments() : "";
 
         emit gateWay->sendCheckResult(result, comments);
