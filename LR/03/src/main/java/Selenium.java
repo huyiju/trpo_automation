@@ -23,7 +23,8 @@ public class Selenium {
     public static WebDriver driver=null;
     private String result ="";
     public  String Repository;// Ссылка на репозитори
-    public  String variant; // Номер варика
+    public  String variant; // Номер варика который приходит
+    public  String id="-1"; // Номер варика ожидаемого в зависимости от имени REPO
     private String itog_ozenka="0";
     private boolean empty=false;
     private String Var_Repository; // 1 Варик- Лосяш, 2 - Крош и тд
@@ -46,8 +47,8 @@ public class Selenium {
 
         driver = new ChromeDriver(options);
         driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
-        driver.manage().timeouts().pageLoadTimeout(15, TimeUnit.SECONDS);
-        driver.manage().timeouts().setScriptTimeout(15, TimeUnit.SECONDS);
+        driver.manage().timeouts().pageLoadTimeout(10, TimeUnit.SECONDS);
+        driver.manage().timeouts().setScriptTimeout(10, TimeUnit.SECONDS);
         Get_GoodReposotory();
         driver.get(Var_Repository);
         Add_Tab();
@@ -72,6 +73,36 @@ public class Selenium {
                     Element element = (Element) node;
                     if (element.getAttribute("id").equals(variant)){
                         Var_Repository=element.getElementsByTagName("url").item(0).getTextContent();
+                        break;
+                    }
+                }
+            }
+        }
+        catch (ParserConfigurationException| SAXException | IOException ex){
+            Logger.getLogger(Selenium.class.getName()).log(Level.SEVERE,null,ex);
+        }
+    }
+
+    public void Check_Var(){
+        try {
+            final File xmlFile = new File(System.getProperty("user.dir") + File.separator + FILENAME);
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            Document doc = db.parse(xmlFile);
+            String Good=Var_Repository.substring(Repository.indexOf("https://github.com/"),Repository.lastIndexOf("/")+1);
+            String Var=Good+Repository.substring(Repository.lastIndexOf("/"));
+
+            doc.getDocumentElement().normalize();
+
+            NodeList NodeList = doc.getElementsByTagName("variant");
+
+            for (int i = 0; i < NodeList.getLength(); i++) {
+                // Вывoдиm инфopmaцию пo kaждomy из нaйдeнных элemeнтoв
+                Node node = NodeList.item(i);
+                if (Node.ELEMENT_NODE == node.getNodeType()) {
+                    Element element = (Element) node;
+                    if (element.getElementsByTagName("url").item(0).getTextContent().equals(Var)){
+                        id=element.getAttribute("id");
                         break;
                     }
                 }
@@ -490,34 +521,54 @@ public class Selenium {
         }
     }
 
+    public boolean Check_Repo_Name(){
+     String Good=Var_Repository.substring(Var_Repository.lastIndexOf("/"));
+     String Var=Repository.substring(Repository.lastIndexOf("/"));
+     if (Good.equals(Var)){
+         return true;
+     }
+     else return false;
+    }
+
+
     public void test() {
         if (Var_Repository != null) {
-            if (!empty){
-                final int Good_branches = pull_INT("//li[2]/a[1]/span[@class='num text-emphasized' and 1]");
-                final int Good_issues = pull_INT("//span[2]/a[@class='js-selected-navigation-item reponav-item' and 1]/span[@class='Counter' and 2]");
-                final int Good_pull_request = pull_INT("//*[1]/span[@class='Counter' and 2]");
-                final int Good_projects = pull_INT("//nav/a[@class='js-selected-navigation-item reponav-item' and 1]/span[@class='Counter' and 1]");
-                Change_Tab(1);
-                final int Var_branches = pull_INT("//li[2]/a[1]/span[@class='num text-emphasized' and 1]");
-                final int Var_issues = pull_INT("//span[2]/a[@class='js-selected-navigation-item reponav-item' and 1]/span[@class='Counter' and 2]");
-                final int Var_pull_request = pull_INT("//*[1]/span[@class='Counter' and 2]");
-                final int Var_projects = pull_INT("//nav/a[@class='js-selected-navigation-item reponav-item' and 1]/span[@class='Counter' and 1]");
-                Change_Tab(0);
+            Check_Var();
+            if (id.equals(variant)||id=="-1") {
+               if (Check_Repo_Name()) {
+                    if (!empty) {
 
-                result += Check_Readme(); //Done
-                result += Check_Labels(); //Done
-                result += Check_Milestone(); //Done
-                result += Check_Project(Good_projects,Var_projects); //Реализовать проверку проекта In progress
-                result += Check_PullRequests(Good_pull_request,Var_pull_request); //Done
-                result += Check_Issues(Good_issues,Var_issues); //Done
-                result += Check_Branches(Good_branches,Var_branches); //Done
-                result += Check_Wiki(); //In progress
+                        final int Good_branches = pull_INT("//li[2]/a[1]/span[@class='num text-emphasized' and 1]");
+                        final int Good_issues = pull_INT("//span[2]/a[@class='js-selected-navigation-item reponav-item' and 1]/span[@class='Counter' and 2]");
+                        final int Good_pull_request = pull_INT("//*[1]/span[@class='Counter' and 2]");
+                        final int Good_projects = pull_INT("//nav/a[@class='js-selected-navigation-item reponav-item' and 1]/span[@class='Counter' and 1]");
+                        Change_Tab(1);
+                        final int Var_branches = pull_INT("//li[2]/a[1]/span[@class='num text-emphasized' and 1]");
+                        final int Var_issues = pull_INT("//span[2]/a[@class='js-selected-navigation-item reponav-item' and 1]/span[@class='Counter' and 2]");
+                        final int Var_pull_request = pull_INT("//*[1]/span[@class='Counter' and 2]");
+                        final int Var_projects = pull_INT("//nav/a[@class='js-selected-navigation-item reponav-item' and 1]/span[@class='Counter' and 1]");
+                        Change_Tab(0);
 
-                if ("".equals(result)) {itog_ozenka = "1";}
-            } else { result="Репозиторий пуст\n";
-            }
-        } else {System.out.println("Не найден вариант в файле\n");
-        }
+                        result += Check_Readme(); //Done
+                        result += Check_Labels(); //Done
+                        result += Check_Milestone(); //Done
+                        result += Check_Project(Good_projects, Var_projects); //Реализовать проверку проекта In progress
+                        result += Check_PullRequests(Good_pull_request, Var_pull_request); //Done
+                        result += Check_Issues(Good_issues, Var_issues); //Done
+                        result += Check_Branches(Good_branches, Var_branches); //Done
+                        result += Check_Wiki(); //In progress
+
+                        if ("".equals(result)) {
+                            itog_ozenka = "1";
+                            result="Работа сдана\n";
+                        }
+                    } else {
+                        { result = "Репозиторий пуст\n"; driver.quit();}
+                    }
+                } else {result = "Неверное имя репозитория\n"; driver.quit();}
+
+            }else{result = "Неверный вариант\n"; driver.quit();}
+        } else {System.out.println("Не найден вариант в файле\n"); }
         driver.quit();
     }
 }

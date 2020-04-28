@@ -45,5 +45,8 @@
     <variant id="15">
         <url>https://github.com/HozookiSan/Tigritsiya</url>
     </variant>
+    <port>
+     <portnumber>4003</portnumber>
+    </port>
 
 </repository>
