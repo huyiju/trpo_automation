@@ -8,8 +8,16 @@
 StrategyLab::StrategyLab(QObject* parent)
     : QObject(parent)
 {
-    const QString fileName = "./config/answerStructure.xml";
-    xmlFile.setFileName(fileName);
+    /* Подключаем answerStructure.xml для проверки лабораторной работы
+       Храниться в rootAnswerStructure*/
+    QDomDocument config;
+    QFile file(":/config/answerStructure.xml");
+    if (file.open(QIODevice::ReadOnly)) {
+        if (config.setContent(&file)) {
+            rootAnswerStructure = config.documentElement();
+        }
+        file.close();
+    }
 }
 
 /**

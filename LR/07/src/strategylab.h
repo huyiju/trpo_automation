@@ -15,7 +15,7 @@ class StrategyLab: public QObject
 private:
     int labNumber;
     QString comments;
-    QFile xmlFile;
+    QDomElement rootAnswerStructure;
 
 public:
     explicit StrategyLab(QObject* parent = nullptr);
