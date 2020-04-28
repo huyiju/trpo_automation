@@ -2,70 +2,23 @@
 from time import sleep
 from datetime import datetime
 
+import PatternsofLetter
 from global_AnswersForUsers import AnswersForUsers
 from send_InformUsers import InformUsers
 import config as cfg
-import PatternofLetter
+
 
 def FormAnswers(letterResult):
     """
     Формирование ответов пользователям
     """
 
-    answers = MakeAnswers(letterResult)
-
-    answers = MakeAnswersForUsers(answers, letterResult)
+    answers = MakeAnswersForUsers(letterResult)
 
     InformUsers(answers)
 
-def MakeAnswers(letterResult):
-    """
-    Функционал:
-    - Сделать список хранящий в себе ответы на каждое письма
-    На входе:
-    - Список проверенных писем - экземпляяров класса LetterResults
-    На выходе:
-    - answers - список ответов на письма в текстовом формате
-    Что предусмотреть:
-    - Создание класса, в котором будут размещены уже готовые ответы на письма
-    - Заполнение всех полей, в зависимости от характеристик письма:
-    - - Оценки
-    - - Имени, фамилии ученика
-    - - Статуса письма
-    - В конце формирование письма для преподавателя на основе всех писем. В письме указать
-    - - Кто и какую оценку получил
-    Участвующие внешние типы переменных
-    - Класс с экземплярами написанныш шаблонов писем - из import
-    """
-    with open(cfg.filename, "a") as file: file.write("\nForming answers...")
-    answers = []
-    for i in letterResult:
-        if letterResult[i].CodeStatus == 0:
-            pattern = PatternofLetter.UnknownUser
-        elif letterResult[i].CodeStatus == 1:
-            pattern = PatternofLetter.UncorrectTheme
-        elif letterResult[i].CodeStatus == 2:
-            pattern = PatternofLetter.UncorrectStructure
-        elif letterResult[i].CodeStatus == 3:
-            pattern = PatternofLetter.UncorrectVariant
-        elif letterResult[i].CodeStatus == 4:
-            pattern = PatternofLetter.LostLinks
-        elif letterResult[i].CodeStatus == 5:
-            pattern = PatternofLetter.HaveAttachments
-        elif letterResult[i].CodeStatus == 6:
-            pattern = PatternofLetter.SystemFailure
-        elif letterResult[i].CodeStatus == 7:
-            pattern = PatternofLetter.SystemFailure
-        elif letterResult[i].CodeStatus == 10:
-            pattern = PatternofLetter.WorkComplited
-        elif letterResult[i].CodeStatus == 30:
-            pattern = PatternofLetter.WorkVerified
-        answers.append(pattern.returnbody())
-    sleep(1)
-    with open(cfg.filename, "a") as file: file.write("Answers forms!")
 
-
-def MakeAnswersForUsers(answers, letterResult):
+def MakeAnswersForUsers(letterResult):
     """
     Функционал:
     - Сформировать список экземпляров класса AnswersForUsers, используя уже готовые ответы на письма
@@ -82,29 +35,34 @@ def MakeAnswersForUsers(answers, letterResult):
     """
     with open(cfg.filename, "a") as file: file.write("\nForming answers for users...")
     answers = []
+    forteacher = PatternsofLetter.ForTeacher
     for i in letterResult:
-        if letterResult[i].CodeStatus == 0:
-            pattern = PatternofLetter.UnknownUser
-        elif letterResult[i].CodeStatus == 1:
-            pattern = PatternofLetter.UncorrectTheme
-        elif letterResult[i].CodeStatus == 2:
-            pattern = PatternofLetter.UncorrectStructure
-        elif letterResult[i].CodeStatus == 3:
-            pattern = PatternofLetter.UncorrectVariant
-        elif letterResult[i].CodeStatus == 4:
-            pattern = PatternofLetter.LostLinks
-        elif letterResult[i].CodeStatus == 5:
-            pattern = PatternofLetter.HaveAttachments
-        elif letterResult[i].CodeStatus == 6:
-            pattern = PatternofLetter.SystemFailure
-        elif letterResult[i].CodeStatus == 7:
-            pattern = PatternofLetter.SystemFailure
-        elif letterResult[i].CodeStatus == 10:
-            pattern = PatternofLetter.WorkComplited
-        elif letterResult[i].CodeStatus == 30:
-            pattern = PatternofLetter.WorkVerified
-        answer = AnwersForUsers(letterResult[i].Student.email, pattern.returntheme(), answers[i])
+        if letterResult[i].CodeStatus == "00":
+            pattern = PatternsofLetter.UnknownUser
+        elif letterResult[i].CodeStatus == "01":
+            pattern = PatternsofLetter.UncorrectedTheme
+        elif letterResult[i].CodeStatus == "02":
+            pattern = PatternsofLetter.UncorrectedStructure
+        elif letterResult[i].CodeStatus == "03":
+            pattern = PatternsofLetter.UncorrectedVariant
+        elif letterResult[i].CodeStatus == "04":
+            pattern = PatternsofLetter.LostLinks
+        elif letterResult[i].CodeStatus == "05":
+            pattern = PatternsofLetter.HaveAttachments
+        elif letterResult[i].CodeStatus == "06":
+            pattern = PatternsofLetter.SystemFailure
+        elif letterResult[i].CodeStatus == "07":
+            pattern = PatternsofLetter.SystemFailure
+        elif letterResult[i].CodeStatus == "10":
+            pattern = PatternsofLetter.WorkCompleted
+        elif letterResult[i].CodeStatus == "30":
+            pattern = PatternsofLetter.WorkVerified(letterResult[i].IsOk)
+            par = (letterResult[i].Student.NameOfStudent, letterResult[i].NumberOfLab, letterResult[i].VariantOfLab)
+            forteacher.add(par)
+        answer = AnwersForUsers(letterResult[i].Student.email, pattern.return_theme(), answers[i])
         answers.append(answer)
     sleep(1)
+    answer = AnswersForUsers("Teacher email", forteacher.return_theme(), forteacher.return_body())
+    answers.append(answer)
     with open(cfg.filename, "a") as file: file.write("Answers for users forms!")
     return answers
