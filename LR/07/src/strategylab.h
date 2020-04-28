@@ -13,19 +13,27 @@ class StrategyLab: public QObject
     Q_OBJECT
 
 private:
-    int labNumber;
+    int variant;
     QString comments;
     QDomElement rootAnswerStructure;
+    QMap<QString, QVariant> classes;
 
 public:
     explicit StrategyLab(QObject* parent = nullptr);
     ~StrategyLab();
-    bool check(const QList<QString>);
+    bool check(int, QList<QString>*);
     bool hasComments() const { return !comments.isEmpty(); }
     QString getComments() const { return comments; }
 
 private:
-    bool checkInside(const QList<QString>, const QDomNode&);
+    bool checkByConfig(int, QList<QString>*);
+    bool checkParentChildrenRelations(int);
+    bool checkContext();
+    bool checkMainFunction();
+
+    bool checkAbstractMethodModifier(QString, QString, QString, QString modifier = "public");
+    bool checkParent(QString, QString, QString);
+    bool checkChildren(QList<QString>, QString, QString, int);
 };
 
 #endif // STARTEGYLAB_H

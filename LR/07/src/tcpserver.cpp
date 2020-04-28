@@ -52,6 +52,7 @@ void TcpServer::slotClientDisconnected()
  */
 void TcpServer::slotSendToClient(QJsonObject answerJson)
 {
+    qDebug() << answerJson;
     QJsonDocument jsonDoc(answerJson);
     QString jsonString = QString::fromLatin1(jsonDoc.toJson());
 
@@ -75,12 +76,14 @@ void TcpServer::slotReadingDataJson()
         data = mTcpSocket->readAll();
 
         try {
-            parsingJson(gateWay->validateData(data), &labLink, &labNumber, &pureCode);
-            processData(labLink, &pureCode, labNumber);
-        } catch (std::exception &e) {
-            QString errorMsg = QStringLiteral("Error ' %1 ' while reading data").arg(e.what());
+            QJsonDocument jsonDoc = gateWay->validateData(data);
+            if (!jsonDoc.isNull()) {
+                parsingJson(jsonDoc, &labLink, &labNumber, &pureCode);
+                processData(labLink, &pureCode, labNumber);
+            }
+        } catch (QString e) {
+            QString errorMsg = QStringLiteral("Error ' %1 ' while reading data").arg(e);
             emit gateWay->systemError(errorMsg);
-            qCritical() << errorMsg;
         }
     }
 }
@@ -132,7 +135,7 @@ void TcpServer::processData(QString link, QList<QString> *code, int variant)
             githubManager->parseIntoClasses(link, code);
         }
 
-        bool result = true; // TODO lab->check(variant, code);
+        bool result = lab->check(variant, code);
         QString comments = !result ? lab->getComments() : "";
 
         emit gateWay->sendCheckResult(result, comments);

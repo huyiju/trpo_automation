@@ -27,9 +27,9 @@ public:
 
 private:
     void wrongRequestFormat(QString, QString);
-    void checkKeyExistance();
-    void checkKeyTypeAndValue();
-    void checkKeyNonExistance();
+    bool checkKeyExistance();
+    bool checkKeyTypeAndValue();
+    bool checkKeyNonExistance();
 
 signals:
     void sendToClient(QJsonObject);
