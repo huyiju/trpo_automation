@@ -39,7 +39,7 @@ def LettersConvertToString(letters):
     """
     LabsForWork = [4, 5, 6, 7, 8, 9, 10, 12]
     for tmp in letters:
-        if tmp.CodeStatus != "20" and tmp.NumberOfLab in LabsForWork:
+        if tmp.CodeStatus == "20" and tmp.NumberOfLab in LabsForWork:
             html = get_html(tmp.Body)
             tmp.Body = finding_files(html, tmp.Student.NameOfStudent)
     return letters
