@@ -27,10 +27,10 @@ StrategyLab::StrategyLab(QObject* parent)
  * @param code - присланный массив со строчками кода (классы присланного решения)
  * @return bool - true - все правильно, false - есть непоправимые ошибки
  */
-bool StrategyLab::check(int variant, QList<QString>* code)
+bool StrategyLab::check(int variant, QList<QString> code)
 {
     if (this->checkByConfig(variant, code)
-            && checkParentChildrenRelations(variant)
+            && checkParentChildrenRelations()
             && checkContext()
             && checkMainFunction()) {
         return true;
@@ -46,38 +46,8 @@ bool StrategyLab::check(int variant, QList<QString>* code)
  * @param node - конфиг
  * @return bool - результат проверки
  */
-bool StrategyLab::checkByConfig(int variant, QList<QString> *code)
+bool StrategyLab::checkByConfig(int variant, QList<QString> code)
 {
-    // Заполняем QMap - divideIntoClasses
-    /* вида
-     * {
-     *      "parent": "asdfsad"
-     *      "children": (QList)[
-     *          "sdfgsdfg",
-     *          "sdfgsdfg",
-     *          "sdfgdfgd"
-     *      ],
-     *      "context": "sdfgsdfg",
-     *      "main": "dfasdfasd"
-     * }
-     */
-    return true;
-}
-
-/**
- * @brief Проверки на абстрактный класс и его наследников
- * @return
- */
-bool StrategyLab::checkParentChildrenRelations(int variant)
-{
-    // TODO выпилить
-    // temp data
-    QString parent = "class Car\n{\npublic:\nvirtual string use() const = 0;\n};";
-    QList<QString> children ({ "class Cash : public Car\n{\npublic:\nstring use() const override\n{\nreturn \"Cash payment\";\n}\n};",
-                               "class Card : public Car\n{\npublic:\nstring use() const override\n{\nreturn \"Card payment\";\n}\n};",
-                               "class Error : public Car\n{\npublic:\nstring use() const override\n{\nreturn \"Error: invalid data\";\n}\n};" });
-    // TODO выпилить
-    // Получаем конфиг нужной лабы - такое будет в методе checkByConfig - там запись идет в приватные переменные
     QDomElement elem;
     QDomNodeList labsConfig = rootAnswerStructure.elementsByTagName("lab");
     for (QDomNode node = labsConfig.at(0); !node.isNull(); node = node.nextSibling()) {
@@ -86,49 +56,62 @@ bool StrategyLab::checkParentChildrenRelations(int variant)
     }
 
     QDomElement abstract = elem.elementsByTagName("abstract").at(0).toElement();
-    QString abstractClassName = abstract.attribute("name");
-    QString abstractMethodName = abstract.elementsByTagName("method").at(0).toElement().attribute("name");
+    abstractClassName = abstract.attribute("name");
+    abstractMethodName = abstract.elementsByTagName("method").at(0).toElement().attribute("name");
+    heirsAmount = elem.elementsByTagName("heirs").at(0).toElement().attribute("amount").toInt();
 
-    if (!checkParent(parent, abstractMethodName, abstractClassName)) {
-        return false;
-    }
+    code.push_back("class Car\n{\npublic:\nvirtual string use() const = 0;\n};");
+    code.push_back("class Cash : public Car\n{\npublic:\nstring use() const override\n{\nreturn \"Cash payment\";\n}\n};");
+    code.push_back("class Card : public Car\n{\npublic:\nstring use() const override\n{\nreturn \"Card payment\";\n}\n};");
+    code.push_back("class Error : public Car\n{\npublic:\nstring use() const override\n{\nreturn \"Error: invalid data\";\n}\n};");
 
-    int heirsAmount = elem.elementsByTagName("heirs").at(0).toElement().attribute("amount").toInt();
-    if (!checkChildren(children, abstractClassName, abstractMethodName, heirsAmount)) {
-        return false;
+    foreach (QString strClass, code) {
+        if (!strClass.contains("class")) {
+            classes.insert("main", strClass);
+        } else if (strClass.left(strClass.indexOf("{")).simplified().split(" ").at(1) == abstractClassName) {
+            classes.insert("parent", strClass);
+        } else if (strClass.right(strClass.left(strClass.indexOf("{")).indexOf(":")).simplified().split(" ").at(1) == abstractClassName) {
+            children.push_back(strClass);
+        } else {
+            classes.insert("context", strClass);
+        }
     }
 
     return true;
 }
 
 /**
- * @brief Проверка абстрактного класса
- * @param parent - тело класса
- * @param methodName - имя абстрактного метода
- * @param className - имя класса
- * @todo выпилить className, methodName
+ * @brief Проверки на абстрактный класс и его наследников
  * @return
- *
- * "sdfgsdfgdfg"
- *
  */
-bool StrategyLab::checkParent(QString parent, QString methodName, QString className)
+bool StrategyLab::checkParentChildrenRelations()
 {
+    /***** Проверки на абстрактный класс *****/
+
+    QString parent = classes.value("parent");
+
     // Проверка: абстрактный класс обладает абстрактным методом
     if (!parent.contains("virtual")) {
-        comments = "No abstract methods inside your abstract class" + className + ". You should have at least one.";
+        comments = "No abstract methods inside your abstract class" + abstractClassName + ". You should have at least one.";
         return false;
     }
 
     // Проверка: абстрактный класс обладает абстрактным методом с модификатором public
-    if (!checkAbstractMethodModifier(className, parent, methodName)) {
+    if (!checkAbstractMethodModifier(abstractClassName, parent)) {
         return false;
     }
 
     // Проверка: абстрактный класс обладает чистым абстрактным методом
-    if (!parent.right(parent.indexOf(methodName)).simplified().split(" ").join("").contains("=0;")) {
-        comments = "Your abstract method " + methodName + " is not declared as pure abstract.\n " + \
+    if (!parent.right(parent.indexOf(abstractMethodName)).simplified().split(" ").join("").contains("=0;")) {
+        comments = "Your abstract method " + abstractMethodName + " is not declared as pure abstract.\n " + \
                 "You should use '= 0' at the end of declaration";
+        return false;
+    }
+
+
+    /***** Проверки на наследников абстрактного класса *****/
+
+    if (!checkChildren()) {
         return false;
     }
 
@@ -144,7 +127,7 @@ bool StrategyLab::checkParent(QString parent, QString methodName, QString classN
  * @todo выпилить heirsAmount, abstractClassName, methodName
  * @return
  */
-bool StrategyLab::checkChildren(QList<QString> children, QString abstractClassName, QString methodName, int heirsAmount)
+bool StrategyLab::checkChildren()
 {
     QSet<QString> childMethodBodies;
 
@@ -167,19 +150,19 @@ bool StrategyLab::checkChildren(QList<QString> children, QString abstractClassNa
         }
 
         // Проверка: класс ребенок переопределяет абстрактный метод родителя
-        if (!child.contains(methodName) || !child.contains("override")) {
-            comments = "Your class " + childClassName + "does not override abstract method " + methodName + " that you \n" + \
+        if (!child.contains(abstractMethodName) || !child.contains("override")) {
+            comments = "Your class " + childClassName + "does not override abstract method " + abstractMethodName + " that you \n" + \
                     " described inside abstract class " + abstractClassName;
             return false;
         }
 
         // Проверка: класс ребенок переопределяет абстрактный метод родителя c модификатором public
-        if (!checkAbstractMethodModifier(childClassName, child, methodName)) {
+        if (!checkAbstractMethodModifier(childClassName, child)) {
             return false;
         }
 
         // Закидываем тела переопределенных методов наследников в массив
-        QString methodBody = child.right(child.lastIndexOf(methodName));
+        QString methodBody = child.right(child.lastIndexOf(abstractMethodName));
         QString cutBodyToStart = methodBody.right(methodBody.indexOf("{"));
         QString cutBodyToEnd = cutBodyToStart.left(cutBodyToStart.lastIndexOf("}"));
         childMethodBodies.insert(cutBodyToEnd.simplified());
@@ -188,7 +171,7 @@ bool StrategyLab::checkChildren(QList<QString> children, QString abstractClassNa
     // Проверка: реализации переопределенных методов наследников различаются
     if (childMethodBodies.count() != heirsAmount) {
         comments = "Your classes that are instances of abstract class " + abstractClassName + " override\n" + \
-                "abstract method " + methodName + " with the same implementation";
+                "abstract method " + abstractMethodName + " with the same implementation";
         return false;
     }
 
@@ -203,7 +186,7 @@ bool StrategyLab::checkChildren(QList<QString> children, QString abstractClassNa
  * @param modifier - нужный модификатор
  * @return
  */
-bool StrategyLab::checkAbstractMethodModifier(QString className, QString classBody, QString abstractMethodName, QString modifier)
+bool StrategyLab::checkAbstractMethodModifier(QString className, QString classBody, QString modifier)
 {
     QString fromStartToAbstractMethod = classBody.left(classBody.indexOf(abstractMethodName));
     QString modifierForAbstractMethod = classBody.left(fromStartToAbstractMethod.lastIndexOf(":")).simplified();
