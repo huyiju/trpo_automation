@@ -94,13 +94,11 @@ void TcpServer::slotReadingDataJson()
  * @param labLink - ссылка на репозиторий решения на Github
  * @param labNumber - номер лабы
  * @param pureData - массив строчек (каждая строчка - класс решения с телами методов)
- * @return bool - Если в поле data пришла ссылка на репозиторий Github - то true, иначе false
  */
-bool TcpServer::parsingJson(QJsonDocument docJson, QString *labLink, int *labNumber, QList<QString> *pureData)
+void TcpServer::parsingJson(QJsonDocument docJson, QString *labLink, int *labNumber, QList<QString> *pureData)
 {
     QJsonValue link;
     QJsonObject jsonObj;
-    bool needToAccessGithub = true;
 
     jsonObj = docJson.object();
 
@@ -108,7 +106,6 @@ bool TcpServer::parsingJson(QJsonDocument docJson, QString *labLink, int *labNum
     if (!link.isUndefined()) {
         (*labLink) = link.toString();
     } else {
-        needToAccessGithub = false;
         link = jsonObj.take("code");
         foreach (QJsonValue item, link.toArray()) {
             (*pureData).append(item.toString());
@@ -118,7 +115,6 @@ bool TcpServer::parsingJson(QJsonDocument docJson, QString *labLink, int *labNum
     link = jsonObj.take("variant");
     (*labNumber) = link.toInt();
 
-    return needToAccessGithub;
 }
 
 /**

@@ -32,7 +32,7 @@ public:
     void processData(QString, QList<QString>*, int);
     
 private:
-    bool parsingJson(QJsonDocument, QString*, int*, QList<QString>*);
+    void parsingJson(QJsonDocument, QString*, int*, QList<QString>*);
 
 public slots:
     void slotNewConnection();
