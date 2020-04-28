@@ -133,10 +133,95 @@ void Functional::getCode(QNetworkReply *reply)
  *        и помещает их в массив
  * @return void
  */
-void Functional::parseIntoClasses(QString link, QList<QString>* )
+void Functional::parseIntoClasses(QString link, QList<QString>* ListOfClasses)
 {
     getDataFromGithub(link);
-    //Разделение кода на классы
+    QString addToList;
+    int firstIndex = 0;
+    int secondIndex = 0;
+    int addToListIndex = 0;
+
+    while ((code.indexOf("class", firstIndex)) >= 0) {
+        firstIndex = code.indexOf("class", firstIndex);
+        secondIndex = (code.indexOf("};", secondIndex))+1;
+        QString className = findNameOfClass(firstIndex+5, code);
+        secondIndex++;
+        for (;firstIndex<=secondIndex;firstIndex++) {
+            addToList[addToListIndex] = code[firstIndex];
+            addToListIndex++;
+        }
+        QString classMethods = findClassMethods(code, className, secondIndex);
+        addToList+=classMethods;
+        addToListIndex = 0;
+        ListOfClasses->append(addToList);
+        firstIndex = secondIndex;
+        addToList.clear();
+    }
+}
+
+QString Functional::findNameOfClass(int firstIndex, QString code)
+{
+    QString className;
+    int i = 0;
+    while (code[firstIndex] == " ") {
+        firstIndex++;
+    }
+    while (code[firstIndex] != ' ') {
+        if (code[firstIndex] == '{') {
+            return className;
+        }
+        else {
+        className[i] = code[firstIndex];
+        firstIndex++;
+        i++;
+        }
+    }
+    return className;
+}
+
+QString Functional::findClassMethods(QString code, QString className, int startIndex)
+{
+    int sIndexForMethod=0, i=0, firstIndex=0;
+    QString classMethods;
+        while ((code.indexOf(className, startIndex)) >=0) {
+            firstIndex = code.indexOf(className, startIndex);
+            if ((code[firstIndex+className.size()] == ' ') || (code[firstIndex+className.size()] == ':')) {
+            while ((code.indexOf("\n", startIndex) < firstIndex) && (code.indexOf("\n", startIndex)) != -1) {
+                sIndexForMethod = (code.indexOf("\n",startIndex))+1;
+                startIndex = sIndexForMethod;
+            }
+            if (sIndexForMethod != 0) {
+                while (code[sIndexForMethod] != "{") {
+                    classMethods[i] = code[sIndexForMethod];
+                    i++;
+                    sIndexForMethod++;
+                }
+                classMethods[i] = code[sIndexForMethod];
+                i++;
+                sIndexForMethod++;
+
+                int openBracketNumber = 1, closeBracketNumber = 0;
+
+                while (openBracketNumber>closeBracketNumber) {
+                    classMethods[i] = code[sIndexForMethod];
+                    if(code[sIndexForMethod] == "{")
+                        openBracketNumber++;
+                    if(code[sIndexForMethod] == "}") {
+                        closeBracketNumber++;
+                    }
+                        i++;
+                        sIndexForMethod++;
+                }
+        startIndex = sIndexForMethod;
+            }
+            else
+            return classMethods = "";
+            }
+            else {
+                startIndex=firstIndex+className.size();
+            }
+    }
+    return classMethods;
 }
 
 /**

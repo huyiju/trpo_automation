@@ -33,6 +33,8 @@ public:
     void parseIntoClasses(QString linkLab, QList<QString>* );
 
 private:
+    QString findNameOfClass(int, QString);
+    QString findClassMethods(QString, QString, int);
     void linkChange();
     void getCode(QNetworkReply *reply);
     void getDataFromGithub(QString linkLab);
