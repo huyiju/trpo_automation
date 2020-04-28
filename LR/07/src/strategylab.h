@@ -26,6 +26,7 @@ public:
 
 private:
     bool checkInside(const QList<QString>, const QDomNode&);
+    void checkConfig(int variant, QList<QString> *code);
 };
 
 #endif // STARTEGYLAB_H

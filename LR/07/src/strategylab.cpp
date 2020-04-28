@@ -48,6 +48,38 @@ bool StrategyLab::check(const QList<QString> code)
 }
 
 /**
+  * @brief Проверка присланного кода по конфигу
+  * @return void
+  */
+void StrategyLab::checkConfig(int variant, QList<QString> *code)
+{
+    /* Выделяем конфиг для нужного варианта лабораторной работы */
+    QDomNode node;
+    QDomElement configLab;
+    foreach (node, rootAnswerStructure.elementsByTagName("lab")) {
+      configLab = node.toElement();
+      if (configLab.attribute("number").toInt() == variant)
+          break;
+    }
+    /* Проверка количества потомков */
+    QString stringValue, temp;
+    int heirsAmount;
+    int pos;
+
+    foreach (stringValue, code) {
+       if (stringValue.indexOf(": public", 0) != -1 || stringValue.indexOf(":public", 0 ) != -1) {
+           heirsAmount++;
+
+        }
+
+    }
+    node = configLab.lastChild();
+    if (configLab.attribute("heirs amount").toInt() == heirsAmount) {
+        /* Записываем данные в QMap */
+    }
+}
+
+/**
  * @brief Метод, где идем вглубь конфига и сверяемся с присланным решением
  * @param code - присланное решение
  * @param node - конфиг
