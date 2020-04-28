@@ -72,16 +72,15 @@ bool StrategyLab::checkParentChildrenRelations(int variant)
 {
     // TODO выпилить
     // temp data
-    QString parent = "class Strategy\n{\npublic:\nvirtual string DoAlgorithm() const = 0;\n};";
-    QList<QString> children ({ "class Cash : public Strategy\n{\npublic:\nstring DoAlgorithm() const override\n{\nreturn \"Cash payment\";\n}\n};",
-                               "class Card : public Strategy\n{\npublic:\nstring DoAlgorithm() const override\n{\nreturn \"Card payment\";\n}\n};",
-                               "class Error : public Strategy\n{\npublic:\nstring DoAlgorithm() const override\n{\nreturn \"Error: invalid data\";\n}\n};" });
+    QString parent = "class Car\n{\npublic:\nvirtual string use() const = 0;\n};";
+    QList<QString> children ({ "class Cash : public Car\n{\npublic:\nstring use() const override\n{\nreturn \"Cash payment\";\n}\n};",
+                               "class Card : public Car\n{\npublic:\nstring use() const override\n{\nreturn \"Card payment\";\n}\n};",
+                               "class Error : public Car\n{\npublic:\nstring use() const override\n{\nreturn \"Error: invalid data\";\n}\n};" });
     // TODO выпилить
     // Получаем конфиг нужной лабы - такое будет в методе checkByConfig - там запись идет в приватные переменные
     QDomElement elem;
     QDomNodeList labsConfig = rootAnswerStructure.elementsByTagName("lab");
-    for (QDomNode node = labsConfig.at(1); !node.isNull(); node = node.nextSibling()) {
-        qDebug() << elem.tagName();
+    for (QDomNode node = labsConfig.at(0); !node.isNull(); node = node.nextSibling()) {
         elem = node.toElement();
         if (elem.attribute("number").toInt() == variant) break;
     }
@@ -98,6 +97,8 @@ bool StrategyLab::checkParentChildrenRelations(int variant)
     if (!checkChildren(children, abstractClassName, abstractMethodName, heirsAmount)) {
         return false;
     }
+
+    return true;
 }
 
 /**
@@ -125,9 +126,9 @@ bool StrategyLab::checkParent(QString parent, QString methodName, QString classN
     }
 
     // Проверка: абстрактный класс обладает чистым абстрактным методом
-    if (parent.right(parent.indexOf(methodName)).split(" ").join("").contains("=0;")) {
+    if (!parent.right(parent.indexOf(methodName)).simplified().split(" ").join("").contains("=0;")) {
         comments = "Your abstract method " + methodName + " is not declared as pure abstract.\n " + \
-                "You should use 'const = 0' at the end of declaration";
+                "You should use '= 0' at the end of declaration";
         return false;
     }
 
