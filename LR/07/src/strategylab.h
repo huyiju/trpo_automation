@@ -27,11 +27,13 @@ public:
 
 private:
     bool checkByConfig(int, QList<QString>*);
-    bool checkParentChildRelations(int);
+    bool checkParentChildrenRelations(int);
     bool checkContext();
     bool checkMainFunction();
 
-
+    bool checkAbstractMethodModifier(QString, QString, QString, QString modifier = "public");
+    bool checkParent(QString, QString, QString);
+    bool checkChildren(QList<QString>, QString, QString, int);
 };
 
 #endif // STARTEGYLAB_H

@@ -68,29 +68,16 @@ bool StrategyLab::checkByConfig(int variant, QList<QString> *code)
  * @brief Проверки на абстрактный класс и его наследников
  * @return
  */
-bool StrategyLab::checkParentChildRelations(int variant)
+bool StrategyLab::checkParentChildrenRelations(int variant)
 {
+    // TODO выпилить
     // temp data
     QString parent = "class Strategy\n{\npublic:\nvirtual string DoAlgorithm() const = 0;\n};";
     QList<QString> children ({ "class Cash : public Strategy\n{\npublic:\nstring DoAlgorithm() const override\n{\nreturn \"Cash payment\";\n}\n};",
                                "class Card : public Strategy\n{\npublic:\nstring DoAlgorithm() const override\n{\nreturn \"Card payment\";\n}\n};",
                                "class Error : public Strategy\n{\npublic:\nstring DoAlgorithm() const override\n{\nreturn \"Error: invalid data\";\n}\n};" });
-
-    /* Проверяем абстрактный класс */
-    if (!parent.contains("public:")) {
-        comments = "No public methods in abstract class, you should have at least one.";
-        return false;
-    }
-
-    if (!parent.contains("virtual")) {
-        comments = "No abstract methods inside your abstraact class. You should have at least one.";
-        return false;
-    }
-
-    // TODO run more checks on abstract class
-
-    /* Проверяем наседников */
-    // Получаем конфиг нужной лабы
+    // TODO выпилить
+    // Получаем конфиг нужной лабы - такое будет в методе checkByConfig - там запись идет в приватные переменные
     QDomElement elem;
     foreach (QDomNode node, rootAnswerStructure.elementsByTagName("lab")) {
         elem = node.toElement();
@@ -100,14 +87,62 @@ bool StrategyLab::checkParentChildRelations(int variant)
     QDomElement abstract = elem.elementsByTagName("abstract").at(0).toElement();
     QString abstractClassName = abstract.attribute("name");
     QString abstractMethodName = abstract.elementsByTagName("method").at(0).toElement().attribute("name");
+
+    if (!checkParent(parent, abstractMethodName, abstractClassName)) {
+        return false;
+    }
+
+    int heirsAmount = elem.elementsByTagName("heirs").at(0).toElement().attribute("amount").toInt();
+    if (!checkChildren(children, abstractClassName, abstractMethodName, heirsAmount)) {
+        return false;
+    }
+}
+
+/**
+ * @brief Проверка абстрактного класса
+ * @param parent - тело класса
+ * @param methodName - имя абстрактного метода
+ * @param className - имя класса
+ * @todo выпилить className, methodName
+ * @return
+ */
+bool StrategyLab::checkParent(QString parent, QString methodName, QString className)
+{
+    if (!parent.contains("virtual")) {
+        comments = "No abstract methods inside your abstract class" + className + ". You should have at least one.";
+        return false;
+    }
+
+    if (!checkAbstractMethodModifier(className, parent, methodName)) {
+        return false;
+    }
+
+    if (parent.right(parent.indexOf(methodName)).split(" ").join("").contains("const=0;")) {
+        comments = "Your abstract method " + methodName + " is not declared as pure abstract.\n " + \
+                "You should use 'const = 0' at the end of declaration";
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * @brief Проверка каждого наследника (на престол), годятся?
+ * @param children - список тел детёнышей
+ * @param abstractClassName - имя абстрактного класса
+ * @param methodName - имя абстрактного метода
+ * @param heirsAmount - кол-во наследников
+ * @todo выпилить heirsAmount, abstractClassName, methodName
+ * @return
+ */
+bool StrategyLab::checkChildren(QList<QString> children, QString abstractClassName, QString methodName, int heirsAmount)
+{
     QSet<QString> childMethodBodies;
 
-    // Пробегаемся по наследникам
     foreach (QString child, children) {
         QString childClassName = child.left(child.indexOf("{")).split(" ", QString::SkipEmptyParts).at(1);
         if (!child.contains(abstractClassName)) {
-            comments = "Class " + childClassName + " is not an instance of abstract class " + \
-                    abstractClassName;
+            comments = "Class " + childClassName + " is not an instance of abstract class " + abstractClassName;
             return false;
         }
 
@@ -119,29 +154,45 @@ bool StrategyLab::checkParentChildRelations(int variant)
             return false;
         }
 
-        if (!child.contains(abstractMethodName) || !child.contains("override")) {
-            comments = "Your class " + childClassName + "does not override abstract method " + abstractMethodName + " that you \n" + \
+        if (!child.contains(methodName) || !child.contains("override")) {
+            comments = "Your class " + childClassName + "does not override abstract method " + methodName + " that you \n" + \
                     " described inside abstract class " + abstractClassName;
             return false;
         }
 
-        QString fromStartToAbstractMethod = child.left(child.indexOf(abstractMethodName));
-        QString modifierForAbstractMethod = child.left(fromStartToAbstractMethod.lastIndexOf(":")).simplified();
-        if (!modifierForAbstractMethod.split(" ", QString::SkipEmptyParts).endsWith("public")) {
-            comments = "Overriden method " + abstractMethodName + " inside class " + childClassName + " should be public";
+        if (!checkAbstractMethodModifier(childClassName, child, methodName)) {
             return false;
         }
 
-        QString methodBody = child.right(child.lastIndexOf(abstractMethodName));
+        QString methodBody = child.right(child.lastIndexOf(methodName));
         QString cutBodyToStart = methodBody.right(methodBody.indexOf("{"));
         QString cutBodyToEnd = cutBodyToStart.left(cutBodyToStart.lastIndexOf("}"));
         childMethodBodies.insert(cutBodyToEnd.simplified());
     }
 
-    int heirsAmount = elem.elementsByTagName("heirs").at(0).toElement().attribute("amount").toInt();
     if (childMethodBodies.count() != heirsAmount) {
         comments = "Your classes that are instances of abstract class " + abstractClassName + " override\n" + \
-                "abstract method " + abstractMethodName + " with the same implementation";
+                "abstract method " + methodName + " with the same implementation";
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * @brief Проверяет, чтобы модификатор метода в классе соответствовал указанному
+ * @param className - имя класса
+ * @param abstractMethodName - имя абстрактного метода
+ * @param class - класс, где есть проверяемый метод
+ * @param modifier - нужный модификатор
+ * @return
+ */
+bool StrategyLab::checkAbstractMethodModifier(QString className, QString classBody, QString abstractMethodName, QString modifier)
+{
+    QString fromStartToAbstractMethod = classBody.left(classBody.indexOf(abstractMethodName));
+    QString modifierForAbstractMethod = classBody.left(fromStartToAbstractMethod.lastIndexOf(":")).simplified();
+    if (!modifierForAbstractMethod.split(" ", QString::SkipEmptyParts).endsWith(modifier)) {
+        comments = "Method " + abstractMethodName + " inside class " + className + " should be " + modifier;
         return false;
     }
 
