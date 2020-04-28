@@ -133,10 +133,142 @@ void Functional::getCode(QNetworkReply *reply)
  *        и помещает их в массив
  * @return void
  */
-void Functional::parseIntoClasses(QString link, QList<QString>* )
+void Functional::parseIntoClasses(QString link, QList<QString>* ListOfClasses)
 {
     getDataFromGithub(link);
-    //Разделение кода на классы
+    QString addToList;
+    int firstIndex = 0, secondIndex = 0, addToListIndex = 0;
+
+    QString mainFunction = findMainFunc();
+    ListOfClasses->append(mainFunction);
+
+    while ((code.indexOf("class", firstIndex)) >= 0) {
+        firstIndex = code.indexOf("class", firstIndex);
+        secondIndex = (code.indexOf("};", secondIndex))+1;
+
+        QString className = findNameOfClass(firstIndex+5);
+
+        for (; firstIndex <= secondIndex; firstIndex++) {
+            addToList[addToListIndex] = code[firstIndex];
+            addToListIndex++;
+        }
+        QString classMethods = findClassMethods(className, secondIndex);
+        addToList += classMethods;
+        addToListIndex = 0;
+        ListOfClasses->append(addToList);
+        addToList.clear();
+
+        firstIndex = secondIndex;
+    }
+}
+/**
+ * @brief   Метод ищет название класса
+ * @param   firstIndex - индекс, указывающий на пробел перед названием класса
+ * @return  возвращает название класса
+ */
+
+QString Functional::findNameOfClass(int firstIndex)
+{
+    QString className;
+    int i = 0;
+    while (code[firstIndex] == " ") {
+        firstIndex++;
+    }
+    while (code[firstIndex] != ' ') {
+        if (code[firstIndex] == '{') {
+            return className;
+        }
+        else {
+        className[i] = code[firstIndex];
+        firstIndex++;
+        i++;
+        }
+    }
+    return className;
+}
+/**
+ * @brief   Метод находит методы определенного класса, если они написаны не внутри него
+ * @param   className - название класса
+ * @param   startIndex - начальный индекс, отсюда начнется поиск методов
+ * @return  возвращает строку со всеми найденными методами или пустую строку, если методов нет
+ */
+QString Functional::findClassMethods(QString className, int startIndex)
+{
+    int sIndexForMethod=0, i=0, firstIndex=0;
+    QString classMethods;
+        while ((code.indexOf(className, startIndex)) >= 0) {
+            firstIndex = code.indexOf(className, startIndex);
+            if ((code[firstIndex + className.size()] == ' ') || (code[firstIndex + className.size()] == ':')) {
+            while ((code.indexOf("\n", startIndex) < firstIndex) && (code.indexOf("\n", startIndex)) != -1) {
+                sIndexForMethod = (code.indexOf("\n", startIndex))+1;
+                startIndex = sIndexForMethod;
+            }
+            if (sIndexForMethod != 0) {
+                while (code[sIndexForMethod] != '{') {
+                    classMethods[i] = code[sIndexForMethod];
+                    i++;
+                    sIndexForMethod++;
+                }
+                classMethods[i] = code[sIndexForMethod];
+                i++;
+                sIndexForMethod++;
+
+                int openBracketNumber = 1, closeBracketNumber = 0;
+
+                while (openBracketNumber>closeBracketNumber) {
+                    classMethods[i] = code[sIndexForMethod];
+                    if (code[sIndexForMethod] == '{')
+                        openBracketNumber++;
+                    if (code[sIndexForMethod] == '}') {
+                        closeBracketNumber++;
+                    }
+                        i++;
+                        sIndexForMethod++;
+                }
+        startIndex = sIndexForMethod;
+            }
+            else
+            return classMethods = "";
+            }
+            else {
+                startIndex = firstIndex+className.size();
+            }
+    }
+    return classMethods;
+}
+/**
+ * @brief Метод находит функцию main
+ * @return возвращает строку с функцией main
+ */
+QString Functional::findMainFunc()
+{
+    QString mainFunction;
+
+    int openBracketNumber = 1, closeBracketNumber = 0, i = 0;
+    if (code.indexOf("int main(", 0) >= 0) {
+        int firstIndex = code.indexOf("int main(", 0);
+        int secondIndex = code.indexOf('{', firstIndex);
+
+        qDebug() << firstIndex;
+        qDebug() << secondIndex;
+
+        for (; firstIndex <= secondIndex; firstIndex++) {
+            mainFunction[i] = code[firstIndex];
+            i++;
+        }
+
+        while (openBracketNumber > closeBracketNumber) {
+            mainFunction[i] = code[firstIndex];
+            if (code[firstIndex] == '{')
+                openBracketNumber++;
+            if (code[firstIndex] == '}') {
+                closeBracketNumber++;
+            }
+                i++;
+                firstIndex++;
+        }
+    }
+    return mainFunction;
 }
 
 /**
