@@ -23,13 +23,13 @@ private:
 
 public:
     explicit Gateway(QObject *parent = nullptr);
-    QJsonDocument validateData(QByteArray);
+    bool dataIsValid(QByteArray, QJsonDocument*);
 
 private:
     void wrongRequestFormat(QString, QString);
-    void checkKeyExistance();
-    void checkKeyTypeAndValue();
-    void checkKeyNonExistance();
+    bool checkKeyExistance();
+    bool checkKeyTypeAndValue();
+    bool checkKeyNonExistance();
 
 signals:
     void sendToClient(QJsonObject);
