@@ -16,7 +16,7 @@ private:
     int variant;
     QString comments;
     QDomElement rootAnswerStructure;
-    QMap<QString, QString> code;
+    QMap<QString, QString> classes;
 
 public:
     explicit StrategyLab(QObject* parent = nullptr);
@@ -27,7 +27,7 @@ public:
 
 private:
     bool checkByConfig(int, QList<QString>*);
-    bool checkParentChildRelations();
+    bool checkParentChildRelations(int);
     bool checkContext();
     bool checkMainFunction();
 
