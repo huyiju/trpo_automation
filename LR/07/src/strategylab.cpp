@@ -79,7 +79,9 @@ bool StrategyLab::checkParentChildrenRelations(int variant)
     // TODO выпилить
     // Получаем конфиг нужной лабы - такое будет в методе checkByConfig - там запись идет в приватные переменные
     QDomElement elem;
-    foreach (QDomNode node, rootAnswerStructure.elementsByTagName("lab")) {
+    QDomNodeList labsConfig = rootAnswerStructure.elementsByTagName("lab");
+    for (QDomNode node = labsConfig.at(0); !node.isNull(); node = node.nextSibling()) {
+        qDebug() << elem.tagName();
         elem = node.toElement();
         if (elem.attribute("number").toInt() == variant) break;
     }
