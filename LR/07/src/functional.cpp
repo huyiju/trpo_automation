@@ -148,12 +148,12 @@ void Functional::parseIntoClasses(QString link, QList<QString>* ListOfClasses)
 
         QString className = findNameOfClass(firstIndex+5);
 
-        for (;firstIndex<=secondIndex;firstIndex++) {
+        for (; firstIndex <= secondIndex; firstIndex++) {
             addToList[addToListIndex] = code[firstIndex];
             addToListIndex++;
         }
         QString classMethods = findClassMethods(className, secondIndex);
-        addToList+=classMethods;
+        addToList += classMethods;
         addToListIndex = 0;
         ListOfClasses->append(addToList);
         addToList.clear();
@@ -196,11 +196,11 @@ QString Functional::findClassMethods(QString className, int startIndex)
 {
     int sIndexForMethod=0, i=0, firstIndex=0;
     QString classMethods;
-        while ((code.indexOf(className, startIndex)) >=0) {
+        while ((code.indexOf(className, startIndex)) >= 0) {
             firstIndex = code.indexOf(className, startIndex);
-            if ((code[firstIndex+className.size()] == ' ') || (code[firstIndex+className.size()] == ':')) {
+            if ((code[firstIndex + className.size()] == ' ') || (code[firstIndex + className.size()] == ':')) {
             while ((code.indexOf("\n", startIndex) < firstIndex) && (code.indexOf("\n", startIndex)) != -1) {
-                sIndexForMethod = (code.indexOf("\n",startIndex))+1;
+                sIndexForMethod = (code.indexOf("\n", startIndex))+1;
                 startIndex = sIndexForMethod;
             }
             if (sIndexForMethod != 0) {
@@ -231,7 +231,7 @@ QString Functional::findClassMethods(QString className, int startIndex)
             return classMethods = "";
             }
             else {
-                startIndex=firstIndex+className.size();
+                startIndex = firstIndex+className.size();
             }
     }
     return classMethods;
@@ -252,12 +252,12 @@ QString Functional::findMainFunc()
         qDebug() << firstIndex;
         qDebug() << secondIndex;
 
-        for (;firstIndex <= secondIndex;firstIndex++) {
+        for (; firstIndex <= secondIndex; firstIndex++) {
             mainFunction[i] = code[firstIndex];
             i++;
         }
 
-        while (openBracketNumber>closeBracketNumber) {
+        while (openBracketNumber > closeBracketNumber) {
             mainFunction[i] = code[firstIndex];
             if (code[firstIndex] == '{')
                 openBracketNumber++;
@@ -268,7 +268,6 @@ QString Functional::findMainFunc()
                 firstIndex++;
         }
     }
-    qDebug() << mainFunction;
     return mainFunction;
 }
 
