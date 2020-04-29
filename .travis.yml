@@ -1,0 +1,43 @@
+language: java
+branches:
+  only:
+  - master
+  - 18-VTbo-1b
+  - dev
+jdk:
+- oraclejdk11
+sudo: required
+dist: trusty
+before_install: cd LR/03
+addons:
+  chrome: stable
+before_script:
+- export DISPLAY=:99.0
+- sh -e /etc/init.d/xvfb start
+- sleep 3
+script: mvn install
+install:
+- wget -N http://chromedriver.storage.googleapis.com/2.24/chromedriver_linux64.zip
+  -P ~/
+- unzip ~/chromedriver_linux64.zip -d ~/
+- rm ~/chromedriver_linux64.zip
+- sudo mv -f ~/chromedriver /usr/local/share/
+- sudo chmod +x /usr/local/share/chromedriver
+cache:
+  directories:
+  - "$HOME/.m2"
+after_success:
+- bash <(curl -s https://codecov.io/bash)
+deploy:
+  skip_cleanup: true
+  provider: releases
+  prerelease: true
+  tags: v0.0.0.29/04/2020	
+  name: 18-VTbo-1b
+  api_key:
+    secure: od9bVOgWeaRvUrBnCSlSbDnQ4FDf+pvSBTUW4/vMRl/DeoC5ux0wmQs9Qr9uJdEcsZ7h1YO19hEsArAn0rsoVaiJxpttSDsa/6vui+3mWw2BM/7XfOje5bIY0Mup/FeYempbHLJA6uVE4NyHhOtzWEnRxe8BAZ0a4MnxHO7rfH+QYeur+6aj2JWWk+QYPcLSQhwR8/30YNhTdudLzBFziOy0oA+/uc+p/jKsTLuZDNgdRx/AczNxiy4G5IglVpQpf4A7bD2zSsLUknbTDb4zcd5zTD6COstit9R39GBjinF2kTQo+/Rc/9U4X6rMkG2mfGWNbz+DTQ6wQP+xkf0dqBzvFMl3JjhUTU8sp8R+j9jRzxsOQ/zq7huKKtHVMLro09u+kVR0u4DwxDTrMm4mNzjIjrK6+2Qqmfsn7lUxU/zFruewOCaRqy3wbQkkgHwbM/2gcl1bTM/tCbLExLwBXphyePIE2eSIxbwJ9XkOaPmUphLr2GH5fxSYn086UM76gU+zoMgUtw/OGX0VY5s8CKXtCxstyNy8IEhCHd2csVY0/3BIxZyBBF+YUBWfaBefWVhGPw0j6KB5VRt/YFuWvkVd30d5AKZTXKBTUiV4k+JMgDRLdhozZYpKtn4fpI6+s6JD9rt+K5vd7mhvmosfpRQFkNsCO1dB/lb3iPS3j2E=
+  file: 
+     - /home/travis/build/Students-of-the-city-of-Kostroma/trpo_automation/target/Selen-0.1-jar-with-dependencies.jar
+     - /home/travis/build/Students-of-the-city-of-Kostroma/trpo_automation/Repository.xml
+  on:
+    branch: dev
