@@ -19,6 +19,11 @@ steps:
 
 - script: | 
     pip install coverage
+    pip install httplib2
+    pip install requests
+    pip install --upgrade google-api-python-client
+    pip install --upgrade oauth2client
+    pip install google-auth-oauthlib
   displayName: 'Install libraries'
 
 - script: | 

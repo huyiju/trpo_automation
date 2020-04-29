@@ -152,15 +152,15 @@ def get_message(service, user_id):
 
 @log_method.log_method_info
 def email_archiving(service, user_id, message_info):
-     """
+    """
     Архивация сообщения.
     
     service: авторизация через мыло.  
     user_id: наше мыло или спец слово 'me'.  
     message_info: словарь с данными письма.
     """
-    msg_labels = {'removeLabelIds': ['UNREAD', 'INBOX'],
-                  'addLabelIds': ['Label_4436622035204509097']}
+    msg_labels = {'removeLabelIds': ['UNREAD', 'INBOX'], 
+		  'addLabelIds': ['Label_4436622035204509097']}
     message = service.users().messages().modify(userId=user_id,
                                                 id=message_info['id_of_msg'],
                                                 body=msg_labels).execute()
