@@ -35,15 +35,15 @@ before_deploy:
     - export TRAVIS_TAG=v.0.0.0.29/04/2020
     - git tag $TRAVIS_TAG
 deploy:
-  secret_access_key:
+  api_key:
     secure: oD4ZHThIV0TakBav+HU65N5ejrwgItYPUSoTb60gGAnOv2afK2M68FrXufLQuqndkxdLs6fla4dELzAPZ+NFNXDrPeCMYS6NYE11IZt0xHMamGjf62GIdYaLVWZ8A6qowKsacRv120YHpbWBcVk5c/Cpgp/Jg/qwgqApRkHZi6z5ed82LJ6lTWM4jm4z6E81rZpS5osl7SBfF9quZJ4rpeD9nBEgyv80uej9DBSsWxU5C3+lrrqlcuRNLBZrzMHKH1S2S+kZSrUkfOsGFrdt8q9Kglch6UaZmd8YIVrm1S4kqgK41uzrO7IzF6LqNwi0oGX6ANZa2XgJhTxgir3KhWBWZ8g145/YFlBNAY3nOOwzlaydpNHKDbUDTn35ZKaOQ2hIC6HFrhMSWa2qV8hKrSy3CDot/9FghwevyslFRaoC5DKCzBY+gdcTmkosUhF7MlhGRup3r2ymkQnVYNAJCU72Cu1HeSZ8acYC1u+pCqyoBKDSw2q2IbUCxcTdwLJWGsdnzCK+HXYYzLZrvYkj53gxPFYbAYA+UV1iBJkWFrnBdiRRp2ztYKNohiYVgjbas4091bYnfUdErYynFByIYWqIgpYTHXw4fMLfkp43Lr9qWcjzQMkgXkNHWIN6GGxl1oZztcTB9uLWw72y1ew/+M9te9nXL71eEpzt4OQATu8=
   skip_cleanup: true
   provider: releases
   prerelease: true	
   name: 18-VTbo-1b
   file: 
-     - /home/travis/build/Students-of-the-city-of-Kostroma/trpo_automation/target/Selen-0.1-jar-with-dependencies.jar
-     - /home/travis/build/Students-of-the-city-of-Kostroma/trpo_automation/Repository.xml
+     - /home/travis/build/Students-of-the-city-of-Kostroma/trpo_automation/LR/03/target/Selen-0.1-jar-with-dependencies.jar
+     - /home/travis/build/Students-of-the-city-of-Kostroma/trpo_automation/LR/03/Repository.xml
   on:
     branch: dev
     condition: $TRAVIS_COMMIT_MESSAGE == *"release"*
