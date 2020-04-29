@@ -38,3 +38,8 @@ steps:
     testResultsFiles: 'coverage.xml'
     testRunTitle: 'Publish test results for Python $(python.version)'
 
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathtoPublish: '$(Build.SourcesDirectory)' 
+    artifactName: 'drop' 
+    publishLocation: 'Container'
