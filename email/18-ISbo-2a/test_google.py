@@ -12,7 +12,7 @@ class Test_google(unittest.TestCase):
         Decode.Decode_files(['Example.json.bak'])
 
     def tearDown(self):
-        Decode.Finish(['config.py.bak', 'Example.json.bak'])
+        Decode.Finish(['config.py', 'Example.json'])
 
     def test_add_mark(self):
         from config import SPREAD_SHEET_ID
