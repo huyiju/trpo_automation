@@ -249,7 +249,7 @@ public class Server {
     public static void main(String[] args) throws ParseException, IOException {
         try {
             try  {
-                server = new ServerSocket(4003); //Сервер на порте 4003
+                server = new ServerSocket(port); //Сервер на порте 4003
                 System.out.println("Сервер запущен!");
                 clientSocket = server.accept(); //Сервер готов принимать сигнал
                 try {
