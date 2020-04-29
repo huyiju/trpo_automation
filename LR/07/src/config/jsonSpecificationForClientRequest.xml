@@ -8,8 +8,8 @@
             <end value="15"></end>
         </variant>
         <link type="String" severalChecks="true" dependsOn="code">
-            <check value="^((https?|ftp)\:\/\/)?([a-z0-9]{1})((\.[a-z0-9-])|([a-z0-9-]))*\.([a-z]{2,6})(\/?)$"></check>
-            <check value="https:\/\/github\.com\/."></check>
+            <check value="^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:\/?#[\]@!\$\(\)\*\+,;=.]+$"></check>
+            <check value="https:\/\/github\.com\/.*"></check>
         </link>
         <code type="Array" dependsOn="link"></code>
     </keys>
