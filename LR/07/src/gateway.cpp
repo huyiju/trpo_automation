@@ -59,7 +59,6 @@ bool Gateway::checkMessageType()
     QDomElement elem = rootConfigForClientRequest.firstChildElement();
     QJsonValue messageType = jsonObj.value(elem.tagName());
     const int expectedType = 2;
-    qDebug() << messageType;
 
     if (messageType.isUndefined()) {
         return wrongRequestFormat(QString(elem.tagName()), QString("Required key does not exist, cancel processing..."));
