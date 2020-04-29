@@ -522,12 +522,12 @@ public class Selenium {
     }
 
     public boolean Check_Repo_Name(){
-     String Good=Var_Repository.substring(Var_Repository.lastIndexOf("/"));
-     String Var=Repository.substring(Repository.lastIndexOf("/"));
-     if (Good.equals(Var)){
-         return true;
-     }
-     else return false;
+        String Good=Var_Repository.substring(Var_Repository.lastIndexOf("/"));
+        String Var=Repository.substring(Repository.lastIndexOf("/"));
+        if (Good.equals(Var)){
+            return true;
+        }
+        else return false;
     }
 
 
@@ -535,18 +535,18 @@ public class Selenium {
         if (Var_Repository != null) {
             Check_Var();
             if (id.equals(variant)||id=="-1") {
-               if (Check_Repo_Name()) {
+                if (Check_Repo_Name()) {
                     if (!empty) {
 
                         final int Good_branches = pull_INT("//li[2]/a[1]/span[@class='num text-emphasized' and 1]");
-                        final int Good_issues = pull_INT("//span[2]/a[@class='js-selected-navigation-item reponav-item' and 1]/span[@class='Counter' and 2]");
-                        final int Good_pull_request = pull_INT("//*[1]/span[@class='Counter' and 2]");
-                        final int Good_projects = pull_INT("//nav/a[@class='js-selected-navigation-item reponav-item' and 1]/span[@class='Counter' and 1]");
+                        final int Good_issues = pull_INT("//li[2]/a[@class='js-selected-navigation-item reponav-item' and 1]/span[@class='Counter' and 2]");
+                        final int Good_pull_request = pull_INT("//li[3]/a[@class='js-selected-navigation-item reponav-item' and 1]/span[@class='Counter' and 2]");
+                        final int Good_projects = pull_INT("//li[5]/a[@class='js-selected-navigation-item reponav-item' and 1]/span[@class='Counter' and 1]");
                         Change_Tab(1);
                         final int Var_branches = pull_INT("//li[2]/a[1]/span[@class='num text-emphasized' and 1]");
-                        final int Var_issues = pull_INT("//span[2]/a[@class='js-selected-navigation-item reponav-item' and 1]/span[@class='Counter' and 2]");
-                        final int Var_pull_request = pull_INT("//*[1]/span[@class='Counter' and 2]");
-                        final int Var_projects = pull_INT("//nav/a[@class='js-selected-navigation-item reponav-item' and 1]/span[@class='Counter' and 1]");
+                        final int Var_issues = pull_INT("//li[2]/a[@class='js-selected-navigation-item reponav-item' and 1]/span[@class='Counter' and 2]");
+                        final int Var_pull_request = pull_INT("//li[3]/a[@class='js-selected-navigation-item reponav-item' and 1]/span[@class='Counter' and 2]");
+                        final int Var_projects = pull_INT("//li[5]/a[@class='js-selected-navigation-item reponav-item' and 1]/span[@class='Counter' and 1]");
                         Change_Tab(0);
 
                         result += Check_Readme(); //Done
