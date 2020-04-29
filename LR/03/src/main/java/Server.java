@@ -249,6 +249,7 @@ public class Server {
     public static void main(String[] args) throws ParseException, IOException {
         try {
             try  {
+                SetPort();
                 server = new ServerSocket(port); //Сервер на порте 4003
                 System.out.println("Сервер запущен!");
                 clientSocket = server.accept(); //Сервер готов принимать сигнал
@@ -459,6 +460,7 @@ public class Server {
                     out.close();
                 }
             }
+
             finally {
                 System.out.println("Сервер закрыт!");
                 server.close();
