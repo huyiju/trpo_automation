@@ -30,10 +30,10 @@ void TcpServer::slotNewConnection()
 {
     mTcpSocket = mTcpServer->nextPendingConnection();
 
-    mTcpSocket->write("New connection!");
-
-    connect(mTcpSocket, &QTcpSocket::readyRead, this, &TcpServer::slotReadingDataJson);
+    connect(mTcpSocket, SIGNAL(readyRead()), this, SLOT(slotReadingDataJson()));
     connect(mTcpSocket, &QTcpSocket::disconnected, this, &TcpServer::slotClientDisconnected);
+
+    mTcpSocket->write("New connection!");
 }
 
 /**
@@ -52,7 +52,6 @@ void TcpServer::slotClientDisconnected()
  */
 void TcpServer::slotSendToClient(QJsonObject answerJson)
 {
-    qDebug() << answerJson;
     QJsonDocument jsonDoc(answerJson);
     QString jsonString = QString::fromLatin1(jsonDoc.toJson());
 
@@ -71,20 +70,17 @@ void TcpServer::slotReadingDataJson()
     QList<QString> pureCode;
     int labNumber = 1;
 
-    if (mTcpSocket->waitForConnected(500)) {
-        mTcpSocket->waitForConnected(500);
-        data = mTcpSocket->readAll();
+    data = mTcpSocket->readAll();
 
-        try {
-            QJsonDocument jsonDoc = gateWay->validateData(data);
-            if (!jsonDoc.isNull()) {
-                parsingJson(jsonDoc, &labLink, &labNumber, &pureCode);
-                processData(labLink, &pureCode, labNumber);
-            }
-        } catch (QString e) {
-            QString errorMsg = QStringLiteral("Error ' %1 ' while reading data").arg(e);
-            emit gateWay->systemError(errorMsg);
+    try {
+        QJsonDocument jsonDoc = gateWay->validateData(data);
+        if (!jsonDoc.isNull()) {
+            parsingJson(jsonDoc, &labLink, &labNumber, &pureCode);
+            processData(labLink, &pureCode, labNumber);
         }
+    } catch (QString e) {
+        QString errorMsg = QStringLiteral("Error ' %1 ' while reading data").arg(e);
+        emit gateWay->systemError(errorMsg);
     }
 }
 

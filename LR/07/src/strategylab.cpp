@@ -92,7 +92,7 @@ bool StrategyLab::checkParentChildrenRelations()
 
     // Проверка: абстрактный класс обладает абстрактным методом
     if (!parent.contains("virtual")) {
-        comments = "No abstract methods inside your abstract class" + abstractClassName + ". You should have at least one.";
+        comments = "No abstract methods inside your abstract class " + abstractClassName + ". You should have at least one.";
         return false;
     }
 
