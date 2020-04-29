@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
-    <messageType type="Double" value="1" required="true"></messageType>
+    <messageType value="1"></messageType>
     <keys>
         <lab type="Double" value="7" required="true"></lab>
         <variant type="Double" range="true" required="true">

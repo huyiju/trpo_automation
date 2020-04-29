@@ -57,7 +57,7 @@ QJsonDocument Gateway::validateData(QByteArray data)
 bool Gateway::checkMessageType()
 {
     QDomElement elem = rootConfigForClientRequest.firstChildElement();
-    QJsonValue messageType = jsonObj.value(elem.tagName());
+    QJsonValue messageType = jsonObj.take(elem.tagName());
     const int expectedType = 2;
 
     if (messageType.isUndefined()) {
@@ -107,7 +107,7 @@ bool Gateway::checkKeyExistance()
                 (!gotFirstKey && !gotSecondKey)) {
 
             QString errKey = gotFirstKey ? pairKey : key;
-            return wrongRequestFormat(errKey, QString("Key '" + errKey + "' or key '" + dependKeys.value(errKey) + "' should exist"));
+            return wrongRequestFormat(errKey, QString("Key '" + errKey + "' OR key '" + dependKeys.value(errKey) + "' should exist"));
         }
     }
 
@@ -126,7 +126,7 @@ bool Gateway::checkKeyTypeAndValue()
          !key.isNull(); key = key.nextSibling().toElement())
     {
         QString keyTagName = key.tagName();
-        value = jsonObj.value(keyTagName);
+        value = jsonObj.take(keyTagName);
 
         // TODO - выпилить - костыль
         if (!value.isUndefined()) {
@@ -184,13 +184,9 @@ bool Gateway::checkKeyTypeAndValue()
  */
 bool Gateway::checkKeyNonExistance()
 {
-//    QJsonValue value;
-//    foreach (const QString& key, jsonObj.keys()) {
-//        if (rootConfigForClientRequest.elementsByTagName(QString(key)).isEmpty()) {
-//            wrongRequestFormat(key, QString("Unexpected key"));
-//            return false;
-//        }
-//    }
+    if (!jsonObj.isEmpty()) {
+        return wrongRequestFormat(jsonObj.keys().at(0), QString("Unexpected key"));
+    }
 
     return true;
 }
@@ -245,4 +241,5 @@ void Gateway::prepareDataToSend(bool grade, QString comments)
     }
 
     emit sendToClient(jsonObj);
+    qCritical() << QString("Send check result: ") << int(grade) << QString(". Comments: ") + comments;
 }
