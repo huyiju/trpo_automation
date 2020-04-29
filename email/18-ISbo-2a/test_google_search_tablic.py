@@ -16,11 +16,11 @@ class Test_google(unittest.TestCase):
     def test_search_tablic1(self):
         from APIgoogle import search_tablic
         act=search_tablic('18-Исбо-2б','7','Лютый Максим Сергеевич')
-        self.assertNone(act)
+        self.assertIsNone(act)
     def test_search_tablic2(self):
         from APIgoogle import search_tablic
         act=search_tablic('18-Исбо-2а','','Лютый Максим Сергеевич')
-        self.assertNone(act)
+        self.assertIsNone(act)
     def test_search_tablic3(self):
         from APIgoogle import search_tablic
         act=search_tablic('18-Исбо-2а','7','Смирнов Александр Алексеевич')
@@ -29,7 +29,7 @@ class Test_google(unittest.TestCase):
     def test_search_tablic4(self):
         from APIgoogle import search_tablic
         act=search_tablic('18-Исбо-2а','7','')
-        self.assertNone(act)
+        self.assertIsNone(act)
         
 
 
