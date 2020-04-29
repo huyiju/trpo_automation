@@ -2,7 +2,7 @@
 from time import sleep
 from datetime import datetime
 
-import config as cfg
+import config_Project as cfg
 
 class Reserve:
 
@@ -29,8 +29,8 @@ class Reserve:
         - global version_assess / journal_assess
         - global version_marks / journal_marks
         """
-        with open(cfg.filename, "a") as file: file.write("\nGetting reserve dates...")
+        with open(cfg.filename, "a") as file: file.write("\nПолучение резервных данных... ")
         ReservePeoples = "Value1"
         ReserveMarks = "Value2"
-        sleep(1)
-        with open(cfg.filename, "a") as file: file.write("Reserve date gets!")
+
+        with open(cfg.filename, "a") as file: file.write("Данные получены!")

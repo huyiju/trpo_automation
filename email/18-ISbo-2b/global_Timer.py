@@ -2,7 +2,7 @@
 from time import sleep
 from datetime import datetime
 
-import config as cfg
+import config_Project as cfg
 
 class Timer:
 
@@ -25,7 +25,7 @@ class Timer:
         - None
         """
         with open(cfg.filename, "a") as file: file.write("\nSetting timer...")
-        sleep(1)
+
         timer = 10
         with open(cfg.filename, "a") as file: file.write("Timer sets!")
 
@@ -44,7 +44,7 @@ class Timer:
         - None
         """
         with open(cfg.filename, "a") as file: file.write("\nWaiting for timer...")
-        sleep(1)
+
         timer = 0
         with open(cfg.filename, "a") as file: file.write("Timer ends!")
 

@@ -2,39 +2,42 @@
 # coding=utf-8
 from time import sleep
 from datetime import datetime
-import sys
+from threading import Timer
 
-from google_CheckEmail import CheckEmail
-import config as cfg
-from global_Timer import Timer
+from main_1_google_CheckEmail import CheckEmail
+import config_Project as cfg
 from reserve_Reserve import Reserve
+
 
 def Main():
     # try:
-    #     print(next(cfg.gen_num_for_filename))
-    #     print(next(cfg.gen_num_for_filename))
-    #     print(next(cfg.gen_num_for_filename))
-
-        cfg.timer = Timer()
+        # Создание объекта резервных данных
         cfg.reserve_dates = Reserve()
+
+        # Формирование имени файла лога
         cfg.filename = cfg.path_to_logs + "log_" + datetime.strftime(datetime.now(), "%Y.%m.%d") + "_" + str(next(cfg.gen_num_for_filename)) + ".txt"
 
+        # Запись в лог о начале работы
         with open(cfg.filename, "a") as file:
-            file.write("\nStart working...")
+            file.write("Начало работы... ")
 
-	while True:
-	    CheckEmail()
+        # Запуск работы
+        # while True:
+            # Установка таймаута ожидания
+        start_function = Timer(cfg.timeout, CheckEmail)
 
-        with open(cfg.filename, "a") as file:
-            file.write("End working!")
+        # Запуск таймера до начала работы
+        start_function.start()
 
-    # except Exception:
-    #     print("nope")
-    #     # with open(cfg.filename, "a") as file: file.write("Sorry, but you have an error")
-    #     sleep(1)
-    #     # with open(cfg.filename, "a") as file: file.write("Restarting...")
-    #     sleep(1)
+    # except Exception as err:
+    #
+    #     # Запись в лог о ошибке
+    #     with open(cfg.filename, "a") as file:
+    #         file.write("Извините, у вас возникла ошибка, " + str(err) + " перезапускаю...")
+    #
+    #     # Перезапуск
     #     Main()
 
+# Вызов начальной функции
 if __name__ == '__main__':
     Main()

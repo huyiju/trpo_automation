@@ -1,5 +1,5 @@
 # coding=utf-8
-import config as cfg
+import config_Project as cfg
 
 cfg.timer = None
 cfg.reserve_dates = None
