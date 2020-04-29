@@ -3,8 +3,8 @@ from time import sleep
 from datetime import datetime
 from email.message import EmailMessage
 
-import config as cfg
-import config_email
+import config_Project as cfg
+import config_Mail
 import smtplib
 import email
 
@@ -12,20 +12,19 @@ def InformUsers(answersForUsers):
     """
     Разослать письма пользователям, внести пользователей в список, заархивировать письма, дождаться таймера
     """
+    # Отправление писем пользователям
     smtp_obj = smtp_login()
     SendLetters(smtp_obj, answersForUsers)
     quit_email_smtp(smtp_obj)
 
-    ArchiveLetters()
-
+    # Добавление пользователей (функция пока не реализована)
     AddUsers()
 
-    cfg.timer.WaitForTimer()
-
+    # Формирование нового имени файла логов
     FormFilename()
 
 
-def SendLetters(answersForUsers):
+def SendLetters(smtp_obj, answersForUsers):
     """
      Функционал:
     - Разослать письма пользователям
@@ -39,32 +38,21 @@ def SendLetters(answersForUsers):
     Участвующие внешние типы переменных
     - None
     """
-    mes = EmailMessage()
-    mes['From'] = "ТРПО ИАСТ"
-    mes['To'] = answersForUsers.Who
-    mes['Subject'] = answersForUsers.Theme
-    mes.set_content(answersForUsers.Body)
-    smtpObj.send_message(mes)
-    with open(cfg.filename, "a") as file: file.write("\nSetting letters for users...")
-    sleep(1)
-    with open(cfg.filename, "a") as file: file.write("Letters send!")
 
-def ArchiveLetters():
-    """
-     Функционал:
-    - Заархивировать отмеченные письма
-    На входе:
-    - None
-    На выходе:
-    - None
-    Что предусмотреть:
-    - None
-    Участвующие внешние типы переменных
-    - None
-    """
-    with open(cfg.filename, "a") as file: file.write("\nArchiving letters...")
-    sleep(1)
-    with open(cfg.filename, "a") as file: file.write("Letters archived!")
+    with open(cfg.filename, "a") as file:
+        file.write("\nОтправление ответов пользователю... ")
+
+    for i in answersForUsers:
+
+        mes = EmailMessage()
+        mes['From'] = "ТРПО ИАСТ"
+        mes['To'] = i.Who
+        mes['Subject'] = i.Theme
+        mes.set_content(i.Body)
+        smtp_obj.send_message(mes)
+
+    with open(cfg.filename, "a") as file:
+        file.write("Ответы отправлены!")
 
 def AddUsers():
     """
@@ -80,9 +68,11 @@ def AddUsers():
     Участвующие внешние типы переменных
     - None
     """
-    with open(cfg.filename, "a") as file: file.write("\nAdding users...")
-    sleep(1)
-    with open(cfg.filename, "a") as file: file.write("Users add!")
+    with open(cfg.filename, "a") as file:
+        file.write("\nДобавление пользователей... ")
+
+    with open(cfg.filename, "a") as file:
+        file.write("Пользователи добавлены!")
 
 def FormFilename():
     """
@@ -92,7 +82,6 @@ def FormFilename():
     if name != cfg.last_date:
         cfg.last_date = name
         cfg.gen_num_for_filename = cfg.num_for_filename()
-
 
     cfg.filename = cfg.path_to_logs + "log_" + name + "_" + str(next(cfg.gen_num_for_filename)) + ".txt"
 
@@ -106,7 +95,7 @@ def smtp_login():
     smtpObj.ehlo()
     smtpObj.starttls()
     smtpObj.ehlo()
-    smtpObj.login(config_email.EMAIL_ADDRESS, config_email.EMAIL_PASSWORD)
+    smtpObj.login(config_Mail.EMAIL_ADDRESS, config_Mail.EMAIL_PASSWORD)
     return smtpObj
 
 def quit_email_smtp(smtpObj):

@@ -3,6 +3,11 @@ import socket
 import global_LetterResult
 import json
 import select
+import requests
+from bs4 import BeautifulSoup
+
+from main_3_send_SetResults import SetResults
+import config_Project as cfg
 
 def WorkWithLetters(letters):
     """
@@ -10,10 +15,13 @@ def WorkWithLetters(letters):
     отправка их на проверку, принятие результатов и их передача дальше
     """
 
+    # Подготовка писем - получение сырых данных
     LettersConvertToString(letters)
 
+    # Формирование JSON
     jsonDates = FormJSONDates(letters)
 
+    # Отправка данных
     letterResults = SendJSONForCheck(jsonDates, letters)
 
     # SetResults - Передать данные следующему модулю в формате списка экземпляров класса EmailResults
@@ -32,12 +40,19 @@ def LettersConvertToString(letters):
     - Для некоторых писем нужно вытаскивать данные, для какой-то достаточно ссылки. Предусмотреть проверку на это
     в соответствии со спецификацией по JSON
     """
+    with open(cfg.filename, "a") as file:
+        file.write("\nПолучение данных... ")
 
+    LabsForWork = [4, 5, 6, 7, 8, 9, 10, 12]
     for tmp in letters:
-        html = get_html(tmp.Body) 
-        tmp.Body = finding_files(html, tmp.Student.NameOfStudent)
-    return letters
+        if tmp.CodeStatus == "20" and tmp.NumberOfLab in LabsForWork:
+            html = get_html(tmp.Body)
+            tmp.Body = finding_files(html, tmp.Student.NameOfStudent)
 
+    with open(cfg.filename, "a") as file:
+        file.write("Данные получены!")
+
+    return letters
 
 
 def FormJSONDates(letters):
@@ -53,21 +68,26 @@ def FormJSONDates(letters):
     - Формат json для каждой лабораторки прописан в спецификации по json, но по факту он везде одинаковый
     - Продумать момент обработки списка писем
     """
-    with open(cfg.filename, "a") as file: file.write("\nForming jsons...")
+    with open(cfg.filename, "a") as file:
+        file.write("\nФормирование JSON... ")
+
     jsons = []
     for i in range(len(letters)):
+        num = letters[i].NumberOfLab
         if letters[i].CodeStatus == "20":
             json1 = {
                 "messageType" : 1,
                 "lab" : letters[i].NumberOfLab,
                 "variant" : letters[i].VariantOfLab,
-                "link" : None,
-                "code" : letters[i].Body
+                "link" : letters[i].Body if num == 2 or num == 3 or num == 11 else None,
+                "code" : letters[i].Body if num == 4 or num == 5 or num == 6 or num == 7 or num == 8 or num == 9 or num == 10 or num == 12 else None
                 }
             mystr = json.dumps(json1)
-            jsonDates.append(mystr)
+            jsons.append(mystr)
 
-    with open(cfg.filename, "a") as file: file.write("Jsons forms!")
+    with open(cfg.filename, "a") as file:
+        file.write("Объекты JSON сформированы!")
+
     return jsons
 
 def SendJSONForCheck(jsonDates, letters):
@@ -99,10 +119,13 @@ def SendJSONForCheck(jsonDates, letters):
     В этом случае заполнять не только поле IsOK но и поле Code
     """
 
+    with open(cfg.filename, "a") as file:
+        file.write("\nОтправка данных... ")
+
     "Список новых писем"
     new_letters = []
 
-    conf = open("config_port.json", "r")
+    conf = open("config_Port.json", "r")
     config = conf.read()
     """Соответствие номера лабораторной и номера порта"""
     dataLab = json.loads(config)
@@ -114,10 +137,11 @@ def SendJSONForCheck(jsonDates, letters):
         """Данные для подключения"""
         sock = socket.socket()
         port = dataLab[str(i.NumberOfLab)]
-        config = open("configServ.txt", "r")
+        config = open("config_Server.txt", "r")
         HOST = config.readline()
         HOST = HOST.replace("\n", '')
-        if i.CodeStatus == "20":
+
+        if i.CodeStatus != "20":
             continue
 
         """Подключение и отправка JSON на порт"""
@@ -162,6 +186,9 @@ def SendJSONForCheck(jsonDates, letters):
         """Добавление нового письма"""
         new_letters.append(letter)
         sock.close()
+
+    with open(cfg.filename, "a") as file:
+        file.write("Данные отправлены и обработаны!")
 
     return new_letters
 
@@ -223,7 +250,6 @@ def finding_files(html, name):
     return main_data
 
 
-
 def finding_links(table):
     """Ищет ссылки, на которые можно перейти, то есть проверяет есть ли файлы или папки
     на этой странице или же это уже страница самого файла"""
@@ -233,69 +259,3 @@ def finding_links(table):
         if date[len(date) - 1] == None:
             date = date[:len(date) - 1]
     return date
-
-    "Список новых писем"
-    new_letters = []
-
-    conf = open("config_port.json", "r")
-    config = conf.read()
-    """Соответствие номера лабораторной и номера порта"""
-    dataLab = json.loads(config)
-    """Счётчик для параллельного обращения в два списка"""
-    count = 0
-    for i in letters:
-        letter = global_LetterResult.LetterResult()
-
-        """Данные для подключения"""
-        sock = socket.socket()
-        port = dataLab[str(i.NumberOfLab)]
-        config = open("configServ.txt", "r")
-        HOST = config.readline()
-        HOST = HOST.replace("\n", '')
-        if i.CodeStatus != "20":
-            continue
-
-        """Подключение и отправка JSON на порт"""
-        sock.connect((HOST, port))
-        sock.send(jsonDates[count].encode())
-        count += 1
-
-        """Ожидание ответа сервера 10 секунд"""
-        ready = select.select([sock], [], [], 10)
-        if ready[0]:
-            otv_serv = sock.recv(1024)
-            otvetServ = json.loads(otv_serv.decode())
-
-            """Оценка лабораторной работы по ответу сервера"""
-            if otvetServ["mark"] == "1":
-                IsOk = True
-            else:
-                IsOk = False
-            letter.Comment = otvetServ["comment"]
-            letter.CodeStatus = "30"
-            letter.CodeStatusComment = ""
-        else:
-            sock.close()
-            IsOk = False
-            letter.CodeStatus = "06"
-            letter.CodeStatusComment = "ERROR. Длительное ожидание ответа от сервера"
-
-        """Заполнение полей letterResult"""
-        letter.Student = i.Student
-        letter.ThemeOfLetter = i.ThemeOfLetter
-        letter.IsOK = IsOk
-        letter.VariantOfLab = i.VariantOfLab
-        letter.NumberOfLab = i.NumberOfLab
-        letter.CodeStatusComment = ""
-
-        """Добавление нового письма"""
-        new_letters.append(letter)
-        sock.close()
-    return new_letters
-
-
-
-
-
-
-

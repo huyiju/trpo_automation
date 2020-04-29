@@ -11,7 +11,7 @@ class LetterResult:
     Comment = ""
     VariantOfLab = 0
     NumberOfLab = 0
-    CodeStatus = 0
+    CodeStatus = "0"
     CodeStatusComment = ""
 
     def __init__(self, student=None, isOK=None, variant=None, number=None):

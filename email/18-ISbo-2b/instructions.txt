@@ -1,24 +1,37 @@
-at start:
-(any)
-sudo chmod 0755 /dir/to/file/file.py
-(mail)
-sudo chmod 0755 /home/rurec/git/temp/trpo_automation/email/18-ISbo-2b/main.py
+Чтобы запустить в консоли через "./main.py"
+sudo chmod 0755 /dir/to/file/main.py
 
-start:
-(any)
+Если желания запускать так нет, то можно просто:
+python3 /dir/to/file/main.py
+
+Чтобы запустить как демона:
 start-stop-daemon -Sbvx /dir/to/file/file.py
-(test)
-start-stop-daemon -Sbvx /home/rurec/git/temp/trpo_automation/mail/test/test.py
-(mail)
-start-stop-daemon -Sbvx /home/rurec/git/temp/trpo_automation/email/18-ISbo-2b/main.py
 
-end:
-(any)
-start-stop-daemon -Kvx /dir/to/file/file.py
-(test)
-start-stop-daemon -Kvx /usr/bin/python /home/rurec/git/temp/trpo_automation/mail/test/test.py
-(mail)
-start-stop-daemon -Kvx /usr/bin/python /home/rurec/git/temp/trpo_automation/email/18-ISbo-2b/main.py
+Чтобы запустить через службу start-stop-daemon но не как демона, а в явном виде:
+sudo chmod 0755 /dir/to/file/main.py
+start-stop-daemon -Sbvx /dir/to/file/file.py
 
-see processes:
+Чтобы остановить:
+start-stop-daemon -Kvx /dir/to/file/main.py
+
+Увидеть что процесс как демон работает (искать python3):
 ps afx
+
+
+Инструкции к релизу 0.0.0.6
+
+Для настройки проекта:
+
+- Установить pip3
+sudo apt install python3-pip
+
+- Установить библиотеки с https://developers.google.com/sheets/api/quickstart/python?authuser=2
+pip3 install --upgrade google-api-python-client
+pip3 install --upgrade google-auth-httplib2
+pip3 install --upgrade google-auth-oauthlib
+pip3 install --upgrade oauth2client
+
+- Скачать с Google Disk недостающий файлы:
+ТРПО/Автоматизация/mail/18-ИСбо-2б/Релизы/1.1
+token.pincle закинуль в корень а config_Mail.py просто заменить вместо того, что уже есть в проекте
+
