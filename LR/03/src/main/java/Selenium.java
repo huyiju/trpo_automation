@@ -36,7 +36,7 @@ public class Selenium {
         ChromeOptions options = new ChromeOptions();
 
         options.setPageLoadStrategy(PageLoadStrategy.NORMAL);
-       // options.addArguments("--headless");
+        options.addArguments("--headless");
         options.addArguments("start-maximized");
         options.addArguments("enable-automation");
         options.addArguments("--no-sandbox");
