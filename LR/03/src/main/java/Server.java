@@ -19,6 +19,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 public class Server {
+    public static Selenium Selenium;
     public static int port;
     private static final String FILENAME = "Repository.xml";
     private static Socket clientSocket; //Сокет клиента
@@ -445,7 +446,9 @@ public class Server {
 
 
                     if(conec==false) {
-                        out.write("Привет, это Сервер! Ответ: " + Otvet("1","NO") + "\n");
+                        Selenium=new Selenium(Repos,NomberVar);
+                        Selenium.test();
+                        out.write("Привет, это Сервер! Ответ: " + Otvet(Selenium.Get_Ozenka(),Selenium.Get_Result()) + "\n");
                         out.flush();
                     }
 
