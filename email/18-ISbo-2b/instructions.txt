@@ -32,6 +32,5 @@ pip3 install --upgrade google-auth-oauthlib
 pip3 install --upgrade oauth2client
 
 - Скачать с Google Disk недостающий файлы:
-ТРПО/Автоматизация/mail/18-ИСбо-2б/Релизы/1.1
-token.pincle закинуль в корень а config_Mail.py просто заменить вместо того, что уже есть в проекте
-
+ТРПО/Автоматизация/mail/18-ИСбо-2б/Релизы/0.0.0.6
+Закинуть всё в корень проекта (config_Mail перезаписать)
