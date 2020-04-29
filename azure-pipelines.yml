@@ -22,6 +22,7 @@ steps:
   displayName: 'Install libraries'
 
 - script: | 
+    cd "email//18-ISbo-2a"
     coverage run -m unittest discover
     coverage xml APIgoogle.py client.py Validation.py
   displayName: 'Run tests'
