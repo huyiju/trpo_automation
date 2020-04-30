@@ -300,11 +300,14 @@ def search_group(email_id):
             c += 1
         else:
             break
-    nomer = f'List1!F{c}:G{c}'
-    table1 = service.spreadsheets().values().get(
-           spreadsheetId=spreadsheetId, range=nomer).execute()
-    values_finish = table1.get('values')[0]
-    return tuple(values_finish)
+    if c == len(table.get('values'))+1:
+        return None
+    else:
+        nomer = f'List1!F{c}:G{c}'
+        table1 = service.spreadsheets().values().get(
+               spreadsheetId=spreadsheetId, range=nomer).execute()
+        values_finish = table1.get('values')[0]
+        return tuple(values_finish)
 
 
 @log_method.log_method_info
