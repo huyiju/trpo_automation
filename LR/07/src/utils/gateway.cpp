@@ -119,7 +119,6 @@ void Gateway::checkKeyTypeAndValue()
         QString keyTagName = key.tagName();
         value = jsonObj.take(keyTagName);
 
-        // TODO - выпилить - костыль
         if (!value.isUndefined()) {
 
             // Проверка на тип ключа
@@ -163,6 +162,8 @@ void Gateway::checkKeyTypeAndValue()
                 if (QVariant(key.attribute("value")) != jsonValue) {
                     throw WrongRequestException(keyTagName, "Wrong value: they just don't match");
                 }
+            } else if (jsonValue.toList().isEmpty()) {
+                throw WrongRequestException(keyTagName, "Wrong value: there is no value or it is empty!");
             }
         }
     }

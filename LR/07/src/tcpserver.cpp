@@ -141,9 +141,12 @@ void TcpServer::processData(QString link, QList<QString> *code, int variant)
             });
         }
 
-        lab->check(variant, *code);
-        gateWay->prepareDataToSend(true);
+        lab->checkByConfig(variant, *code);
+        lab->checkParentChildrenRelations();
+        lab->checkContext();
+        lab->checkMainFunction();
 
+        gateWay->prepareDataToSend(true);
     } catch (UnexpectedResultException error) {
         gateWay->prepareDataToSend(false, error.text());
     }
