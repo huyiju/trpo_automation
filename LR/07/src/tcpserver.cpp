@@ -79,8 +79,10 @@ void TcpServer::slotReadingDataJson()
             parsingJson(jsonDoc, &labLink, &labNumber, &pureCode);
             processData(labLink, &pureCode, labNumber);
         }
+    } catch (WrongRequestException error) {
+        gateWay->wrongRequestFormat(error.jsonKey(), error.text());
     } catch (SystemException error) {
-        emit gateWay->systemError(QString("Error ' %1 ' while processing data").arg(error.text()));
+        gateWay->processSystemError(error.text());
     }
 }
 
@@ -130,7 +132,7 @@ void TcpServer::processData(QString link, QList<QString> *code, int variant)
             });
 
             if (fileName.isEmpty()) {
-                throw UnexpectedResultException(QString("You don't have file with .cpp extension inside your repo"));
+                throw UnexpectedResultException("You don't have file with .cpp extension inside your repo");
             }
 
             github->getRequest(QUrl(urlForRequest.toString() + "/" + fileName),
@@ -139,14 +141,11 @@ void TcpServer::processData(QString link, QList<QString> *code, int variant)
             });
         }
 
-        bool result = lab->check(variant, *code);
-        QString comments = !result ? lab->getComments() : "";
+        lab->check(variant, *code);
+        gateWay->prepareDataToSend(true);
 
-        gateWay->sendCheckResult(result, comments);
     } catch (UnexpectedResultException error) {
-        gateWay->sendCheckResult(false, QString("Error ' %1 ' while checking the lab").arg(error.text()));
-    } catch (SystemException error) {
-        throw error;
+        gateWay->prepareDataToSend(false, error.text());
     }
 }
 

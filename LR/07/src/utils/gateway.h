@@ -1,6 +1,8 @@
 #ifndef GATEWAY_H
 #define GATEWAY_H
 
+#include "internalexception.h"
+
 #include <QDebug>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -26,21 +28,17 @@ public:
     explicit Gateway(QObject *parent = nullptr);
     QJsonDocument validateData(QByteArray);
 
-private:
-    bool wrongRequestFormat(QString, QString);
-    bool checkKeyExistance();
-    bool checkKeyTypeAndValue();
-    bool checkKeyNonExistance();
-    bool checkMessageType();
+    void wrongRequestFormat(QString, QString);
+    void processSystemError(QString);
+    void prepareDataToSend(bool, QString comments = "");
+
+    void checkKeyExistance();
+    void checkKeyTypeAndValue();
+    void checkKeyNonExistance();
+    void checkMessageType();
 
 signals:
     void sendToClient(QJsonObject);
-    void systemError(QString);
-    void sendCheckResult(bool, QString);
-
-private slots:
-    void processSystemError(QString);
-    void prepareDataToSend(bool, QString);
 };
 
 #endif // GATEWAY_H

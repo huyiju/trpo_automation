@@ -7,9 +7,6 @@
 Gateway::Gateway(QObject *parent)
     : QObject(parent)
 {
-    connect(this, SIGNAL(systemError(QString)), this, SLOT(processSystemError(QString)));
-    connect(this, SIGNAL(sendCheckResult(bool, QString)), this, SLOT(prepareDataToSend(bool, QString)));
-
     // Чтение конфига для валидации запросов клиента
     QDomDocument config;
     QFile file(":/config/jsonSpecificationForClientRequest.xml");
@@ -31,20 +28,17 @@ QJsonDocument Gateway::validateData(QByteArray data)
 {
     QJsonParseError docJsonError;
     QJsonDocument jsonDoc = QJsonDocument::fromJson(data, &docJsonError);
-    QJsonDocument *empty = new QJsonDocument();
 
     if (docJsonError.error == QJsonParseError::NoError) {
         jsonObj = jsonDoc.object();
 
-        if (!checkMessageType()
-                || !checkKeyExistance()
-                || !checkKeyTypeAndValue()
-                || !checkKeyNonExistance()) {
-            return (*empty);
-        }
+        checkMessageType();
+        checkKeyExistance();
+        checkKeyTypeAndValue();
+        checkKeyNonExistance();
+
     } else {
-        wrongRequestFormat(QString(""), QString("Wrong json object: system says - '") + docJsonError.errorString() + "'");
-        return (*empty);
+        throw WrongRequestException("", "Wrong json object", docJsonError.errorString());
     }
 
     return jsonDoc;
@@ -54,31 +48,29 @@ QJsonDocument Gateway::validateData(QByteArray data)
  * @brief Проверки на ключ messageType в запросе клиента
  * @return
  */
-bool Gateway::checkMessageType()
+void Gateway::checkMessageType()
 {
     QDomElement elem = rootConfigForClientRequest.firstChildElement();
     QJsonValue messageType = jsonObj.take(elem.tagName());
     const int expectedType = 2;
 
     if (messageType.isUndefined()) {
-        return wrongRequestFormat(QString(elem.tagName()), QString("Required key does not exist, cancel processing..."));
+        throw WrongRequestException(elem.tagName(), "Required key does not exist, cancel processing...");
     }
 
     if (messageType.type() != expectedType) {
-        return wrongRequestFormat(QString(elem.tagName()), QString("Key should have different type, cancel processing..."));
+        throw WrongRequestException(elem.tagName(), "Key should have different type, cancel processing...");
     }
 
     if (messageType.toInt() != elem.attribute("value").toInt()) {
-        return wrongRequestFormat(QString(elem.tagName()), QString("Key should have different value, cancel processing..."));
+        throw WrongRequestException(elem.tagName(), "Key should have different value, cancel processing...");
     }
-
-    return true;
 }
 
 /**
  * @brief Проверка на то, что в сообщении сожержаться необходимые ключи
  */
-bool Gateway::checkKeyExistance()
+void Gateway::checkKeyExistance()
 {
     QJsonValue value;
     QMap<QString, QString> dependKeys = {};
@@ -91,7 +83,7 @@ bool Gateway::checkKeyExistance()
         value = jsonObj.value(keyTagName);
         if (key.hasAttribute("required")) {
             if (value.isUndefined() && QVariant(key.attribute("required")).toBool()) {
-                return wrongRequestFormat(keyTagName, QString("Required key does not exist"));
+                throw WrongRequestException(keyTagName, "Required key does not exist");
             }
         } else {
             dependKeys.insert(keyTagName, key.attribute("dependsOn"));
@@ -107,17 +99,16 @@ bool Gateway::checkKeyExistance()
                 (!gotFirstKey && !gotSecondKey)) {
 
             QString errKey = gotFirstKey ? pairKey : key;
-            return wrongRequestFormat(errKey, QString("Key '" + errKey + "' OR key '" + dependKeys.value(errKey) + "' should exist"));
+            throw WrongRequestException(errKey, "Key '" + errKey + "' OR key '" + \
+                                        dependKeys.value(errKey) + "' should exist");
         }
     }
-
-    return true;
 }
 
 /**
  * @brief Проверки на тип ключа и на допустимые принимаемые значения
  */
-bool Gateway::checkKeyTypeAndValue()
+void Gateway::checkKeyTypeAndValue()
 {
     const QList<QString> dataTypes({"Null", "Bool", "Double", "String", "Array", "Object"});
     QJsonValue value;
@@ -134,7 +125,7 @@ bool Gateway::checkKeyTypeAndValue()
             // Проверка на тип ключа
             QString keyType = key.attribute("type");
             if (value.type() != dataTypes.indexOf(keyType)) {
-                return wrongRequestFormat(keyTagName, QString("Wrong key type: '") + keyType + QString("' expected"));
+                throw WrongRequestException(keyTagName, "Wrong key type: '" + keyType + "' expected");
             }
 
             /*** Проверки на принимаемые значения ключа ***/
@@ -148,8 +139,8 @@ bool Gateway::checkKeyTypeAndValue()
                     int endValue = key.lastChildElement().attribute("value").toInt();
 
                     if (!(startValue <= jsonValue.toInt() && jsonValue.toInt() <= endValue)) {
-                        return wrongRequestFormat(keyTagName, QString("Wrong value: from ") + \
-                                           QString::number(startValue) + " to " +  QString::number(endValue) + QString(" expected"));
+                        throw WrongRequestException(keyTagName, "Wrong value: from '" + QString::number(startValue) + \
+                                                    "' to '" + QString::number(endValue) + "' expected");
                     }
                 }
             } else if (key.hasAttribute("severalChecks") && \
@@ -162,7 +153,7 @@ bool Gateway::checkKeyTypeAndValue()
 
                         QRegExp re(check.attribute("value"));
                         if (!re.exactMatch(jsonValue.toString())) {
-                            return wrongRequestFormat(keyTagName, QString("Wrong value: it should match regex ") + check.attribute("value"));
+                            throw WrongRequestException(keyTagName, "Wrong value: it should match regex " + check.attribute("value"));
                         }
                     }
                 }
@@ -170,25 +161,21 @@ bool Gateway::checkKeyTypeAndValue()
 
                 // Проверка на полное соответствие
                 if (QVariant(key.attribute("value")) != jsonValue) {
-                    return wrongRequestFormat(keyTagName, QString("Wrong value: they just don't match"));
+                    throw WrongRequestException(keyTagName, "Wrong value: they just don't match");
                 }
             }
         }
     }
-
-    return true;
 }
 
 /**
  * @brief Проверяем, что в запросе не пришел неожиданный ключ
  */
-bool Gateway::checkKeyNonExistance()
+void Gateway::checkKeyNonExistance()
 {
     if (!jsonObj.isEmpty()) {
-        return wrongRequestFormat(jsonObj.keys().at(0), QString("Unexpected key"));
+        throw WrongRequestException(jsonObj.keys().at(0), "Unexpected key");
     }
-
-    return true;
 }
 
 /**
@@ -196,7 +183,7 @@ bool Gateway::checkKeyNonExistance()
  * @param jsonKey - ключ, где обнаружена ошибка
  * @param text - текст ошибки
  */
-bool Gateway::wrongRequestFormat(QString jsonKey, QString text)
+void Gateway::wrongRequestFormat(QString jsonKey, QString text)
 {
     QJsonObject jsonObj {
         {"messageType", messageType::WRONG_REQUEST},
@@ -205,8 +192,6 @@ bool Gateway::wrongRequestFormat(QString jsonKey, QString text)
     };
 
     emit sendToClient(jsonObj);
-    qCritical() << QString("Client - ") + text;
-    return false;
 }
 
 /**
@@ -221,7 +206,6 @@ void Gateway::processSystemError(QString errorMsg)
     };
 
     emit sendToClient(jsonObj);
-    qCritical() << QString("Internal - ") + errorMsg;
 }
 
 /**
@@ -241,5 +225,4 @@ void Gateway::prepareDataToSend(bool grade, QString comments)
     }
 
     emit sendToClient(jsonObj);
-    qCritical() << QString("Send check result: ") << int(grade) << QString(". Comments: ") + comments;
 }
