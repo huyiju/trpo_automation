@@ -3,7 +3,8 @@
 
 #include "strategylab.h"
 #include "functional.h"
-#include "gateway.h"
+#include "utils/gateway.h"
+#include "utils/internalexception.h"
 
 #include <QTcpServer>
 #include <QTcpSocket>
@@ -21,7 +22,7 @@ private:
     QTcpServer* mTcpServer;
     QTcpSocket* mTcpSocket;
     StrategyLab* lab;
-    Functional* githubManager;
+    Functional* github;
     Gateway* gateWay;
     QJsonDocument docJson;
     QJsonParseError docJsonError;

@@ -60,18 +60,16 @@ bool StrategyLab::checkByConfig(int variant, QList<QString> code)
     abstractMethodName = abstract.elementsByTagName("method").at(0).toElement().attribute("name");
     heirsAmount = elem.elementsByTagName("heirs").at(0).toElement().attribute("amount").toInt();
 
-    code.push_back("class Car\n{\npublic:\nvirtual string use() const = 0;\n};");
-    code.push_back("class Cash : public Car\n{\npublic:\nstring use() const override\n{\nreturn \"Cash payment\";\n}\n};");
-    code.push_back("class Card : public Car\n{\npublic:\nstring use() const override\n{\nreturn \"Card payment\";\n}\n};");
-    code.push_back("class Error : public Car\n{\npublic:\nstring use() const override\n{\nreturn \"Error: invalid data\";\n}\n};");
-
     foreach (QString strClass, code) {
         if (!strClass.contains("class")) {
             classes.insert("main", strClass);
         } else if (strClass.left(strClass.indexOf("{")).simplified().split(" ").at(1) == abstractClassName) {
             classes.insert("parent", strClass);
-        } else if (strClass.right(strClass.left(strClass.indexOf("{")).indexOf(":")).simplified().split(" ").at(1) == abstractClassName) {
-            children.push_back(strClass);
+        } else if (strClass.contains(abstractClassName)) {
+            QString declare = strClass.left(strClass.indexOf("{"));
+            if (declare.mid(declare.indexOf(":")).simplified().split(" ").at(2) == abstractClassName) {
+                children.push_back(strClass);
+            }
         } else {
             classes.insert("context", strClass);
         }
@@ -102,7 +100,7 @@ bool StrategyLab::checkParentChildrenRelations()
     }
 
     // Проверка: абстрактный класс обладает чистым абстрактным методом
-    if (!parent.right(parent.indexOf(abstractMethodName)).simplified().split(" ").join("").contains("=0;")) {
+    if (!parent.mid(parent.indexOf(abstractMethodName)).simplified().split(" ").join("").contains("=0;")) {
         comments = "Your abstract method " + abstractMethodName + " is not declared as pure abstract.\n " + \
                 "You should use '= 0' at the end of declaration";
         return false;
@@ -162,8 +160,8 @@ bool StrategyLab::checkChildren()
         }
 
         // Закидываем тела переопределенных методов наследников в массив
-        QString methodBody = child.right(child.lastIndexOf(abstractMethodName));
-        QString cutBodyToStart = methodBody.right(methodBody.indexOf("{"));
+        QString methodBody = child.mid(child.lastIndexOf(abstractMethodName));
+        QString cutBodyToStart = methodBody.mid(methodBody.indexOf("{"));
         QString cutBodyToEnd = cutBodyToStart.left(cutBodyToStart.lastIndexOf("}"));
         childMethodBodies.insert(cutBodyToEnd.simplified());
     }

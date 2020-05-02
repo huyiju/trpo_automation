@@ -10,12 +10,13 @@ TcpServer::TcpServer(QObject *parent)
     mTcpServer = new QTcpServer(this);
     gateWay = new Gateway();
     lab = new StrategyLab();
-    githubManager = new Functional();
+    github = new Functional();
 
     connect(gateWay, SIGNAL(sendToClient(QJsonObject)), this, SLOT(slotSendToClient(QJsonObject)));
     connect(mTcpServer, &QTcpServer::newConnection, this, &TcpServer::slotNewConnection);
 
-    if (!mTcpServer->listen(QHostAddress::LocalHost, 10000)) {
+    if (!mTcpServer->listen(QHostAddress::LocalHost, 12345)) {
+        qDebug() << mTcpServer->errorString();
         qDebug() << "Server is not started";
     } else {
         qDebug() << "Server is started";
@@ -78,9 +79,8 @@ void TcpServer::slotReadingDataJson()
             parsingJson(jsonDoc, &labLink, &labNumber, &pureCode);
             processData(labLink, &pureCode, labNumber);
         }
-    } catch (QString e) {
-        QString errorMsg = QStringLiteral("Error ' %1 ' while reading data").arg(e);
-        emit gateWay->systemError(errorMsg);
+    } catch (SystemException error) {
+        emit gateWay->systemError(QString("Error ' %1 ' while processing data").arg(error.text()));
     }
 }
 
@@ -110,7 +110,6 @@ void TcpServer::parsingJson(QJsonDocument docJson, QString *labLink, int *labNum
 
     link = jsonObj.take("variant");
     (*labNumber) = link.toInt();
-
 }
 
 /**
@@ -124,17 +123,30 @@ void TcpServer::processData(QString link, QList<QString> *code, int variant)
 {
     try {
         if (code->isEmpty()) {
-            githubManager->parseIntoClasses(link, code);
+            QUrl urlForRequest = github->linkChange(link);
+            QString fileName;
+            github->getRequest(urlForRequest, [this, &fileName](QJsonDocument reply) {
+                github->getFileInside(reply.array(), fileName);
+            });
+
+            if (fileName.isEmpty()) {
+                throw UnexpectedResultException(QString("You don't have file with .cpp extension inside your repo"));
+            }
+
+            github->getRequest(QUrl(urlForRequest.toString() + "/" + fileName),
+                               [this, code](QJsonDocument reply) {
+                github->parseIntoClasses(github->getCode(reply), code);
+            });
         }
 
         bool result = lab->check(variant, *code);
         QString comments = !result ? lab->getComments() : "";
 
-        emit gateWay->sendCheckResult(result, comments);
-    } catch (std::exception &e) {
-        QString errorMsg = QStringLiteral("Error ' %1 ' while processing data").arg(e.what());
-        emit gateWay->systemError(errorMsg);
-        qCritical() << errorMsg;
+        gateWay->sendCheckResult(result, comments);
+    } catch (UnexpectedResultException error) {
+        gateWay->sendCheckResult(false, QString("Error ' %1 ' while checking the lab").arg(error.text()));
+    } catch (SystemException error) {
+        throw error;
     }
 }
 
@@ -146,5 +158,5 @@ TcpServer::~TcpServer()
     delete mTcpServer;
     delete gateWay;
     delete lab;
-    delete githubManager;
+    delete github;
 }
