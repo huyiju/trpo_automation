@@ -4,7 +4,7 @@
  * @brief Конструктор класса, в котором создается объект класса QTcpServer
  * Сервер включается и ждет новых соединений.
  */
-TcpServer::TcpServer(QObject *parent)
+TcpServer::TcpServer(int labNumber, QObject *parent)
         : QObject(parent)
 {
     mTcpServer = new QTcpServer(this);
@@ -15,12 +15,45 @@ TcpServer::TcpServer(QObject *parent)
     connect(gateWay, SIGNAL(sendToClient(QJsonObject)), this, SLOT(slotSendToClient(QJsonObject)));
     connect(mTcpServer, &QTcpServer::newConnection, this, &TcpServer::slotNewConnection);
 
-    if (!mTcpServer->listen(QHostAddress::LocalHost, 12345)) {
-        qDebug() << mTcpServer->errorString();
+    if (!mTcpServer->listen(QHostAddress::LocalHost, static_cast<quint16>(getPortForLab(labNumber)))) {
         qDebug() << "Server is not started";
     } else {
         qDebug() << "Server is started";
     }
+}
+
+/**
+ * @brief Метод получения порта по номеру лабы
+ * @param labNumber - номер лабы
+ * @return
+ */
+int TcpServer::getPortForLab(int labNumber)
+{
+    QDomDocument config;
+    QDomElement root;
+
+    QFile file(":/config/labs.xml");
+    if (file.open(QIODevice::ReadOnly)) {
+        if (config.setContent(&file)) {
+            root = config.documentElement();
+        }
+        file.close();
+    } else {
+        qDebug() << file.errorString();
+    }
+
+    if (!root.isNull()) {
+        QDomNodeList portsConfig = root.elementsByTagName("lab");
+        for (QDomNode node = portsConfig.at(0); !node.isNull(); node = node.nextSibling()) {
+            QDomElement elem = node.toElement();
+            if (elem.attribute("number").toInt() == labNumber) {
+                return elem.attribute("port").toInt();
+            }
+        }
+    }
+
+    qDebug() << "Couldn't read config for a lab's port";
+    return 0;
 }
 
 /**

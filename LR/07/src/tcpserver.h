@@ -28,12 +28,13 @@ private:
     QJsonParseError docJsonError;
 
 public:
-    explicit TcpServer(QObject *parent = nullptr);
+    explicit TcpServer(int, QObject *parent = nullptr);
     ~TcpServer();
     void processData(QString, QList<QString>*, int);
     
 private:
     void parsingJson(QJsonDocument, QString*, int*, QList<QString>*);
+    int getPortForLab(int);
 
 public slots:
     void slotNewConnection();
