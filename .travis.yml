@@ -20,15 +20,15 @@ before_install:
   - CC=gcc-7 && CXX=g++-7
 install:
   - sudo apt-get install -y qt5-default qttools5-dev-tools
+  - sudo apt-get install mesa-common-dev
 jobs:
   include:
-    - stage: compile
+    - stage: Compile
       before_script: cd LR/07/src
       script:
-        - qmake src.pro
-        - make
+        - qmake src.pro && make
         - make clean && rm Makefile
-    - stage: unit tests
+    - stage: Unit tests
       before_script: cd LR/07/tests
       script: echo "Running unit tests..."
           # - stage: Github Release
