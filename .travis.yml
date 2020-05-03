@@ -17,6 +17,11 @@ addons:
       - g++-7
       - qt513base
       - qt513tools
+      - qt513webengine
+      - qt513x11extras
+      - qt513translations
+      - qt513scxml
+      - qt513script
       - libxkbcommon-x11-0
       - libgl1-mesa-dev
     update: true
