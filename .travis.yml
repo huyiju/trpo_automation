@@ -31,15 +31,14 @@ jobs:
     - stage: Unit tests
       before_script: cd LR/07/tests
       script:
-        - qmake -project tests.pro && make
-        - ./tests.pro
+        - sudo qmake tests.pro && make
+        - sudo ./tests.pro
     - stage: Github Release
       if: branch = dev
       script: skip
       deploy:
         provider: releases
-        api_key: "$GITHUB_OAUTH_TOKEN"
-        skip_cleanup: true
+        token: "$GITHUB_OAUTH_TOKEN"
         on:
           branch: dev
           tags: true
