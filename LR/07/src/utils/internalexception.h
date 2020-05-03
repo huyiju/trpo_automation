@@ -22,7 +22,7 @@ protected:
     virtual void formatMessage(QString, QString);
 
 public:
-    virtual const QString text()
+    const QString text()
     {
         return errorMessage;
     }
@@ -35,7 +35,7 @@ public:
         : InternalException(explanation, systemMessage)
     {}
 
-    ~SystemException() {}
+    virtual ~SystemException();
 };
 
 class UnexpectedResultException : public InternalException
@@ -45,7 +45,7 @@ public:
         : InternalException(explanation, systemMessage)
     {}
 
-    ~UnexpectedResultException() {}
+    ~UnexpectedResultException();
 };
 
 class WrongRequestException : public InternalException
@@ -59,7 +59,7 @@ public:
           key(key)
     {}
 
-    ~WrongRequestException() override {}
+    ~WrongRequestException();
 
     const QString jsonKey()
     {
