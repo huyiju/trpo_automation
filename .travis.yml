@@ -17,7 +17,6 @@ addons:
       - g++-7
       - qt513base
       - qt513tools
-      - qt513webengine
       - qt513x11extras
       - qt513translations
       - qt513scxml
@@ -34,12 +33,12 @@ install:
   - sudo apt-get install mesa-common-dev
 jobs:
   include:
-    - stage: compile
+    - stage: Compile
       before_script: cd LR/07/src
       script:
         - qmake src.pro && make
         - make clean && rm Makefile
-    - stage: unit tests
+    - stage: Unit tests
       before_script: cd LR/07/tests
       script:
         - echo "Running unit tests..."
