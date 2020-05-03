@@ -18,13 +18,10 @@ addons:
 before_install:
   - export PATH="/usr/lib/ccache:$PATH"
   - CC=gcc-7 && CXX=g++-7
-  - pwd
 install:
-  - wget /home/travis http://download.qt.io/official_releases/qt/5.13/5.13.2/qt-opensource-linux-x64-5.13.2.run
-  - ls
-  - cd /home/travis
-  - chmod +x qt-opensource-linux-x64-5.7.0.run
-  - ./qt-opensource-linux-x64-5.7.0.run
+  - wget http://download.qt.io/official_releases/qt/5.13/5.13.2/qt-opensource-linux-x64-5.13.2.run -P ~/
+  - chmod +x ~/qt-opensource-linux-x64-5.7.0.run
+  - ~/qt-opensource-linux-x64-5.7.0.run
   - sudo apt-get install mesa-common-dev
 jobs:
   include:
