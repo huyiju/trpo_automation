@@ -4,22 +4,56 @@
  * @brief Конструктор класса, в котором создается объект класса QTcpServer
  * Сервер включается и ждет новых соединений.
  */
-TcpServer::TcpServer(QObject *parent)
+TcpServer::TcpServer(int labNumber, QObject *parent)
         : QObject(parent)
 {
     mTcpServer = new QTcpServer(this);
     gateWay = new Gateway();
     lab = new StrategyLab();
-    githubManager = new Functional();
+    github = new Functional();
 
     connect(gateWay, SIGNAL(sendToClient(QJsonObject)), this, SLOT(slotSendToClient(QJsonObject)));
     connect(mTcpServer, &QTcpServer::newConnection, this, &TcpServer::slotNewConnection);
 
-    if (!mTcpServer->listen(QHostAddress::LocalHost, 10000)) {
+    if (!mTcpServer->listen(QHostAddress::LocalHost, static_cast<quint16>(getPortForLab(labNumber)))) {
         qDebug() << "Server is not started";
     } else {
         qDebug() << "Server is started";
     }
+}
+
+/**
+ * @brief Метод получения порта по номеру лабы
+ * @param labNumber - номер лабы
+ * @return
+ */
+int TcpServer::getPortForLab(int labNumber)
+{
+    QDomDocument config;
+    QDomElement root;
+
+    QFile file(":/config/labs.xml");
+    if (file.open(QIODevice::ReadOnly)) {
+        if (config.setContent(&file)) {
+            root = config.documentElement();
+        }
+        file.close();
+    } else {
+        qDebug() << file.errorString();
+    }
+
+    if (!root.isNull()) {
+        QDomNodeList portsConfig = root.elementsByTagName("lab");
+        for (QDomNode node = portsConfig.at(0); !node.isNull(); node = node.nextSibling()) {
+            QDomElement elem = node.toElement();
+            if (elem.attribute("number").toInt() == labNumber) {
+                return elem.attribute("port").toInt();
+            }
+        }
+    }
+
+    qDebug() << "Couldn't read config for a lab's port";
+    return 0;
 }
 
 /**
@@ -30,10 +64,10 @@ void TcpServer::slotNewConnection()
 {
     mTcpSocket = mTcpServer->nextPendingConnection();
 
-    mTcpSocket->write("New connection!");
-
-    connect(mTcpSocket, &QTcpSocket::readyRead, this, &TcpServer::slotReadingDataJson);
+    connect(mTcpSocket, SIGNAL(readyRead()), this, SLOT(slotReadingDataJson()));
     connect(mTcpSocket, &QTcpSocket::disconnected, this, &TcpServer::slotClientDisconnected);
+
+    mTcpSocket->write("New connection!");
 }
 
 /**
@@ -52,7 +86,6 @@ void TcpServer::slotClientDisconnected()
  */
 void TcpServer::slotSendToClient(QJsonObject answerJson)
 {
-    qDebug() << answerJson;
     QJsonDocument jsonDoc(answerJson);
     QString jsonString = QString::fromLatin1(jsonDoc.toJson());
 
@@ -71,20 +104,18 @@ void TcpServer::slotReadingDataJson()
     QList<QString> pureCode;
     int labNumber = 1;
 
-    if (mTcpSocket->waitForConnected(500)) {
-        mTcpSocket->waitForConnected(500);
-        data = mTcpSocket->readAll();
+    data = mTcpSocket->readAll();
 
-        try {
-            QJsonDocument jsonDoc = gateWay->validateData(data);
-            if (!jsonDoc.isNull()) {
-                parsingJson(jsonDoc, &labLink, &labNumber, &pureCode);
-                processData(labLink, &pureCode, labNumber);
-            }
-        } catch (QString e) {
-            QString errorMsg = QStringLiteral("Error ' %1 ' while reading data").arg(e);
-            emit gateWay->systemError(errorMsg);
+    try {
+        QJsonDocument jsonDoc = gateWay->validateData(data);
+        if (!jsonDoc.isNull()) {
+            parsingJson(jsonDoc, &labLink, &labNumber, &pureCode);
+            processData(labLink, &pureCode, labNumber);
         }
+    } catch (WrongRequestException error) {
+        gateWay->wrongRequestFormat(error.jsonKey(), error.text());
+    } catch (SystemException error) {
+        gateWay->processSystemError(error.text());
     }
 }
 
@@ -114,7 +145,6 @@ void TcpServer::parsingJson(QJsonDocument docJson, QString *labLink, int *labNum
 
     link = jsonObj.take("variant");
     (*labNumber) = link.toInt();
-
 }
 
 /**
@@ -128,17 +158,30 @@ void TcpServer::processData(QString link, QList<QString> *code, int variant)
 {
     try {
         if (code->isEmpty()) {
-            githubManager->parseIntoClasses(link, code);
+            QUrl urlForRequest = github->linkChange(link);
+            QString fileName;
+            github->getRequest(urlForRequest, [this, &fileName](QJsonDocument reply) {
+                github->getFileInside(reply.array(), fileName);
+            });
+
+            if (fileName.isEmpty()) {
+                throw UnexpectedResultException("You don't have file with .cpp extension inside your repo");
+            }
+
+            github->getRequest(QUrl(urlForRequest.toString() + "/" + fileName),
+                               [this, code](QJsonDocument reply) {
+                github->parseIntoClasses(github->getCode(reply), code);
+            });
         }
 
-        bool result = lab->check(variant, code);
-        QString comments = !result ? lab->getComments() : "";
+        lab->checkByConfig(variant, *code);
+        lab->checkParentChildrenRelations();
+        lab->checkContext();
+        lab->checkMainFunction();
 
-        emit gateWay->sendCheckResult(result, comments);
-    } catch (std::exception &e) {
-        QString errorMsg = QStringLiteral("Error ' %1 ' while processing data").arg(e.what());
-        emit gateWay->systemError(errorMsg);
-        qCritical() << errorMsg;
+        gateWay->prepareDataToSend(true);
+    } catch (UnexpectedResultException error) {
+        gateWay->prepareDataToSend(false, error.text());
     }
 }
 
@@ -150,5 +193,5 @@ TcpServer::~TcpServer()
     delete mTcpServer;
     delete gateWay;
     delete lab;
-    delete githubManager;
+    delete github;
 }

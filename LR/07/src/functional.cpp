@@ -5,137 +5,124 @@
  * @param parent - родитель этого класса, базовый QObject
  * @param linkLab - ссылка на репозиторий GitHub
  */
-Functional::Functional(QObject *parent) : QObject(parent)
+Functional::Functional(QObject *parent)
+    : QObject(parent),
+      manager(new QNetworkAccessManager())
 {
-    manager = new QNetworkAccessManager();
-    flag = true;
+    if (manager->networkAccessible()
+          == QNetworkAccessManager::UnknownAccessibility) {
+        manager->setNetworkAccessible(QNetworkAccessManager::Accessible);
+    }
+}
 
-    connect(manager, &QNetworkAccessManager::finished, this, &Functional::slotCheckRepo);
+/**
+ * @brief Метод формирования и выполнения GET запроса через API Github
+ * @param path - относительный путь API Github
+ * @param callback - функция, которую надо будет вызывать после обработки
+ * @return
+ */
+void Functional::getRequest(QUrl path, const std::function<void(QJsonDocument)> &callback)
+{
+    QEventLoop wait;
+
+    // формируем запрос
+    QNetworkRequest request(GITHUB_URL + "/" + path.toString());
+    request.setHeader(QNetworkRequest::UserAgentHeader, USER_AGENT);
+    request.setRawHeader("Accept", "application/vnd.github.v3+json");
+    QNetworkReply *reply = manager->get(request);
+
+    // ждем ответа
+    connect(reply, SIGNAL(finished()), &wait, SLOT(quit()));
+    wait.exec();
+
+    // обрабатываем ответ
+    callback(handleReply(reply));
+    reply->deleteLater();
+}
+
+/**
+ * @brief Обработчик успешного выполнения запроса
+ * @param req - структура запроса
+ * @return
+ */
+QJsonDocument Functional::handleReply(QNetworkReply *reply)
+{
+    int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    if (statusCode == 200) {
+        QByteArray data = reply->readAll();
+        if (data.isNull() || data.isEmpty() || (strcmp(data.constData(), "null") == 0)) {
+            return QJsonDocument();
+        }
+
+        QJsonParseError parseError;
+        QJsonDocument replyData = QJsonDocument::fromJson(data, &parseError);
+
+        if (parseError.error != QJsonParseError::NoError) {
+            throw SystemException("parse error for Github reply on get reuest", parseError.errorString());
+        }
+
+        return replyData;
+    }
+
+    QString reason = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString();
+    throw SystemException("Not successful request on Github.\nStatus code: " + QString::number(statusCode), reason);
+}
+
+/**
+ * @brief Метод получения имени файла .cpp в репозитории
+ * @param jsonArray - Json массив, где содержатся объекты
+ *          с информацией о фалйах в репозитории
+ * @param fileName - ссылка на имя файла
+ * @return
+ */
+void Functional::getFileInside(QJsonArray jsonArray, QString& fileName)
+{
+    foreach (QJsonValue value, jsonArray) {
+        QFileInfo file = value.toObject()["name"].toString();
+        if (file.suffix() == FILE_EXTENSION) {
+            fileName = file.fileName();
+        }
+    }
 }
 
 /**
  * @brief Метод приводит ссылку к нужному виду
- * @return void
+ * @return QUrl
  */
-void Functional::linkChange()
+QUrl Functional::linkChange(QString &link)
 {
-    int index;
-    const QString GITHUB = "github.com/";
-    const QString HTTPS = "https://api.";
 
-    index = link.indexOf(GITHUB, 0);
-    link.insert(index, "api.");
-    index = HTTPS.size() + GITHUB.size();
-    link.insert(index, "repos/");
-    link.push_back("/contents");
-}
-
-/**
- * @brief Метод посылает GET запрос на GitHub и получает ответ в формате Json
- * @return void
- */
-void Functional::getDataFromGithub(QString linkLab)
-{
-    link = linkLab;
-    if (flag) {
-        linkChange();
-    }
-    QUrl url(link);
-    QNetworkRequest request;
-    request.setUrl(url);
-    reply = manager->get(request);
-}
-
-/**
- * @brief Слот обрабатывает Json с GitHub'a
- * @return void
- */
-void Functional::slotCheckRepo()
-{
-    QString message;
-
-    if (reply->error() == QNetworkReply::NoError) {
-        if (flag) {
-            QString tempString;
-            QByteArray jsonData;
-            QJsonArray array;
-            QString chek = "cpp";
-
-            /* Индекс символа перед ".cpp" в наименовании файла (5 символ с конца)
-               Используется для проверки типа файла */
-            const int INDEX_FORMAT = -5;
-
-            jsonData = reply->readAll();
-            array = QJsonDocument::fromJson(jsonData).array();
-
-            /* Ищем в репозитории файл .cpp */
-            for (const QJsonValue& value : array) {
-                tempString = value.toObject() ["name"].toString();
-
-                if (tempString.indexOf(chek, INDEX_FORMAT) != -1) {
-                    tempString = value.toObject() ["path"].toString();
-                    link.push_back("/");
-                    link.push_back(tempString);
-                    break;
-                }
-            }
-
-            /* Если в репозитории не был найден файл ".cpp" */
-            if (tempString.indexOf(chek, INDEX_FORMAT) == -1) {
-               message = "FileNotFound";
-               // TODO Убрать к чертям, когда придумаем свой Exception
-               Gateway *tmp = new Gateway;
-               emit tmp->sendCheckResult(false, message);
-               delete tmp;
-         }
-
-            /* Получаем данные файла */
-            flag = false;
-            getDataFromGithub(link);
-
-        } else {
-
-            /* Извлекаем код программы из Json объекта */
-            getCode(reply);
-        }
-    } else {
-        message = reply->errorString();
-        // TODO Убрать к чертям, когда придумаем свой Exception
-        Gateway *tmp = new Gateway;
-        emit tmp->sendCheckResult(false, message);
-        delete tmp;
-    }
+    QString repoName = link.mid(link.lastIndexOf("/"));
+    link = link.remove(repoName);
+    QString repoOwner = link.mid(link.lastIndexOf("/"));
+    return QUrl("repos" + repoOwner + repoName + "/contents");
 }
 
 /**
  * @brief Метод извлекает код программы из Json
  * @param reply - Json, который присылает GitHub
- * @return void
+ * @return QString
  */
-void Functional::getCode(QNetworkReply *reply)
+QString Functional::getCode(QJsonDocument reply)
 {
-    QString tempString;
+    QJsonObject object = reply.object();
+    QString tempString = object.take("content").toString();
+
     QByteArray jsonData;
-    QJsonObject object;
-
-    jsonData = reply->readAll();
-
-    object = QJsonDocument::fromJson(jsonData).object();
-    tempString = object.take("content").toString();
-
     jsonData.clear();
     jsonData.append(tempString);
     tempString = jsonData.fromBase64(jsonData).data();
-    code = tempString;
+    return tempString;
 }
+
 /**
  * @brief Метод разделяет полученный код на классы
  *        и помещает их в массив
  * @return void
  */
-void Functional::parseIntoClasses(QString link, QList<QString>* ListOfClasses)
+void Functional::parseIntoClasses(QString contentCode, QList<QString>* ListOfClasses)
 {
-    getDataFromGithub(link);
+    code = contentCode;
     QString addToList;
     int firstIndex = 0, secondIndex = 0, addToListIndex = 0;
 
@@ -248,9 +235,6 @@ QString Functional::findMainFunc()
     if (code.indexOf("int main(", 0) >= 0) {
         int firstIndex = code.indexOf("int main(", 0);
         int secondIndex = code.indexOf('{', firstIndex);
-
-        qDebug() << firstIndex;
-        qDebug() << secondIndex;
 
         for (; firstIndex <= secondIndex; firstIndex++) {
             mainFunction[i] = code[firstIndex];

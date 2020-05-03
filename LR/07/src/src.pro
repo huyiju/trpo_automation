@@ -1,7 +1,7 @@
 QT -= gui
 QT += network xml
 
-CONFIG += c++11 console
+CONFIG += c++14 console
 CONFIG -= app_bundle
 
 # The following define makes your compiler emit warnings if you use
@@ -17,10 +17,11 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         functional.cpp \
-        gateway.cpp \
         main.cpp \
         strategylab.cpp \
-        tcpserver.cpp
+        tcpserver.cpp \
+        utils/gateway.cpp \
+        utils/internalexception.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -29,9 +30,10 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     functional.h \
-    gateway.h \
     strategylab.h \
-    tcpserver.h
+    tcpserver.h \
+    utils/gateway.h \
+    utils/internalexception.h
 
 win32:CONFIG += console
 win32:TARGET  = ../XmlDOMRead
