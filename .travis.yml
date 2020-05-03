@@ -12,8 +12,11 @@ addons:
   apt:
     sources:
       - ubuntu-toolchain-r-test
+      - sourceline: 'ppa:beineri/opt-qt-5.13.2-trusty'
     packages:
       - g++-7
+      - qt513base
+      - qt513tools
       - libxkbcommon-x11-0
       - libgl1-mesa-dev
     update: true
@@ -23,9 +26,6 @@ before_install:
   - export PATH="/usr/lib/ccache:$PATH"
   - CC=gcc-7 && CXX=g++-7
 install:
-  - wget -N http://download.qt.io/official_releases/qt/5.13/5.13.2/qt-opensource-linux-x64-5.13.2.run -P ~/
-  - chmod +x ~/qt-opensource-linux-x64-5.13.2.run
-  - ~/qt-opensource-linux-x64-5.13.2.run
   - sudo apt-get install mesa-common-dev
 jobs:
   include:
