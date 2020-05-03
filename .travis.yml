@@ -10,7 +10,9 @@ if: type = pull_request
 cache: ccache
 before_install:
   - export PATH="/usr/lib/ccache:$PATH"
+  - sudo add-apt-repository ppa:ubuntu-toolchain-r/test
 install:
+  - sudo apt-get install gcc-7 g++-7
   - sudo apt-get install -y qt5-default qttools5-dev-tools
 addons:
   apt:
@@ -22,7 +24,7 @@ jobs:
       script:
         - qmake "CONFIG+=debug" src.pro
         - make
-        - make clean
+        - make clean && rm Makefile
     - stage: unit tests
       before_script: cd LR/07/Tests
       script: echo "Running unit tests..."
