@@ -30,14 +30,16 @@ jobs:
         - make clean && rm Makefile
     - stage: Unit tests
       before_script: cd LR/07/tests
-      script: echo "Running unit tests..."
-          # - stage: Github Release
-          #   if: branch = dev
-          #   script: skip
-          #   deploy:
-          #     provider: releases
-          #     api_key: "$GITHUB_OAUTH_TOKEN"
-          #     skip_cleanup: true
-          #     on:
-          #       branch: dev
-          #       tags: true
+      script:
+        - qmake -project tests.pro && make
+        - ./tests.pro
+    - stage: Github Release
+      if: branch = dev
+      script: skip
+      deploy:
+        provider: releases
+        api_key: "$GITHUB_OAUTH_TOKEN"
+        skip_cleanup: true
+        on:
+          branch: dev
+          tags: true
