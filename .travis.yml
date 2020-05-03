@@ -17,6 +17,7 @@ addons:
       - g++-7.5
 before_install:
   - export PATH="/usr/lib/ccache:$PATH"
+  - CC=gcc-7.5 && CXX=g++-7.5
 install:
   - sudo apt-get install -y qt5-default qttools5-dev-tools
 jobs:
