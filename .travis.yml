@@ -22,11 +22,11 @@ jobs:
     - stage: compile
       before_script: cd LR/07/src
       script:
-        - qmake "CONFIG+=debug" src.pro
+        - qmake src.pro
         - make
         - make clean && rm Makefile
     - stage: unit tests
-      before_script: cd LR/07/Tests
+      before_script: cd LR/07/tests
       script: echo "Running unit tests..."
           # - stage: Github Release
           #   if: branch = dev

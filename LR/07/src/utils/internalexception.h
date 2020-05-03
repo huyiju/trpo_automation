@@ -35,7 +35,7 @@ public:
         : InternalException(explanation, systemMessage)
     {}
 
-    virtual ~SystemException();
+    ~SystemException() {}
 };
 
 class UnexpectedResultException : public InternalException
@@ -45,7 +45,7 @@ public:
         : InternalException(explanation, systemMessage)
     {}
 
-    ~UnexpectedResultException();
+    ~UnexpectedResultException() {}
 };
 
 class WrongRequestException : public InternalException
@@ -59,7 +59,7 @@ public:
           key(key)
     {}
 
-    ~WrongRequestException();
+    ~WrongRequestException() {}
 
     const QString jsonKey()
     {
