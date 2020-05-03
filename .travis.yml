@@ -1,33 +1,29 @@
-matrix:
-  include:
-    - language: cpp
-      compiler: gcc
-      branches:
-        only:
-          - dev
-          - 18-VTbo-1a
-      if: type = pull_request
-      sudo: false
-      dist: trusty
-      cache: ccache
-      before_install:
-        - export PATH="/usr/lib/ccache:$PATH"
-      install:
-        - sudo apt-get install -y qt5-default qttools5-dev-tools
-      addons:
-        apt:
-          update: true
-      jobs:
-        include:
-          - stage: compile
-            before_script: cd LR/07/src
-            script:
-              - qmake "CONFIG+=debug" src.pro
-              - make
-              - make clean
-          - stage: unit tests
-            before_script: cd LR/07/Tests
-            script: echo "Running unit tests..."
+language: cpp
+compiler: gcc
+branches:
+  only:
+    - dev
+    - 18-VTbo-1a
+dist: trusty
+if: type = pull_request
+dist: trusty
+cache: ccache
+before_install:
+  - export PATH="/usr/lib/ccache:$PATH"
+install:
+  - sudo apt-get install -y qt5-default qttools5-dev-tools
+addons:
+  apt:
+    update: true
+- stage: compile
+  before_script: cd LR/07/src
+  script:
+    - qmake "CONFIG+=debug" src.pro
+    - make
+    - make clean
+- stage: unit tests
+  before_script: cd LR/07/Tests
+  script: echo "Running unit tests..."
           # - stage: Github Release
           #   if: branch = dev
           #   script: skip
