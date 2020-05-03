@@ -10,11 +10,11 @@ if: type = pull_request
 cache: ccache
 addons:
   apt:
-    update: true
     sources:
       - ubuntu-toolchain-r-test
     packages:
       - g++-7
+    update: true
 before_install:
   - export PATH="/usr/lib/ccache:$PATH"
   - CC=gcc-7 && CXX=g++-7
