@@ -18,6 +18,7 @@ addons:
 before_install:
   - export PATH="/usr/lib/ccache:$PATH"
   - CC=gcc-7 && CXX=g++-7
+  - pwd
 install:
   - wget http://download.qt.io/official_releases/qt/5.13/5.13.2/qt-opensource-linux-x64-5.13.2.run
   - chmod +x qt-opensource-linux-x64-5.7.0.run
