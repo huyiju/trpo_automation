@@ -19,23 +19,20 @@ addons:
     update: true
 services: 
   - xvfb
-env:
-  - QT_CI_PACKAGES=qt.qt5.5132.gcc_64,qt.qt5.5132.qtwebengine PATH="$TRAVIS_BUILD_DIR/Qt/5.13.2/gcc_64/bin:${PATH}"
 before_install:
   - export PATH="/usr/lib/ccache:$PATH"
   - CC=gcc-7 && CXX=g++-7
 install:
-  - git clone https://github.com/benlau/qtci.git
-  - source qtci/path.env
-  - install-qt 5.13.2
+  - wget -N http://download.qt.io/official_releases/qt/5.13/5.13.2/qt-opensource-linux-x64-5.13.2.run -P ~/
+  - chmod +x ~/qt-opensource-linux-x64-5.13.2.run
+  - ~/qt-opensource-linux-x64-5.13.2.run
   - sudo apt-get install mesa-common-dev
 jobs:
   include:
     - stage: compile
       before_script: cd LR/07/src
       script:
-        - qmake src.pro
-        - make
+        - qmake src.pro && make
         - make clean && rm Makefile
     - stage: unit tests
       before_script: cd LR/07/tests
