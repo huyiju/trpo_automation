@@ -15,15 +15,17 @@ install:
 addons:
   apt:
     update: true
-- stage: compile
-  before_script: cd LR/07/src
-  script:
-    - qmake "CONFIG+=debug" src.pro
-    - make
-    - make clean
-- stage: unit tests
-  before_script: cd LR/07/Tests
-  script: echo "Running unit tests..."
+jobs:
+  include:
+    - stage: compile
+      before_script: cd LR/07/src
+      script:
+        - qmake "CONFIG+=debug" src.pro
+        - make
+        - make clean
+    - stage: unit tests
+      before_script: cd LR/07/Tests
+      script: echo "Running unit tests..."
           # - stage: Github Release
           #   if: branch = dev
           #   script: skip
