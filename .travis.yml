@@ -5,14 +5,14 @@ branches:
   only:
     - dev
     - 18-VTbo-1a
-dist: trusty
+dist: bionic
 if: type = pull_request
 cache: ccache
 addons:
   apt:
     sources:
       - ubuntu-toolchain-r-test
-      - sourceline: 'ppa:beineri/opt-qt-5.13.2-trusty'
+      - sourceline: 'ppa:beineri/opt-qt-5.13.2-bionic'
     packages:
       - g++-7
       - qt513base
@@ -36,7 +36,8 @@ jobs:
         - make clean && rm Makefile
     - stage: unit tests
       before_script: cd LR/07/tests
-      script: echo "Running unit tests..."
+      script:
+        - echo "Running unit tests..."
           # - stage: Github Release
           #   if: branch = dev
           #   script: skip
