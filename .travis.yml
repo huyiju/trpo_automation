@@ -5,43 +5,32 @@ branches:
   only:
     - dev
     - 18-VTbo-1a
-dist: bionic
+dist: trusty
 if: type = pull_request
 cache: ccache
 addons:
   apt:
+    update: true
     sources:
       - ubuntu-toolchain-r-test
-      - sourceline: 'ppa:beineri/opt-qt-5.13.2-bionic'
     packages:
       - g++-7
-      - qt513base
-      - qt513tools
-      - qt513x11extras
-      - qt513translations
-      - qt513scxml
-      - qt513script
-      - libxkbcommon-x11-0
-      - libgl1-mesa-dev
-    update: true
-services: 
-  - xvfb
 before_install:
   - export PATH="/usr/lib/ccache:$PATH"
   - CC=gcc-7 && CXX=g++-7
 install:
-  - sudo apt-get install mesa-common-dev
+  - sudo apt-get install -y qt5-default qttools5-dev-tools
 jobs:
   include:
-    - stage: Compile
+    - stage: compile
       before_script: cd LR/07/src
       script:
-        - qmake src.pro && make
+        - qmake src.pro
+        - make
         - make clean && rm Makefile
-    - stage: Unit tests
+    - stage: unit tests
       before_script: cd LR/07/tests
-      script:
-        - echo "Running unit tests..."
+      script: echo "Running unit tests..."
           # - stage: Github Release
           #   if: branch = dev
           #   script: skip
@@ -52,3 +41,12 @@ jobs:
           #     on:
           #       branch: dev
           #       tags: true
+
+
+# install:
+#   - sudo apt-get install -y qt5-default qttools5-dev-tools #install necessary Qt files
+
+# script:
+#   - qmake "CONFIG+=debug" SimpleQtTest.pro #we gonna compile for actual program
+#   - make
+#   - ./SimpleQtTest #run actual program
