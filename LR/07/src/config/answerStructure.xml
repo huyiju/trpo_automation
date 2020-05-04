@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Labs>
+    <lab number="1">
+        <abstract name="Car">
+            <method name="use"
+                    shouldReturn="true"
+                    hasParams="0" >
+            </method>
+        </abstract>
+        <heirs amount="3">
+            <class name="Electricity"></class>
+            <class name="Gas"></class>
+            <class name="Petrol"></class>
+        </heirs>
+    </lab>
+    <lab number="2">
+        <abstract name="Car">
+            <method name="distribution"
+                    shouldReturn="true"
+                    hasParams="0" >
+            </method>
+        </abstract>
+        <heirs amount="3">
+            <class name="Green"></class>
+            <class name="Red"></class>
+            <class name="Blue"></class>
+        </heirs>
+    </lab>
+    <lab number="3">
+        <abstract name="Input">
+            <method name="check"
+                    shouldReturn="true"
+                    hasParams="0" >
+            </method>
+        </abstract>
+        <heirs amount="3">
+            <class name="Number"></class>
+            <class name="StringToLower"></class>
+            <class name="StringToUpper"></class>
+        </heirs>
+    </lab>
+    <lab number="4">
+        <abstract name="Shop">
+            <method name="payment"
+                    shouldReturn="true"
+                    hasParams="0" >
+            </method>
+        </abstract>
+        <heirs amount="2">
+            <class name="Cash"></class>
+            <class name="Card"></class>
+        </heirs>
+    </lab>
+    <lab number="5">
+        <abstract name="Output">
+            <method name="implementation"
+                    shouldReturn="true"
+                    hasParams="0" >
+            </method>
+        </abstract>
+        <heirs amount="7">
+            <class name="Purple"></class>
+            <class name="DarkBlue"></class>
+            <class name="Blue"></class>
+            <class name="Green"></class>
+            <class name="Yellow"></class>
+            <class name="Orange"></class>
+            <class name="Red"></class>
+        </heirs>
+    </lab>
+    <lab number="6">
+        <abstract name="Car">
+            <method name="purchase"
+                    shouldReturn="true"
+                    hasParams="0" >
+            </method>
+        </abstract>
+        <heirs amount="3">
+            <class name="BMW"></class>
+            <class name="Chevrolet"></class>
+            <class name="Ford"></class>
+        </heirs>
+    </lab>
+    <lab number="7">
+        <abstract name="SpendTime">
+            <method name="choice"
+                    shouldReturn="true"
+                    hasParams="0" >
+            </method>
+        </abstract>
+        <heirs amount="3">
+            <class name="Walking"></class>
+            <class name="Talking"></class>
+            <class name="Running"></class>
+        </heirs>
+    </lab>
+    <lab number="8">
+        <abstract name="Place">
+            <method name="choice"
+                    shouldReturn="true"
+                    hasParams="0" >
+            </method>
+        </abstract>
+        <heirs amount="3">
+            <class name="Gym"></class>
+            <class name="Office"></class>
+            <class name="Street"></class>
+        </heirs>
+    </lab>
+    <lab number="9">
+        <abstract name="RestPlace">
+            <method name="choice"
+                    shouldReturn="true"
+                    hasParams="0" >
+            </method>
+        </abstract>
+        <heirs amount="3">
+            <class name="Cruise"></class>
+            <class name="Countryside"></class>
+            <class name="Abroad"></class>
+        </heirs>
+    </lab>
+    <lab number="10">
+        <abstract name="Transport">
+            <method name="choice"
+                    shouldReturn="true"
+                    hasParams="0" >
+            </method>
+        </abstract>
+        <heirs amount="3">
+            <class name="Yacht"></class>
+            <class name="Aircraft"></class>
+            <class name="Car"></class>
+        </heirs>
+    </lab>
+    <lab number="11">
+        <abstract name="ActivityPlace">
+            <method name="getSweaty"
+                    shouldReturn="true"
+                    hasParams="0" >
+            </method>
+        </abstract>
+        <heirs amount="2">
+            <class name="Stadium"></class>
+            <class name="Gym"></class>
+        </heirs>
+    </lab>
+    <lab number="12">
+        <abstract name="Trip">
+            <method name="assessment"
+                    shouldReturn="true"
+                    hasParams="0" >
+            </method>
+        </abstract>
+        <heirs amount="2">
+            <class name="Car"></class>
+            <class name="Underground"></class>
+        </heirs>
+    </lab>
+    <lab number="13">
+        <abstract name="Admission">
+            <method name="points"
+                    shouldReturn="true"
+                    hasParams="0" >
+            </method>
+        </abstract>
+        <heirs amount="2">
+            <class name="StudyingFree"></class>
+            <class name="PayForStudy"></class>
+        </heirs>
+    </lab>
+    <lab number="14">
+        <abstract name="Price">
+            <method name="purchase"
+                    shouldReturn="true"
+                    hasParams="0" >
+            </method>
+        </abstract>
+        <heirs amount="3">
+            <class name="Free"></class>
+            <class name="SmallCost"></class>
+            <class name="HugeCost"></class>
+        </heirs>
+    </lab>
+    <lab number="15">
+        <abstract name="Appartment">
+            <method name="rent"
+                    shouldReturn="true"
+                    hasParams="0" >
+            </method>
+        </abstract>
+        <heirs amount="2">
+            <class name="Flat"></class>
+            <class name="HotelRoom"></class>
+        </heirs>
+    </lab>
+</Labs>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<process>
+    <lab number="1" port="12345"></lab>
+    <lab number="2" port="12346"></lab>
+    <lab number="3" port="12347"></lab>
+    <lab number="4" port="12348"></lab>
+    <lab number="5" port="12349"></lab>
+    <lab number="6" port="12350"></lab>
+    <lab number="7" port="12351"></lab>
+    <lab number="8" port="12352"></lab>
+    <lab number="9" port="12353"></lab>
+    <lab number="10" port="12354"></lab>
+    <lab number="11" port="12355"></lab>
+    <lab number="12" port="12356"></lab>
+    <lab number="13" port="12357"></lab>
+    <lab number="14" port="12358"></lab>
+    <lab number="15" port="12359"></lab>
+</process>

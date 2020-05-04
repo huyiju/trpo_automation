@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <messageType value="1"></messageType>
+    <keys>
+        <lab type="Double" value="7" required="true"></lab>
+        <variant type="Double" range="true" required="true">
+            <start value="1"></start>
+            <end value="15"></end>
+        </variant>
+        <link type="String" severalChecks="true" dependsOn="code">
+            <check value="^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:\/?#[\]@!\$\(\)\*\+,;=.]+$"></check>
+            <check value="https:\/\/github\.com\/.*"></check>
+        </link>
+        <code type="Array" dependsOn="link"></code>
+    </keys>
+</config>
