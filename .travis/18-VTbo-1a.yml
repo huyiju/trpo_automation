@@ -1,0 +1,42 @@
+language: cpp
+os: linux
+compiler: gcc
+dist: trusty
+if: type = pull_request
+cache: ccache
+addons:
+  apt:
+    update: true
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - g++-7
+before_install:
+  - export PATH="/usr/lib/ccache:$PATH"
+  - CC=gcc-7 && CXX=g++-7
+install:
+  - sudo apt-get install -y qt5-default qttools5-dev-tools
+  - sudo apt-get install mesa-common-dev
+  - sudo apt-get install libgl1-mesa-dev
+after_script:
+  - make clean
+jobs:
+  include:
+    - stage: Compile
+      before_script: cd LR/07/src
+      script:
+        - sudo qmake src.pro && make
+    - stage: Unit tests
+      before_script: cd LR/07/tests
+      script:
+        - sudo qmake tests.pro && make
+        - sudo ./tests
+    # - stage: Github Release
+    #   if: branch = dev
+    #   script: skip
+    #   deploy:
+    #     provider: releases
+    #     token: "$GITHUB_OAUTH_TOKEN"
+    #     on:
+    #       branch: dev
+    #       tags: true
