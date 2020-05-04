@@ -186,11 +186,11 @@ void Gateway::checkKeyNonExistance()
  */
 void Gateway::wrongRequestFormat(QString jsonKey, QString text)
 {
-    QJsonObject jsonObj {
-        {"messageType", messageType::WRONG_REQUEST},
-        {"key", jsonKey},
-        {"text", text}
-    };
+    QJsonObject jsonObj;
+
+    jsonObj["messageType"] = messageType::WRONG_REQUEST;
+    jsonObj["key"] = jsonKey;
+    jsonObj["text"] = text;
 
     emit sendToClient(jsonObj);
 }
@@ -201,10 +201,10 @@ void Gateway::wrongRequestFormat(QString jsonKey, QString text)
  */
 void Gateway::processSystemError(QString errorMsg)
 {
-    QJsonObject jsonObj {
-        {"messageType", messageType::SYSTEM_ERROR},
-        {"errorMessage", errorMsg}
-    };
+    QJsonObject jsonObj;
+
+    jsonObj["messageType"] = messageType::SYSTEM_ERROR;
+    jsonObj["errorMessage"] = errorMsg;
 
     emit sendToClient(jsonObj);
 }
@@ -216,10 +216,10 @@ void Gateway::processSystemError(QString errorMsg)
  */
 void Gateway::prepareDataToSend(bool grade, QString comments)
 {
-    QJsonObject jsonObj {
-        {"messageType", messageType::DEFAULT_ANSWER},
-        {"grade", int(grade)}
-    };
+    QJsonObject jsonObj;
+
+    jsonObj["messageType"] = messageType::DEFAULT_ANSWER;
+    jsonObj["grade"] = int(grade);
 
     if (!grade && !comments.isEmpty()) {
         jsonObj.insert("comment", comments);

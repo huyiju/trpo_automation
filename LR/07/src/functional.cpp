@@ -158,7 +158,7 @@ QString Functional::findNameOfClass(int firstIndex)
 {
     QString className;
     int i = 0;
-    while (code[firstIndex] == " ") {
+    while (code[firstIndex] == ' ') {
         firstIndex++;
     }
     while (code[firstIndex] != ' ') {
