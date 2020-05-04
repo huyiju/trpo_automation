@@ -7,6 +7,9 @@
 #include <QObject>
 #include <QtTest/QtTest>
 
+/**
+ * @brief Класс тестирования сервиса Gateway
+ */
 class TestGateway : public QObject
 {
     Q_OBJECT

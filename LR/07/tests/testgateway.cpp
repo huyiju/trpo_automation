@@ -1,24 +1,40 @@
 #include "testgateway.h"
 
+/**
+ * @brief Констркутор
+ * @param parent
+ */
 TestGateway::TestGateway(QObject *parent)
     : QObject(parent)
 {}
 
+/**
+ * @brief Выполняем перед всеми тестами
+ */
 void TestGateway::initTestCase()
 {
     testObj = new Gateway(nullptr);
 }
 
+/**
+ * @brief Почищаем после всех тестов
+ */
 void TestGateway::cleanupTestCase()
 {
     delete testObj;
 }
 
+/**
+ * @brief подчищаем после каждого теста
+ */
 void TestGateway::cleanup()
 {
     inputData.clear();
 }
 
+/**
+ * @brief Положительный тест
+ */
 void TestGateway::validateSuccessful()
 {
     inputData.append("{\"messageType\": 1, \"lab\": 7, \"variant\": 1, \"link\": \"https://github.com/leshastern/strategy4\"}");
@@ -31,6 +47,9 @@ void TestGateway::validateSuccessful()
     }
 }
 
+/**
+ * @brief Отрицательный тест: отсутствует необходимый ключ
+ */
 void TestGateway::requiredKeyDoesNotExist()
 {
     inputData.append("{\"lab\": 7, \"variant\": 1, \"link\": \"https://github.com/leshastern/strategy4\"}");
