@@ -1,0 +1,49 @@
+language: java
+branches:
+  only:
+  - master
+  - 18-VTbo-1b
+  - dev
+jdk:
+- oraclejdk11
+sudo: required
+dist: trusty
+before_install: cd LR/03
+addons:
+  chrome: stable
+before_script:
+- export DISPLAY=:99.0
+- sh -e /etc/init.d/xvfb start
+- sleep 3
+script: mvn install
+install:
+- wget -N http://chromedriver.storage.googleapis.com/2.24/chromedriver_linux64.zip
+  -P ~/
+- unzip ~/chromedriver_linux64.zip -d ~/
+- rm ~/chromedriver_linux64.zip
+- sudo mv -f ~/chromedriver /usr/local/share/
+- sudo chmod +x /usr/local/share/chromedriver
+cache:
+  directories:
+  - "$HOME/.m2"
+after_success:
+- bash <(curl -s https://codecov.io/bash)
+before_deploy:
+    # Set up git user name and tag this commit
+    - git config --local user.name "YOUR GIT USER NAME"
+    - git config --local user.email "YOUR GIT USER EMAIL"
+    - export TRAVIS_TAG=v.0.0.0.29/04/2020
+    - git tag $TRAVIS_TAG
+deploy:
+  api_key:
+    secure: Vd7wEJju6a98I0G1Ubw3qGBlZW7aUKPT57qb/ES2p5lsR+No14+l9YzuwH2SgTPql6zv5t3RlKL27D3WM4PlfYu+0UYkaUv7SFW7nUyLHhJDYwZOn/Z0BxSZYuU39lYOD1k7RclTCe1jVoySY5yWIpg123XJTqEOXzt53qxPS/LnbnaSbH2LUzOCDHGXryP5a6JQ7+mEE77zXOCa2vC3VdhXDFp3qO0NnYsWIDEsDIV598K5qe4sQjHmeadWD2QwEFQrkmzBUhkwA5P7XMDZ4UfTFDK9fV1ZwwjNI+XMVeI+6wZScdgfVuisM1d30TI/FC/KP2v34t6eIivc4sCzoAZnIRGaq+CVZQEhcSNviXIgcEcnqHebWkyNj/XblEwhTrGUzDyHGgdIVaylk/wO5ykPXpBOetffqNu2VuflRUzbRPqrKRNC236+kvhYLLc0HLcGJPwxQpgvQs0jEZZv3o12fefEJchq1Tyv5qiMq9z0idqZvkLa+xWSl47olqqSUMsbSaD3d+7DBCzEB/79ZxeTqpYoCip+wExBn5TLrPrImK5+KRwcgwPyV0UCung/O7hVRS8sGsy7XTh9Dfa07+OHmtro4MRbeIHy52RYInKVsDHdqj1zoP55Cso9UlEK+o+5y1x6xAufOy2GTimjRwWQ468ZXw3fQYjwzvIxicw=
+  skip_cleanup: true
+  provider: releases
+  prerelease: true	
+  name: 18-VTbo-1b
+  file: 
+     - /home/travis/build/Students-of-the-city-of-Kostroma/trpo_automation/LR/03/target/Selen-0.1-jar-with-dependencies.jar
+     - /home/travis/build/Students-of-the-city-of-Kostroma/trpo_automation/LR/03/Repository.xml
+  on:
+    branch: dev
+    condition: $TRAVIS_COMMIT_MESSAGE == *"release"*
