@@ -1,4 +1,3 @@
 version: ~> 1.0
-import:
-  - source: .travis/18-VTbo-1a.yml
-  - source: .travis/18-VTbo-1b.yml
+import: .travis/18-VTbo-1a.yml
+import: .travis/18-VTbo-1b.yml
