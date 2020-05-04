@@ -1,6 +1,4 @@
 version: ~> 1.0
 import:
-- source: .travis/18-VTbo-1b.yml
-  if: branch IN (dev, master, 18-VTbo-1b)
-- source: .travis/18-VTbo-1a.yml
-  if: branch IN (dev, master, 18-VTbo-1a)
+  - .travis/18-VTbo-1b.yml
+  - .travis/18-VTbo-1a.yml
