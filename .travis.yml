@@ -34,7 +34,7 @@ jobs:
       before_script: cd LR/07/tests
       script:
         - sudo qmake tests.pro && make
-        - sudo ./tests.pro
+        - sudo ./tests
     # - stage: Github Release
     #   if: branch = dev
     #   script: skip
