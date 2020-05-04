@@ -1,6 +1,4 @@
 version: ~> 1.0
 import:
 - .travis/18-VTbo-1b.yml
-  if: branch = 18-VTbo-1b
 - .travis/18-VTbo-1a.yml
-  if: branch = 18-VTbo-1a
