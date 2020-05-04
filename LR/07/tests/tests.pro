@@ -1,6 +1,6 @@
-QT += testlib
+QT += testlib network xml
 QT -= gui
-QT += network
+
 SOURCES += \
     testgateway.cpp
 
