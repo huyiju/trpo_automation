@@ -1,4 +1,3 @@
-if: branch = 18-VTbo-1a
 language: cpp
 os: linux
 compiler: gcc
