@@ -34,7 +34,14 @@ void TestGateway::validateSuccessful()
 void TestGateway::requiredKeyDoesNotExist()
 {
     inputData.append("{\"lab\": 7, \"variant\": 1, \"link\": \"https://github.com/leshastern/strategy4\"}");
-    QVERIFY_EXCEPTION_THROWN(testObj->validateData(inputData), WrongRequestException);
+
+    try {
+        testObj->validateData(inputData);
+        QFAIL("Нет обязательного ключа, не выбросил исключение");
+    } catch (WrongRequestException error) {
+//        qCritical() << error.text();
+    }
+//    QVERIFY_EXCEPTION_THROW(testObj->validateData(inputData), WrongRequestException);
 }
 
 QTEST_MAIN(TestGateway)
