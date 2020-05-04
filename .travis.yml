@@ -19,26 +19,28 @@ before_install:
   - export PATH="/usr/lib/ccache:$PATH"
   - CC=gcc-7 && CXX=g++-7
 install:
-  - sudo apt-get install -y qt5-default qttools5-dev-tools
+  - sudo apt-get install -y qtbase-opensource-src qttools5-dev-tools
   - sudo apt-get install mesa-common-dev
+  - sudo apt-get install libgl1-mesa-dev
+after_script:
+  - make clean && rm Makefile
 jobs:
   include:
     - stage: Compile
       before_script: cd LR/07/src
       script:
         - qmake src.pro && make
-        - make clean && rm Makefile
     - stage: Unit tests
       before_script: cd LR/07/tests
       script:
         - sudo qmake tests.pro && make
         - sudo ./tests.pro
-    - stage: Github Release
-      if: branch = dev
-      script: skip
-      deploy:
-        provider: releases
-        token: "$GITHUB_OAUTH_TOKEN"
-        on:
-          branch: dev
-          tags: true
+    # - stage: Github Release
+    #   if: branch = dev
+    #   script: skip
+    #   deploy:
+    #     provider: releases
+    #     token: "$GITHUB_OAUTH_TOKEN"
+    #     on:
+    #       branch: dev
+    #       tags: true
