@@ -1,4 +1,4 @@
-if: branch = 18-VTbo-1a OR branch = dev OR branch = master
+if: branch IN (dev, master, 18-VTbo-1a)
 language: cpp
 os: linux
 compiler: gcc
@@ -27,7 +27,7 @@ jobs:
       before_script: cd LR/07/src
       script:
         - sudo qmake src.pro && make
-    - stage: Unit tests
+    - stage: Unit Tests
       before_script: cd LR/07/tests
       script:
         - sudo qmake tests.pro && make
