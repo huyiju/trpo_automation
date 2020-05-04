@@ -19,7 +19,7 @@ before_install:
   - export PATH="/usr/lib/ccache:$PATH"
   - CC=gcc-7 && CXX=g++-7
 install:
-  - sudo apt-get install -y qtbase-opensource-src qttools5-dev-tools
+  - sudo apt-get install -y qt5-default qttools5-dev-tools qtbase5-dev qtbase5-dev-tools
   - sudo apt-get install mesa-common-dev
   - sudo apt-get install libgl1-mesa-dev
 after_script:
@@ -29,7 +29,7 @@ jobs:
     - stage: Compile
       before_script: cd LR/07/src
       script:
-        - qmake src.pro && make
+        - sudo qmake src.pro && make
     - stage: Unit tests
       before_script: cd LR/07/tests
       script:
