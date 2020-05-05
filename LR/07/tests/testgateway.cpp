@@ -6,36 +6,13 @@
  */
 TestGateway::TestGateway(QObject *parent)
     : QObject(parent)
-{}
-
-/**
- * @brief Выполняем перед всеми тестами
- */
-void TestGateway::initTestCase()
 {
     testObj = new Gateway(nullptr);
 }
-
 /**
- * @brief Почищаем после всех тестов
+ * @brief Тестовая функция отправляет Gateway полностью корректный Json
  */
-void TestGateway::cleanupTestCase()
-{
-    delete testObj;
-}
-
-/**
- * @brief подчищаем после каждого теста
- */
-void TestGateway::cleanup()
-{
-    inputData.clear();
-}
-
-/**
- * @brief Положительный тест
- */
-void TestGateway::validateSuccessful()
+void TestGateway::testTrueData()
 {
     inputData.append("{\"messageType\": 1, \"lab\": 7, \"variant\": 1, \"link\": \"https://github.com/leshastern/strategy4\"}");
 
@@ -46,21 +23,47 @@ void TestGateway::validateSuccessful()
         QFAIL("Эти тесты должны быть пройдены!");
     }
 }
+/**
+ * @brief Тестовая функция осуществляет серию проверок с некорректным вводом
+ */
+void TestGateway::badData()
+{   QTest::addColumn<QByteArray>("jsons");
+
+    QTest::newRow("s1") << QByteArray("S");
+   /** QTest::newRow("11") << inputData.append("{\"messageType\": 1, \"lab\": 7, \"variant\": 1, \"link\": \"yandex.ru\"}");
+    QTest::newRow("12") << inputData.append("{\"messageType\": \"1\", \"lab\": 8, \"variant\": 1, \"link\": \"https://github.com/leshastern/strategy4\"}");
+    QTest::newRow("12") << inputData.append("{\"messageType\": 1, \"lab\": 8, \"variant\": 1, \"link\": \"https://github.com/leshastern/strategy4\"}");
+    QTest::newRow("12") << inputData.append("{\"messageType\": 1, \"lab\": 8, \"variant\": 1, \"link\": \"https://github.com/leshastern/strategy4\"}");
+    QTest::newRow("12") << inputData.append("{\"messageType\": 1, \"lab\": 8, \"variant\": 1, \"link\": \"https://github.com/leshastern/strategy4\"}");
+    QTest::newRow("12") << inputData.append("{\"messageType\": 1, \"lab\": 8, \"variant\": 1, \"link\": \"https://github.com/leshastern/strategy4\"}");
+    QTest::newRow("12") << inputData.append("{\"messageType\": 1, \"lab\": 8, \"variant\": 1, \"link\": \"https://github.com/leshastern/strategy4\"}");
+    QTest::newRow("12") << inputData.append("{\"messageType\": 1, \"lab\": 8, \"variant\": 1, \"link\": \"https://github.com/leshastern/strategy4\"}");
+    QTest::newRow("12") << inputData.append("{\"messageType\": 1, \"lab\": 8, \"variant\": 1, \"link\": \"https://github.com/leshastern/strategy4\"}");
+    QTest::newRow("12") << inputData.append("{\"messageType\": 1, \"lab\": 8, \"variant\": 1, \"link\": \"https://github.com/leshastern/strategy4\"}");
+    QTest::newRow("12") << inputData.append("{\"messageType\": 1, \"lab\": 8, \"variant\": 1, \"link\": \"https://github.com/leshastern/strategy4\"}");
+    QTest::newRow("12") << inputData.append("{\"messageType\": 1, \"lab\": 8, \"variant\": 1, \"link\": \"https://github.com/leshastern/strategy4\"}");
+    QTest::newRow("12") << inputData.append("{\"messageType\": 1, \"lab\": 8, \"variant\": 1, \"link\": \"https://github.com/leshastern/strategy4\"}");
+    QTest::newRow("12") << inputData.append("{\"messageType\": 1, \"lab\": 8, \"variant\": 1, \"link\": \"https://github.com/leshastern/strategy4\"}");
+    */
+
+}
+void TestGateway::testBadData()
+{
+    QFETCH(QByteArray, jsons);
+    try {
+
+      testObj->validateData(jsons);
+      QFAIL("Недопустимые данные");
+    } catch (WrongRequestException error) {
+    }
+}
 
 /**
- * @brief Отрицательный тест: отсутствует необходимый ключ
+ * @brief Почищаем после всех тестов
  */
-void TestGateway::requiredKeyDoesNotExist()
+void TestGateway::cleanupTestCase()
 {
-    inputData.append("{\"lab\": 7, \"variant\": 1, \"link\": \"https://github.com/leshastern/strategy4\"}");
-
-    try {
-        testObj->validateData(inputData);
-        QFAIL("Нет обязательного ключа, не выбросил исключение");
-    } catch (WrongRequestException error) {
-//        qCritical() << error.text();
-    }
-//    QVERIFY_EXCEPTION_THROW(testObj->validateData(inputData), WrongRequestException);
+    delete testObj;
 }
 
 QTEST_MAIN(TestGateway)
