@@ -35,6 +35,7 @@ def MakeAnswersForUsers(letterResult):
     """
     with open(cfg.filename, "a") as file: file.write("\nForming answers for users...")
     answers = []
+    techer = False
     forteacher = PatternsofLetter.ForTeacher
     for i in letterResult:
         if letterResult[i].CodeStatus == "00":
@@ -59,9 +60,11 @@ def MakeAnswersForUsers(letterResult):
             pattern = PatternsofLetter.WorkVerified(letterResult[i].IsOk)
             par = (letterResult[i].Student.NameOfStudent, letterResult[i].NumberOfLab, letterResult[i].VariantOfLab)
             forteacher.add(par)
+            techer = True
         answer = AnwersForUsers(letterResult[i].Student.email, pattern.return_theme(), answers[i])
         answers.append(answer)
     sleep(1)
+    if techer == True
     answer = AnswersForUsers("Teacher email", forteacher.return_theme(), forteacher.return_body())
     answers.append(answer)
     with open(cfg.filename, "a") as file: file.write("Answers for users forms!")
