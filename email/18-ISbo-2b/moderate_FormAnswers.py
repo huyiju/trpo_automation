@@ -65,7 +65,7 @@ def MakeAnswersForUsers(letterResult):
         answers.append(answer)
     sleep(1)
     if techer == True
-    answer = AnswersForUsers("Teacher email", forteacher.return_theme(), forteacher.return_body())
+    answer = AnswersForUsers(cfg.teacher_email, forteacher.return_theme(), forteacher.return_body())
     answers.append(answer)
     with open(cfg.filename, "a") as file: file.write("Answers for users forms!")
     return answers
