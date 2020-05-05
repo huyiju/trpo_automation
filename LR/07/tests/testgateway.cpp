@@ -12,7 +12,7 @@ TestGateway::TestGateway(QObject *parent)
 /**
  * @brief Тестовая функция отправляет Gateway полностью корректный Json
  */
-void TestGateway::testTrueData()
+void TestGateway::testTrueJson()
 {
     inputData.append("{\"messageType\": 1, \"lab\": 7, \"variant\": 1, \"link\": \"https://github.com/leshastern/strategy4\"}");
 
@@ -26,37 +26,42 @@ void TestGateway::testTrueData()
 /**
  * @brief Тестовая функция осуществляет серию проверок с некорректным вводом
  */
-void TestGateway::badData()
+void TestGateway::badJsons_data()
 {   QTest::addColumn<QByteArray>("jsons");
 
-    QTest::newRow("s1") << QByteArray("S");
-   /** QTest::newRow("11") << inputData.append("{\"messageType\": 1, \"lab\": 7, \"variant\": 1, \"link\": \"yandex.ru\"}");
-    QTest::newRow("12") << inputData.append("{\"messageType\": \"1\", \"lab\": 8, \"variant\": 1, \"link\": \"https://github.com/leshastern/strategy4\"}");
-    QTest::newRow("12") << inputData.append("{\"messageType\": 1, \"lab\": 8, \"variant\": 1, \"link\": \"https://github.com/leshastern/strategy4\"}");
-    QTest::newRow("12") << inputData.append("{\"messageType\": 1, \"lab\": 8, \"variant\": 1, \"link\": \"https://github.com/leshastern/strategy4\"}");
-    QTest::newRow("12") << inputData.append("{\"messageType\": 1, \"lab\": 8, \"variant\": 1, \"link\": \"https://github.com/leshastern/strategy4\"}");
-    QTest::newRow("12") << inputData.append("{\"messageType\": 1, \"lab\": 8, \"variant\": 1, \"link\": \"https://github.com/leshastern/strategy4\"}");
-    QTest::newRow("12") << inputData.append("{\"messageType\": 1, \"lab\": 8, \"variant\": 1, \"link\": \"https://github.com/leshastern/strategy4\"}");
-    QTest::newRow("12") << inputData.append("{\"messageType\": 1, \"lab\": 8, \"variant\": 1, \"link\": \"https://github.com/leshastern/strategy4\"}");
-    QTest::newRow("12") << inputData.append("{\"messageType\": 1, \"lab\": 8, \"variant\": 1, \"link\": \"https://github.com/leshastern/strategy4\"}");
-    QTest::newRow("12") << inputData.append("{\"messageType\": 1, \"lab\": 8, \"variant\": 1, \"link\": \"https://github.com/leshastern/strategy4\"}");
-    QTest::newRow("12") << inputData.append("{\"messageType\": 1, \"lab\": 8, \"variant\": 1, \"link\": \"https://github.com/leshastern/strategy4\"}");
-    QTest::newRow("12") << inputData.append("{\"messageType\": 1, \"lab\": 8, \"variant\": 1, \"link\": \"https://github.com/leshastern/strategy4\"}");
-    QTest::newRow("12") << inputData.append("{\"messageType\": 1, \"lab\": 8, \"variant\": 1, \"link\": \"https://github.com/leshastern/strategy4\"}");
-    QTest::newRow("12") << inputData.append("{\"messageType\": 1, \"lab\": 8, \"variant\": 1, \"link\": \"https://github.com/leshastern/strategy4\"}");
-    */
+    QTest::newRow("SendSimpleString") << QByteArray("S");
+    QTest::newRow("SendWrongLink") << QByteArray("{\"messageType\": 1, \"lab\": 7, \"variant\": 1, \"link\": \"yandex.ru\"}");
+    QTest::newRow("SendWrongLabID") << QByteArray("{\"messageType\": 1, \"lab\": 8, \"variant\": 1, \"link\": \"https://github.com/leshastern/strategy4\"}");
+    QTest::newRow("SendStringMsgType") << QByteArray("{\"messageType\": \"1\", \"lab\": 7, \"variant\": 1, \"link\": \"https://github.com/leshastern/strategy4\"}");
+    QTest::newRow("SendWrongMsgType") << QByteArray("{\"messageType\": 3, \"lab\": 7, \"variant\": 1, \"link\": \"https://github.com/leshastern/strategy4\"}");
+    QTest::newRow("SendWithoutExceptedKey")<< QByteArray(" \"lab\": 7, \"variant\": 1, \"link\": \"https://github.com/leshastern/strategy4\"}");
+    QTest::newRow("SendEveryoneKey")<< QByteArray("{\"messageType\": 1, \"lab\": 7, \"variant\": 1, \"link\": \"https://github.com/leshastern/strategy4\", \"code\": 7}");
+    QTest::newRow("SendWithExcessKey")<< QByteArray("{\"messageType\": 1, \"lab\": 7, \"variant\": 1, \"link\": \"https://github.com/leshastern/strategy4\", \"trpo\": false}");
+    QTest::newRow("SendFalseLab")<< QByteArray("{\"messageType\": 1, \"lab\": false, \"variant\": 1, \"link\": \"https://github.com/leshastern/strategy4\"}");
+    QTest::newRow("SendOneKey")<< QByteArray("{\"messageType\": 1}");
+    QTest::newRow("SendTwoKeys")<< QByteArray("{\"messageType\": 1, \"lab\": 7");
+    QTest::newRow("SendThreeKeys")<< QByteArray("{\"messageType\": 1, \"lab\": 7, \"variant\": 1}");
+    QTest::newRow("SendFakeCode")<< QByteArray("{\"messageType\": 1, \"lab\": 7, \"variant\": 1, \"code\": \"https://github.com/leshastern/strategy4\"}");
+    //QTest::newRow("S")<< QByteArray("{\"messageType\": 1, \"lab\": 7, \"variant\": 1, \"link\": \"https://github.com/leshastern/strategy4\"}");
+    //QTest::newRow("S")<< QByteArray("{\"messageType\": 1, \"lab\": 7, \"variant\": 1, \"link\": \"https://github.com/leshastern/strategy4\"}");
+
+
+
 
 }
-void TestGateway::testBadData()
+
+void TestGateway::badJsons()
 {
     QFETCH(QByteArray, jsons);
     try {
-
       testObj->validateData(jsons);
       QFAIL("Недопустимые данные");
     } catch (WrongRequestException error) {
     }
 }
+
+
+
 
 /**
  * @brief Почищаем после всех тестов

@@ -22,9 +22,9 @@ public:
     explicit TestGateway(QObject *parent = nullptr);
 
 private slots:
-    void testTrueData();
-    void badData();
-    void testBadData();
+    void testTrueJson();
+    void badJsons_data();
+    void badJsons();
     void cleanupTestCase();
 };
 
