@@ -16,23 +16,20 @@ class Test_google(unittest.TestCase):
     def test_search_tablic1(self):
         from APIgoogle import search_tablic
         act=search_tablic('18-Исбо-2б','7','Лютый Максим Сергеевич')
-        exp='P6'
-        self.assertEqual(act, exp)
+        self.assertIsNone(act)
     def test_search_tablic2(self):
         from APIgoogle import search_tablic
-        act=search_tablic('18-Исбо-2б','','Лютый Максим Сергеевич')
-        exp='P6'
-        self.assertEqual(act, exp)
+        act=search_tablic('18-Исбо-2а','','Лютый Максим Сергеевич')
+        self.assertIsNone(act)
     def test_search_tablic3(self):
         from APIgoogle import search_tablic
-        act=search_tablic('18-Исбо-2б','7','Смирнов Александр Алексеевич')
-        exp='P6'
+        act=search_tablic('18-Исбо-2а','7','Смирнов Александр Алексеевич')
+        exp='P9'
         self.assertEqual(act, exp)
-    def test_search_tablic3(self):
+    def test_search_tablic4(self):
         from APIgoogle import search_tablic
-        act=search_tablic('18-Исбо-2б','7','')
-        exp='P6'
-        self.assertEqual(act, exp)
+        act=search_tablic('18-Исбо-2а','7','')
+        self.assertIsNone(act)
         
 
 

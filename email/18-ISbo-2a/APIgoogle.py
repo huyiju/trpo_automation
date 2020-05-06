@@ -157,7 +157,7 @@ def get_message(service, user_id):
 
 @log_method.log_method_info
 def email_archiving(service, user_id, message_info):
-     """
+    """
     Архивация сообщения.
     
     service: авторизация через мыло.  
@@ -166,6 +166,7 @@ def email_archiving(service, user_id, message_info):
     """
     msg_labels = {'removeLabelIds': ['UNREAD', 'INBOX'], 
                                      'addLabelIds': []}
+
     message = service.users().messages().modify(userId=user_id,
                                                 id=message_info['id_of_msg'],
                                                 body=msg_labels).execute()
@@ -305,11 +306,14 @@ def search_group(email_id):
             c += 1
         else:
             break
-    nomer = f'List1!F{c}:G{c}'
-    table1 = service.spreadsheets().values().get(
-           spreadsheetId=spreadsheetId, range=nomer).execute()
-    values_finish = table1.get('values')[0]
-    return tuple(values_finish)
+    if c == len(table.get('values'))+1:
+        return None
+    else:
+        nomer = f'List1!F{c}:G{c}'
+        table1 = service.spreadsheets().values().get(
+               spreadsheetId=spreadsheetId, range=nomer).execute()
+        values_finish = table1.get('values')[0]
+        return tuple(values_finish)
 
 
 @log_method.log_method_info

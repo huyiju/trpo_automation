@@ -4,6 +4,7 @@
 # https://aka.ms/yaml
 
 trigger:
+- master
 - 18-ISbo-2a
 
 pool:
@@ -13,14 +14,20 @@ steps:
 
 - task: UsePythonVersion@0
   inputs:
-    versionSpec: '$(python.version)'
+    versionSpec: '3.x'
     architecture: 'x64'
 
 - script: | 
     pip install coverage
+    pip install httplib2
+    pip install requests
+    pip install --upgrade google-api-python-client
+    pip install --upgrade oauth2client
+    pip install google-auth-oauthlib
   displayName: 'Install libraries'
 
 - script: | 
+    cd "email//18-ISbo-2a"
     coverage run -m unittest discover
     coverage xml APIgoogle.py client.py Validation.py
   displayName: 'Run tests'
@@ -28,6 +35,11 @@ steps:
 - task: PublishTestResults@2
   condition: succeededOrFailed()
   inputs:
-    testResultsFiles: 'coverage.xml'
+    testResultsFiles: '**/*.xml'
     testRunTitle: 'Publish test results for Python $(python.version)'
 
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathtoPublish: '$(Build.SourcesDirectory)' 
+    artifactName: 'drop' 
+    publishLocation: 'Container'

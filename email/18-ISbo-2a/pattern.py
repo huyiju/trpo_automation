@@ -62,9 +62,9 @@ MAS_OF_TO = ['yuri.silenok@gmail.com', '0sashasmirnov0@gmail.com',
 
 
 SIGNATURE = "\n\nС уважением,\nБот"
-""""
+"""
 Валидация
-""""
+"""
 
 
 SUBJECT_LIST = ['ТРПО'] # Список предметов
