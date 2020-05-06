@@ -104,16 +104,17 @@ def FormListWithLetters(mails):
         from_mes = get_from(email_message)
         subject_mes = get_subject(email_message)
         user_email = from_parse(from_mes)
+        name = name_parse(from_mes)
         body_str = get_body(email_message)
         body = body_parse(body_str)
         if body == "UNKNOWN":
             error_code = "05"
-        user = User.User(None, None, user_email, None)
+        user = User.User(name, None, user_email, None)
         letter_item = Letter.Letter(user, subject_mes, body, error_code)
         with open(cfg.filename, "a") as file: file.write("Letters forms!")
         return letter_item
     except:
-        user = User.User(None, None, "UNKNOWN", None)
+        user = User.User("UNKNOWN", None, "UNKNOWN", None)
         return Letter.Letter(user, "UNKNOWN", "UNKNOWN", "07")
 
 
@@ -224,6 +225,14 @@ def from_parse(from_mes):
     try:
         user_email = from_mes[from_mes.find("<", 0, len(from_mes))+1:from_mes.find(">", 0, len(from_mes))]
         return user_email
+    except:
+        return "UNKNOWN"
+
+
+def name_parse(from_mes):
+    try:
+        name = from_mes[0:from_mes.find("<", 0, len(from_mes))-1]
+        return name
     except:
         return "UNKNOWN"
 
