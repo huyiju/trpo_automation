@@ -4,7 +4,7 @@ from datetime import datetime
 timer = None
 reserve_dates = None
 filename = ""
-teacher_email = "store.domain@yandex.ru"
+teacher_email = "trpo.help@gmail.com"
 
 def num_for_filename():
     n = 1
