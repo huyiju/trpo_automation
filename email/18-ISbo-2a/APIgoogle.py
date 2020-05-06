@@ -125,10 +125,15 @@ def get_message(service, user_id):
     Метод получения полезной информации из письма студента.
     """
     search_id = service.users().messages().list(userId=user_id,
-                                                labelIds = ['INBOX']).execute()
+                                                labelIds = ['UNREAD']).execute()
     message_id = search_id['messages']
     alone_msg = message_id[0]
     id_of_msg = alone_msg['id']
+    change_label = {'removeLabelIds':['UNREAD'], 'addLabelIds':[]}
+    change_msg_label = service.users().messages().modify(userId=user_id,
+                                                         id=id_of_msg,
+                                                         body=change_label
+                                                        ).execute()
     message_list = service.users().messages().get(userId=user_id, 
                                                   id=id_of_msg,
                                                   format='full').execute()
@@ -159,8 +164,8 @@ def email_archiving(service, user_id, message_info):
     user_id: наше мыло или спец слово 'me'.  
     message_info: словарь с данными письма.
     """
-    msg_labels = {'removeLabelIds': ['UNREAD', 'INBOX'],
-                  'addLabelIds': ['Label_4436622035204509097']}
+    msg_labels = {'removeLabelIds': ['UNREAD', 'INBOX'], 
+                                     'addLabelIds': []}
     message = service.users().messages().modify(userId=user_id,
                                                 id=message_info['id_of_msg'],
                                                 body=msg_labels).execute()
