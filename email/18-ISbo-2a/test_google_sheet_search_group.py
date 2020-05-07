@@ -1,18 +1,19 @@
 import unittest
 import httplib2
 import requests
-import Decode
+import crypto
 import apiclient.discovery
 from oauth2client.service_account import ServiceAccountCredentials
 
 class Test_google(unittest.TestCase):
         
     def setUp(self):
-        Decode.Decode_config('config.py.bak', ['SPREAD_SHEET_ID', 'SPREAD_SHEET_ID_INIT', 'CREDENTIALS_FILE'])
-        Decode.Decode_files(['Example.json.bak'])
+        crypto.decrypt_file('Example.json.bin')
+        crypto.decrypt_file('config.py.bin')
 
     def tearDown(self):
-        Decode.Finish(['config.py', 'Example.json'])
+        crypto.crypt_file('Example.json')
+        crypto.crypt_file('config.py')
 #сделать два метода с известным результатом
     def test_search_group(self):
         from config import SPREAD_SHEET_ID_INIT
