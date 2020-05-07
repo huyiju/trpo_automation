@@ -350,33 +350,29 @@ def search_dolgi(group,position):
     httpAuth = credentials.authorize(httplib2.Http())
     service = apiclient.discovery.build('sheets', 'v4', http=httpAuth)
     c = 0
-    ng = ""
-    b = ord('J')
+    ng = []
+    b = ord('I')
+    i=-1
     c3 = ord(position[1])
-    while(c<8):
+    while(c<20):
         c = c+1
         b = b+1
+        i=i+1
         range_name=group+'!'+chr(b)+chr(c3)+':'+chr(b)+chr(c3)
         table = service.spreadsheets().values().get(
             spreadsheetId=spreadsheetId,
             range=range_name).execute()
-        if(table.get('values')[0][0] == '0'):
-            range_name=group+'!'+chr(b)+'1'+':'+chr(b)+'1'
-            table = service.spreadsheets().values().get(
-                    spreadsheetId=spreadsheetId,
-                    range=range_name).execute()
-            ng = ng+table.get('values')[0][0]
-    y = len(ng)
-    bn = ''
-    if(y > 0):
-        c2 = -1
-        
-    while (y > 0):
-        y = y-1
-        c2 = c2+1
-        bn = (bn+ng[c2])
-    if(len(bn) == 0):
+        try:
+            if(table.get('values')[0][0] == '0'):
+                range_name=group+'!'+chr(b)+'1'+':'+chr(b)+'1'
+                table = service.spreadsheets().values().get(
+                        spreadsheetId=spreadsheetId,
+                        range=range_name).execute()
+                ng.insert(i,table.get('values')[0][0])
+        except:
+            break
+    if(len(ng) == 0):
         return None
-    if(len(bn) > 0):
-        return tuple(bn)
+    if(len(ng) > 0):
+        return ng
  
