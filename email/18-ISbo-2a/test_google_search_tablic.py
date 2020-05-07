@@ -1,12 +1,13 @@
 import unittest
-import Decode
+import crypto
 class Test_google(unittest.TestCase):
     def setUp(self):
-        Decode.Decode_config('config.py.bak', ['SPREAD_SHEET_ID', 'CREDENTIALS_FILE'])
-        Decode.Decode_files(['Example.json.bak'])
+        crypto.decrypt_file('Example.json.bin')
+        crypto.decrypt_file('config.py.bin')
 
     def tearDown(self):
-        Decode.Finish(['config.py', 'Example.json'])
+        crypto.crypt_file('Example.json')
+        crypto.crypt_file('config.py')
 
     def test_search_tablic(self):
         from APIgoogle import search_tablic
