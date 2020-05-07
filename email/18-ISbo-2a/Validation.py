@@ -6,7 +6,7 @@ from pattern import *
 def validation(head_of_msg,body_of_msg):
     Errors_list = [] # Список ошибок
     for x in SUBJECT_LIST: # Проверка на название предмета
-        a = head_of_msg.find(x)
+        a = head_of_msg.lower().find(x)
         if a != -1:
             break
     if a == -1:
@@ -14,7 +14,7 @@ def validation(head_of_msg,body_of_msg):
                                    item is incorrect.')
         Errors_list.append('неверно указано название предмета')
     for x in SUBJECTNUMBER_LIST: # Проверка на номер лабораторной
-        a = head_of_msg.find(x)
+        a = head_of_msg.lower().find(x)
         if a != -1:
             a = head_of_msg.find('№')
             Number=head_of_msg[a+1]
@@ -25,7 +25,7 @@ def validation(head_of_msg,body_of_msg):
         Errors_list.append('неверно указан номер ЛР')
         Number = None
     for x in GREATING_LIST: # Проверка на приветствие 
-        a = body_of_msg.find(x)
+        a = body_of_msg.lower().find(x)
         if a != -1:
             break
     if a == -1:
@@ -45,8 +45,7 @@ def validation(head_of_msg,body_of_msg):
     
 @log_method.log_method_info
 def url_cheack(Number,body_of_msg): # Проверка на наличие URL. Возврат ссылки.
-    SubjectNumberURL_list = ['7', '8', '9'] # Список ЛР c URL
-    for x in SubjectNumberURL_list:  # Проверка на содержание URL
+    for x in SUBJECTNUMBERURL_LIST:  # Проверка на содержание URL
         if Number == x:
             a = body_of_msg.find('http')
             counter = 0
