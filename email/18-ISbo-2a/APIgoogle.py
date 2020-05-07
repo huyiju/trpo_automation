@@ -370,7 +370,7 @@ def search_dolgi(group,position):
                         range=range_name).execute()
                 ng.insert(i,table.get('values')[0][0])
         except:
-            break
+            ng.insert(i,str(i+1))
     if(len(ng) == 0):
         return None
     if(len(ng) > 0):
