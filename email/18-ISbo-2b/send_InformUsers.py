@@ -25,7 +25,7 @@ def InformUsers(answersForUsers):
     FormFilename()
 
 
-def SendLetters(answersForUsers):
+def SendLetters(smtp_obj, answersForUsers):
     """
      Функционал:
     - Разослать письма пользователям
@@ -39,15 +39,26 @@ def SendLetters(answersForUsers):
     Участвующие внешние типы переменных
     - None
     """
-    mes = EmailMessage()
-    mes['From'] = "ТРПО ИАСТ"
-    mes['To'] = answersForUsers.Who
-    mes['Subject'] = answersForUsers.Theme
-    mes.set_content(answersForUsers.Body)
-    smtpObj.send_message(mes)
-    with open(cfg.filename, "a") as file: file.write("\nSetting letters for users...")
-    sleep(1)
-    with open(cfg.filename, "a") as file: file.write("Letters send!")
+    for i in answersForUsers:
+        send_mes(smtp_obj, i)
+
+
+def send_mes(smtp_obj, message):
+    try:
+        with open(cfg.filename, "a") as file:
+            file.write("\nSetting letter for users...")
+        sleep(1)
+        mes = EmailMessage()
+        mes['From'] = "ТРПО ИАСТ"
+        mes['To'] = message.Who
+        mes['Subject'] = message.Theme
+        mes.set_content(message.Body)
+        smtp_obj.send_message(mes)
+        with open(cfg.filename, "a") as file:
+            file.write("\nLetter send!")
+    except:
+        with open(cfg.filename, "a") as file:
+            file.write("\nSending message error!")
 
 def ArchiveLetters():
     """
