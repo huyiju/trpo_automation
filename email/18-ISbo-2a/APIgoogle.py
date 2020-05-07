@@ -334,3 +334,49 @@ def search_tablic(group, laba, surname):
         return None
     else:
         return position
+
+    
+def search_dolgi(group,position):
+    """
+    Метод для поиска долгов 
+    group=(ТРПО) название группы
+    position='J7' позиция студента в таблице
+    """
+    spreadsheetId = SPREAD_SHEET_ID
+    credentials = ServiceAccountCredentials.from_json_keyfile_name(
+                CREDENTIALS_FILE,
+                ['https://www.googleapis.com/auth/spreadsheets',
+                 'https://www.googleapis.com/auth/drive'])
+    httpAuth = credentials.authorize(httplib2.Http())
+    service = apiclient.discovery.build('sheets', 'v4', http=httpAuth)
+    c = 0
+    ng = ""
+    b = ord('J')
+    c3 = ord(position[1])
+    while(c<8):
+        c = c+1
+        b = b+1
+        range_name=group+'!'+chr(b)+chr(c3)+':'+chr(b)+chr(c3)
+        table = service.spreadsheets().values().get(
+            spreadsheetId=spreadsheetId,
+            range=range_name).execute()
+        if(table.get('values')[0][0] == '0'):
+            range_name=group+'!'+chr(b)+'1'+':'+chr(b)+'1'
+            table = service.spreadsheets().values().get(
+                    spreadsheetId=spreadsheetId,
+                    range=range_name).execute()
+            ng = ng+table.get('values')[0][0]
+    y = len(ng)
+    bn = ''
+    if(y > 0):
+        c2 = -1
+        
+    while (y > 0):
+        y = y-1
+        c2 = c2+1
+        bn = (bn+ng[c2])
+    if(len(bn) == 0):
+        return None
+    if(len(bn) > 0):
+        return tuple(bn)
+ 
